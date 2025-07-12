@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSCameraUsageDescription</key>
+	<string>PokerTiles needs screen recording access to capture poker table content for analysis and overlay positioning.</string>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>PokerTiles needs accessibility access to detect and interact with poker tables in web browsers.</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>CFBundleDisplayName</key>
+	<string>PokerTiles</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.olsevskas.PokerTiles</string>
+	<key>CFBundleVersion</key>
+	<string>0.1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>15.0</string>
+</dict>
+</plist>

@@ -1,0 +1,36 @@
+# Xcode
+.DS_Store
+*.xcodeproj/*.xcworkspace/
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
+*.xcarchive/
+*.ipa
+*.app
+*.dSYM
+*.o
+*.a
+*.swp
+*~.nib
+
+# CocoaPods
+Pods/
+
+# Swift Package Manager
+.swiftpm/
+
+# User-specific settings (usually not shared)
+*.xcuserdatad/
+*.xcuserstate
+*.xcscheme
+
+# General
+.localized
+.Trashes
+.Spotlight-V100
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.com.apple.timemachine.donotbackup
+.AppleDouble
+.LSOverride

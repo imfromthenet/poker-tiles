@@ -1,0 +1,65 @@
+// PokerTiles Build Configuration
+// Optimizations for parallel building
+
+// Build Settings for Parallel Compilation
+// ========================================
+
+// Enable parallel builds
+BuildIndependentTargetsInParallel = YES
+
+// Swift Compiler - Code Generation
+SWIFT_COMPILATION_MODE = wholemodule
+SWIFT_ENABLE_BATCH_MODE = YES
+SWIFT_WHOLE_MODULE_OPTIMIZATION = YES
+
+// Increase parallel compilation jobs
+SWIFT_DRIVER_ARGUMENTS = -j8
+
+// Enable incremental compilation
+SWIFT_ENABLE_INCREMENTAL_COMPILATION = YES
+
+// Module Settings
+CLANG_ENABLE_MODULES = YES
+CLANG_ENABLE_MODULE_DEBUGGING = NO
+SWIFT_ENABLE_EXPLICIT_MODULES = YES
+
+// Build Active Resources Only
+BUILD_ACTIVE_RESOURCES_ONLY = YES
+
+// Precompiled Headers
+GCC_PRECOMPILE_PREFIX_HEADER = NO
+ENABLE_HEADER_DEPENDENCIES = YES
+
+// Index While Building
+COMPILER_INDEX_STORE_ENABLE = YES
+
+// Build Optimizations
+ONLY_ACTIVE_ARCH = YES
+ENABLE_TESTABILITY = NO
+
+// Swift Optimization Level (Debug)
+SWIFT_OPTIMIZATION_LEVEL[config=Debug] = -Onone
+// Swift Optimization Level (Release)
+SWIFT_OPTIMIZATION_LEVEL[config=Release] = -O
+
+// Disable unnecessary build steps
+STRIP_INSTALLED_PRODUCT = NO
+COPY_PHASE_STRIP = NO
+
+// Asset Catalog Optimizations
+ASSETCATALOG_COMPILER_OPTIMIZATION = time
+
+// Link Time Optimization
+LLVM_LTO = NO
+
+// Dead Code Stripping
+DEAD_CODE_STRIPPING = NO
+
+// Cache Settings
+CLANG_CACHE_FINE_GRAINED_OUTPUTS = YES
+
+// Minimize Dependencies
+ALWAYS_SEARCH_USER_PATHS = NO
+
+// Additional Linker Flags for faster linking
+OTHER_LDFLAGS = -Xlinker -no_deduplicate

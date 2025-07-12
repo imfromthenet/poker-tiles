@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__XcodeBuildMCP__discover_projs",
+      "mcp__XcodeBuildMCP__build_mac_proj",
+      "mcp__XcodeBuildMCP__build_sim_name_proj",
+      "Bash(xcodebuild:*)",
+      "mcp__XcodeBuildMCP__list_sims",
+      "mcp__XcodeBuildMCP__build_sim_id_proj",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:developer.apple.com)",
+      "mcp__XcodeBuildMCP__build_sim_name_ws",
+      "Bash(gemini:*)",
+      "Bash(mkdir:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:www.intuitivetables.com)",
+      "WebFetch(domain:www.jurojinpoker.com)",
+      "mcp__XcodeBuildMCP__build_run_mac_proj",
+      "mcp__XcodeBuildMCP__show_build_set_proj"
+    ],
+    "deny": []
+  }
+}
