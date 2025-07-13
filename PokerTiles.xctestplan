@@ -1,0 +1,72 @@
+{
+  "configurations" : [
+    {
+      "id" : "7F2D8E9A-3C5B-4A8E-9D1F-6B4E2C9A5F8D",
+      "name" : "Test Scheme Action",
+      "options" : {
+        "targetForVariableExpansion" : {
+          "containerPath" : "container:PokerTiles.xcodeproj",
+          "identifier" : "FCB7DDDD2E166FB300ECE580",
+          "name" : "PokerTiles"
+        }
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:PokerTiles.xcodeproj",
+          "identifier" : "FCB7DDDD2E166FB300ECE580",
+          "name" : "PokerTiles"
+        }
+      ]
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:PokerTiles.xcodeproj",
+        "identifier" : "PokerTilesTests",
+        "name" : "PokerTilesTests"
+      },
+      "testGroups" : [
+        {
+          "name" : "Unit Tests",
+          "tests" : [
+            {
+              "identifier" : "PokerAppTests",
+              "name" : "PokerAppTests"
+            },
+            {
+              "identifier" : "PokerTableTests",
+              "name" : "PokerTableTests"
+            },
+            {
+              "identifier" : "PokerTableDetectorTests",
+              "name" : "PokerTableDetectorTests"
+            }
+          ]
+        },
+        {
+          "name" : "Integration Tests",
+          "tests" : [
+            {
+              "identifier" : "WindowManagerIntegrationTests",
+              "name" : "WindowManagerIntegrationTests"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target" : {
+        "containerPath" : "container:PokerTiles.xcodeproj",
+        "identifier" : "PokerTilesUITests",
+        "name" : "PokerTilesUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

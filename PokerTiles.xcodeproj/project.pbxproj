@@ -9,25 +9,77 @@
 /* Begin PBXBuildFile section */
 		EF4E4A2F2E22785500F1C677 /* PokerTiles.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = EF4E4A2E2E22785500F1C677 /* PokerTiles.xcconfig */; };
 		EF4E4A392E22787000F1C677 /* PokerTilesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A372E22787000F1C677 /* PokerTilesApp.swift */; };
-		EF4E4A3A2E22787000F1C677 /* WindowManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A312E22787000F1C677 /* WindowManagerTests.swift */; };
 		EF4E4A3B2E22787000F1C677 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A352E22787000F1C677 /* ContentView.swift */; };
 		EF4E4A3C2E22787000F1C677 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A302E22787000F1C677 /* WindowManager.swift */; };
 		EF4E4A3D2E22787000F1C677 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF4E4A342E22787000F1C677 /* Assets.xcassets */; };
 		EF4E4A3E2E22787000F1C677 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF4E4A362E22787000F1C677 /* Info.plist */; };
+		EF96C0C12E2380ED002C106F /* PokerTiles.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */; };
+		EF96C0C22E2380ED002C106F /* PokerTiles.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */; };
+		EF96C0C32E2380ED002C106F /* PokerTiles.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */; };
+		EF96C0C52E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
+		EF96C0C62E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
+		EF96C0C72E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EF96C0A02E238031002C106F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB7DDD62E166FB300ECE580 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FCB7DDDD2E166FB300ECE580;
+			remoteInfo = PokerTiles;
+		};
+		EF96C0BA2E238052002C106F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB7DDD62E166FB300ECE580 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FCB7DDDD2E166FB300ECE580;
+			remoteInfo = PokerTiles;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		EF4E4A2E2E22785500F1C677 /* PokerTiles.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PokerTiles.xcconfig; sourceTree = "<group>"; };
 		EF4E4A302E22787000F1C677 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
-		EF4E4A312E22787000F1C677 /* WindowManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManagerTests.swift; sourceTree = "<group>"; };
 		EF4E4A342E22787000F1C677 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EF4E4A352E22787000F1C677 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EF4E4A362E22787000F1C677 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EF4E4A372E22787000F1C677 /* PokerTilesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerTilesApp.swift; sourceTree = "<group>"; };
-		FCB7DDDE2E166FB300ECE580 /* PokerTiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = PokerTiles.app; path = /Users/op/dev/personal/PokerTiles/build/Debug/PokerTiles.app; sourceTree = "<absolute>"; };
+		EF96C0972E229491002C106F /* PokerTiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokerTiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF96C09C2E238030002C106F /* PokerTilesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PokerTilesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF96C0B42E238052002C106F /* PokerTilesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PokerTilesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PokerTiles.xctestplan; sourceTree = "<group>"; };
+		EF96C0C42E238130002C106F /* run-tests.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-tests.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		EF96C09D2E238031002C106F /* PokerTilesTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PokerTilesTests;
+			sourceTree = "<group>";
+		};
+		EF96C0B52E238052002C106F /* PokerTilesUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PokerTilesUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		EF96C0992E238030002C106F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF96C0B12E238052002C106F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB7DDDB2E166FB300ECE580 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,7 +94,6 @@
 			isa = PBXGroup;
 			children = (
 				EF4E4A302E22787000F1C677 /* WindowManager.swift */,
-				EF4E4A312E22787000F1C677 /* WindowManagerTests.swift */,
 			);
 			path = WindowManager;
 			sourceTree = "<group>";
@@ -70,14 +121,67 @@
 		FCB7DDD52E166FB300ECE580 = {
 			isa = PBXGroup;
 			children = (
+				EF96C0C42E238130002C106F /* run-tests.sh */,
+				EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */,
 				EF4E4A2E2E22785500F1C677 /* PokerTiles.xcconfig */,
 				EF4E4A382E22787000F1C677 /* PokerTiles */,
+				EF96C0972E229491002C106F /* PokerTiles.app */,
+				EF96C09C2E238030002C106F /* PokerTilesTests.xctest */,
+				EF96C09D2E238031002C106F /* PokerTilesTests */,
+				EF96C0B42E238052002C106F /* PokerTilesUITests.xctest */,
+				EF96C0B52E238052002C106F /* PokerTilesUITests */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		EF96C09B2E238030002C106F /* PokerTilesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF96C0A42E238031002C106F /* Build configuration list for PBXNativeTarget "PokerTilesTests" */;
+			buildPhases = (
+				EF96C0982E238030002C106F /* Sources */,
+				EF96C0992E238030002C106F /* Frameworks */,
+				EF96C09A2E238030002C106F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EF96C0A12E238031002C106F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EF96C09D2E238031002C106F /* PokerTilesTests */,
+			);
+			name = PokerTilesTests;
+			packageProductDependencies = (
+			);
+			productName = PokerTilesTests;
+			productReference = EF96C09C2E238030002C106F /* PokerTilesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EF96C0B32E238052002C106F /* PokerTilesUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF96C0BC2E238052002C106F /* Build configuration list for PBXNativeTarget "PokerTilesUITests" */;
+			buildPhases = (
+				EF96C0B02E238052002C106F /* Sources */,
+				EF96C0B12E238052002C106F /* Frameworks */,
+				EF96C0B22E238052002C106F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EF96C0BB2E238052002C106F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EF96C0B52E238052002C106F /* PokerTilesUITests */,
+			);
+			name = PokerTilesUITests;
+			packageProductDependencies = (
+			);
+			productName = PokerTilesUITests;
+			productReference = EF96C0B42E238052002C106F /* PokerTilesUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		FCB7DDDD2E166FB300ECE580 /* PokerTiles */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FCB7DDE92E166FB400ECE580 /* Build configuration list for PBXNativeTarget "PokerTiles" */;
@@ -94,7 +198,7 @@
 			packageProductDependencies = (
 			);
 			productName = PockerTile;
-			productReference = FCB7DDDE2E166FB300ECE580 /* PokerTiles.app */;
+			productReference = EF96C0972E229491002C106F /* PokerTiles.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -104,9 +208,17 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					EF96C09B2E238030002C106F = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = FCB7DDDD2E166FB300ECE580;
+					};
+					EF96C0B32E238052002C106F = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = FCB7DDDD2E166FB300ECE580;
+					};
 					FCB7DDDD2E166FB300ECE580 = {
 						CreatedOnToolsVersion = 26.0;
 					};
@@ -127,30 +239,65 @@
 			projectRoot = "";
 			targets = (
 				FCB7DDDD2E166FB300ECE580 /* PokerTiles */,
+				EF96C09B2E238030002C106F /* PokerTilesTests */,
+				EF96C0B32E238052002C106F /* PokerTilesUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		EF96C09A2E238030002C106F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF96C0C12E2380ED002C106F /* PokerTiles.xctestplan in Resources */,
+				EF96C0C62E238130002C106F /* run-tests.sh in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF96C0B22E238052002C106F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF96C0C52E238130002C106F /* run-tests.sh in Resources */,
+				EF96C0C22E2380ED002C106F /* PokerTiles.xctestplan in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB7DDDC2E166FB300ECE580 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				EF4E4A3D2E22787000F1C677 /* Assets.xcassets in Resources */,
 				EF4E4A3E2E22787000F1C677 /* Info.plist in Resources */,
+				EF96C0C72E238130002C106F /* run-tests.sh in Resources */,
 				EF4E4A2F2E22785500F1C677 /* PokerTiles.xcconfig in Resources */,
+				EF96C0C32E2380ED002C106F /* PokerTiles.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		EF96C0982E238030002C106F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF96C0B02E238052002C106F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB7DDDA2E166FB300ECE580 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				EF4E4A392E22787000F1C677 /* PokerTilesApp.swift in Sources */,
-				EF4E4A3A2E22787000F1C677 /* WindowManagerTests.swift in Sources */,
 				EF4E4A3B2E22787000F1C677 /* ContentView.swift in Sources */,
 				EF4E4A3C2E22787000F1C677 /* WindowManager.swift in Sources */,
 			);
@@ -158,7 +305,90 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		EF96C0A12E238031002C106F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FCB7DDDD2E166FB300ECE580 /* PokerTiles */;
+			targetProxy = EF96C0A02E238031002C106F /* PBXContainerItemProxy */;
+		};
+		EF96C0BB2E238052002C106F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FCB7DDDD2E166FB300ECE580 /* PokerTiles */;
+			targetProxy = EF96C0BA2E238052002C106F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		EF96C0A22E238031002C106F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PSCV7M7H8D;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = watt.PokerTilesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PokerTiles.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PokerTiles";
+			};
+			name = Debug;
+		};
+		EF96C0A32E238031002C106F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PSCV7M7H8D;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = watt.PokerTilesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PokerTiles.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PokerTiles";
+			};
+			name = Release;
+		};
+		EF96C0BD2E238052002C106F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PSCV7M7H8D;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = watt.PokerTilesUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = PokerTiles;
+			};
+			name = Debug;
+		};
+		EF96C0BE2E238052002C106F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PSCV7M7H8D;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = watt.PokerTilesUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = PokerTiles;
+			};
+			name = Release;
+		};
 		FCB7DDE72E166FB400ECE580 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -352,6 +582,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EF96C0A42E238031002C106F /* Build configuration list for PBXNativeTarget "PokerTilesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF96C0A22E238031002C106F /* Debug */,
+				EF96C0A32E238031002C106F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF96C0BC2E238052002C106F /* Build configuration list for PBXNativeTarget "PokerTilesUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF96C0BD2E238052002C106F /* Debug */,
+				EF96C0BE2E238052002C106F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FCB7DDD92E166FB300ECE580 /* Build configuration list for PBXProject "PokerTiles" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

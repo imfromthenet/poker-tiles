@@ -31,8 +31,13 @@ struct ContentView: View {
                     windowManager: windowManager
                 )
                 
-                if !windowManager.getAppWindows().isEmpty {
-                    WindowGridSection(windowManager: windowManager)
+                if !windowManager.pokerTables.isEmpty {
+                    PokerTableSection(windowManager: windowManager)
+                } else if !windowManager.getPokerAppWindows().isEmpty {
+                    Text("No poker tables detected. Open a poker table to see it here.")
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
                 }
             }
         }
@@ -110,8 +115,13 @@ struct WindowStatisticsSection: View {
                 )
                 
                 StatisticRow(
-                    label: "Browser Windows:",
-                    value: "\(windowManager.getBrowserWindows().count)"
+                    label: "Poker App Windows:",
+                    value: "\(windowManager.getPokerAppWindows().count)"
+                )
+                
+                StatisticRow(
+                    label: "Poker Tables:",
+                    value: "\(windowManager.pokerTables.count)"
                 )
             }
         }
@@ -150,7 +160,7 @@ struct ActionsSection: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(windowManager.isScanning)
                 
-                Button("Test") {
+                Button("Test Detection") {
                     testTriggerId = UUID()
                 }
                 .buttonStyle(.bordered)
@@ -165,133 +175,119 @@ struct ActionsSection: View {
         }
         .task(id: testTriggerId) {
             if testTriggerId != nil {
-                await windowManager.testWindowCounting()
+                await windowManager.testPokerDetection()
             }
         }
     }
 }
 
-// MARK: - Window Grid Section
-struct WindowGridSection: View {
+// MARK: - Poker Table Section
+struct PokerTableSection: View {
     let windowManager: WindowManager
     
     var body: some View {
-        Section("Window Grid") {
-            LazyVGrid(columns: [
-                GridItem(.adaptive(minimum: 120), spacing: 8)
-            ], spacing: 8) {
-                ForEach(windowManager.getAppWindows()) { window in
-                    WindowCardView(
-                        window: window,
-                        isBrowserWindow: windowManager.getBrowserWindows().contains(where: { $0.id == window.id }),
+        Section("Active Poker Tables") {
+            VStack(spacing: 12) {
+                ForEach(windowManager.pokerTables) { table in
+                    PokerTableRow(
+                        table: table,
                         onTap: {
-                            windowManager.bringWindowToFront(window)
+                            windowManager.bringWindowToFront(table.windowInfo)
                         }
                     )
                 }
             }
-            .padding(.horizontal, 4)
+            .padding(.vertical, 4)
         }
     }
 }
 
-// MARK: - Window Card View
-struct WindowCardView: View {
-    let window: WindowManager.WindowInfo
-    let isBrowserWindow: Bool
+// MARK: - Poker Table Row
+struct PokerTableRow: View {
+    let table: PokerTable
     let onTap: () -> Void
     
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 6) {
-                WindowThumbnail(thumbnail: window.thumbnail)
-                WindowInfo(window: window)
-                WindowIndicators(
-                    isOnScreen: window.isOnScreen,
-                    isBrowserWindow: isBrowserWindow
-                )
+            HStack(spacing: 12) {
+                // App Icon
+                VStack {
+                    Image(systemName: "suit.spade.fill")
+                        .font(.title2)
+                        .foregroundColor(appColor(for: table.pokerApp))
+                    Text(table.pokerApp.rawValue)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 60)
+                
+                // Table Info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(table.windowInfo.title)
+                        .font(.headline)
+                        .lineLimit(1)
+                    
+                    HStack {
+                        Label(table.tableType.displayName, systemImage: tableTypeIcon(for: table.tableType))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        if table.isActive {
+                            Spacer()
+                            Label("Active", systemImage: "eye.fill")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                // Thumbnail
+                if let thumbnail = table.windowInfo.thumbnail {
+                    Image(nsImage: thumbnail)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 80, height: 60)
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.gray.opacity(0.05))
+            .cornerRadius(8)
         }
         .buttonStyle(.plain)
-        .padding(8)
-        .background(Color.gray.opacity(0.05))
-        .cornerRadius(8)
     }
-}
-
-// MARK: - Window Thumbnail
-struct WindowThumbnail: View {
-    let thumbnail: NSImage?
     
-    var body: some View {
-        Group {
-            if let thumbnail = thumbnail {
-                Image(nsImage: thumbnail)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 100, height: 75)
-                    .background(Color.white)
-                    .cornerRadius(6)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
-            } else {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(width: 100, height: 75)
-                    .overlay(
-                        Image(systemName: "photo")
-                            .foregroundColor(.gray)
-                            .font(.title2)
-                    )
-            }
+    private func appColor(for app: PokerApp) -> Color {
+        switch app {
+        case .pokerStars: return .red
+        case .poker888: return .green
+        case .ggPoker: return .orange
+        case .partyPoker: return .blue
+        case .winamax: return .purple
+        case .ignition: return .yellow
+        case .acr: return .cyan
+        case .unknown: return .gray
+        }
+    }
+    
+    private func tableTypeIcon(for type: PokerTable.TableType) -> String {
+        switch type {
+        case .cash: return "dollarsign.circle"
+        case .tournament: return "trophy"
+        case .sitAndGo: return "clock"
+        case .fastFold: return "bolt"
+        case .unknown: return "questionmark.circle"
         }
     }
 }
 
-// MARK: - Window Info
-struct WindowInfo: View {
-    let window: WindowManager.WindowInfo
-    
-    var body: some View {
-        VStack(spacing: 2) {
-            Text(window.title.isEmpty ? "Untitled" : window.title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.primary)
-            
-            Text(window.appName)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-        }
-    }
-}
-
-// MARK: - Window Indicators
-struct WindowIndicators: View {
-    let isOnScreen: Bool
-    let isBrowserWindow: Bool
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            if isOnScreen {
-                Image(systemName: "eye.fill")
-                    .foregroundColor(.green)
-                    .font(.caption2)
-            }
-            
-            if isBrowserWindow {
-                Image(systemName: "globe")
-                    .foregroundColor(.blue)
-                    .font(.caption2)
-            }
-        }
-    }
-}
 
 #Preview {
     ContentView()

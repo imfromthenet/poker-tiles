@@ -19,7 +19,9 @@
       "WebFetch(domain:www.intuitivetables.com)",
       "WebFetch(domain:www.jurojinpoker.com)",
       "mcp__XcodeBuildMCP__build_run_mac_proj",
-      "mcp__XcodeBuildMCP__show_build_set_proj"
+      "mcp__XcodeBuildMCP__show_build_set_proj",
+      "Bash(ls:*)",
+      "Bash(swift:*)"
     ],
     "deny": []
   }
