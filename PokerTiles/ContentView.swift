@@ -247,17 +247,14 @@ struct AutoScanSection: View {
                             }
                         }
                     )
-                    Text("\(tempInterval, specifier: "%.2f")s")
-                        .frame(width: 50)
-                }
-                
-                if windowManager.isScanning {
-                    HStack {
+                    HStack(spacing: 8) {
+                        Text("\(tempInterval, specifier: "%.2f")s")
                         ProgressView()
-                            .scaleEffect(0.8)
-                        Text("Scanning...")
-                            .foregroundColor(.secondary)
+                            .scaleEffect(0.5)
+                            .frame(width: 8, height: 8)
+                            .opacity(windowManager.isScanning ? 1.0 : 0.0)
                     }
+                    .frame(width: 65)
                 }
             }
         }
