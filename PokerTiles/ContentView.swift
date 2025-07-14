@@ -225,7 +225,7 @@ struct StatisticRow: View {
 // MARK: - Auto Scan Section
 struct AutoScanSection: View {
     let windowManager: WindowManager
-    @State private var tempInterval: Double = 3.0
+    @State private var tempInterval: Double = 1.0
     
     var body: some View {
         Section("Auto Scan") {
@@ -239,16 +239,16 @@ struct AutoScanSection: View {
                     Text("Scan Interval:")
                     Slider(
                         value: $tempInterval,
-                        in: 1...10,
-                        step: 0.5,
+                        in: 0.01...5,
+                        step: 0.01,
                         onEditingChanged: { editing in
                             if !editing {
                                 windowManager.setAutoScanInterval(tempInterval)
                             }
                         }
                     )
-                    Text("\(tempInterval, specifier: "%.1f")s")
-                        .frame(width: 40)
+                    Text("\(tempInterval, specifier: "%.2f")s")
+                        .frame(width: 50)
                 }
                 
                 if windowManager.isScanning {

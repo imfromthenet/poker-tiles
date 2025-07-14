@@ -21,7 +21,7 @@ class WindowManager {
     var hasPermission: Bool { permissionState.hasAccess }
     var isScanning: Bool = false
     var isAutoScanEnabled: Bool = true
-    var autoScanInterval: TimeInterval = 3.0 // Default 3 seconds
+    var autoScanInterval: TimeInterval = 1.0 // Default 1 second
     
     let pokerTableDetector = PokerTableDetector()
     var pokerTables: [PokerTable] = []
@@ -127,7 +127,7 @@ class WindowManager {
     }
     
     func setAutoScanInterval(_ interval: TimeInterval) {
-        autoScanInterval = max(1.0, interval) // Minimum 1 second
+        autoScanInterval = max(0.01, interval) // Minimum 0.01 seconds
         if isAutoScanEnabled {
             startAutoScan() // Restart with new interval
         }

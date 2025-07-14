@@ -25,7 +25,7 @@ final class AutoScanTests: XCTestCase {
     
     func testAutoScanEnabledByDefault() {
         XCTAssertTrue(windowManager.isAutoScanEnabled)
-        XCTAssertEqual(windowManager.autoScanInterval, 3.0)
+        XCTAssertEqual(windowManager.autoScanInterval, 1.0)
     }
     
     func testSetAutoScanEnabled() {
@@ -40,16 +40,20 @@ final class AutoScanTests: XCTestCase {
     
     func testSetAutoScanInterval() {
         // Test setting valid interval
-        windowManager.setAutoScanInterval(5.0)
-        XCTAssertEqual(windowManager.autoScanInterval, 5.0)
+        windowManager.setAutoScanInterval(2.5)
+        XCTAssertEqual(windowManager.autoScanInterval, 2.5)
         
         // Test minimum interval enforcement
-        windowManager.setAutoScanInterval(0.5)
-        XCTAssertEqual(windowManager.autoScanInterval, 1.0)
+        windowManager.setAutoScanInterval(0.005)
+        XCTAssertEqual(windowManager.autoScanInterval, 0.01)
         
         // Test negative interval gets clamped to minimum
         windowManager.setAutoScanInterval(-5.0)
-        XCTAssertEqual(windowManager.autoScanInterval, 1.0)
+        XCTAssertEqual(windowManager.autoScanInterval, 0.01)
+        
+        // Test very small positive value
+        windowManager.setAutoScanInterval(0.02)
+        XCTAssertEqual(windowManager.autoScanInterval, 0.02)
     }
     
     func testAutoScanStartsOnInit() async {
