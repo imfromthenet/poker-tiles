@@ -25,6 +25,8 @@ struct ContentView: View {
             } else {
                 WindowStatisticsSection(windowManager: windowManager)
                 
+                AutoScanSection(windowManager: windowManager)
+                
                 ActionsSection(
                     scanTriggerId: $scanTriggerId,
                     testTriggerId: $testTriggerId,
@@ -44,9 +46,6 @@ struct ContentView: View {
         .formStyle(.grouped)
         .task(id: "initial_setup") {
             windowManager.checkPermissions()
-            if windowManager.hasPermission {
-                await windowManager.scanWindows()
-            }
         }
         .task {
             // Periodically check permissions in case they're revoked
@@ -223,6 +222,51 @@ struct StatisticRow: View {
     }
 }
 
+// MARK: - Auto Scan Section
+struct AutoScanSection: View {
+    let windowManager: WindowManager
+    @State private var tempInterval: Double = 3.0
+    
+    var body: some View {
+        Section("Auto Scan") {
+            Toggle("Enable Automatic Scanning", isOn: Binding(
+                get: { windowManager.isAutoScanEnabled },
+                set: { windowManager.setAutoScanEnabled($0) }
+            ))
+            
+            if windowManager.isAutoScanEnabled {
+                HStack {
+                    Text("Scan Interval:")
+                    Slider(
+                        value: $tempInterval,
+                        in: 1...10,
+                        step: 0.5,
+                        onEditingChanged: { editing in
+                            if !editing {
+                                windowManager.setAutoScanInterval(tempInterval)
+                            }
+                        }
+                    )
+                    Text("\(tempInterval, specifier: "%.1f")s")
+                        .frame(width: 40)
+                }
+                
+                if windowManager.isScanning {
+                    HStack {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Scanning...")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .onAppear {
+            tempInterval = windowManager.autoScanInterval
+        }
+    }
+}
+
 // MARK: - Actions Section
 struct ActionsSection: View {
     @Binding var scanTriggerId: UUID?
@@ -232,7 +276,7 @@ struct ActionsSection: View {
     var body: some View {
         Section("Actions") {
             HStack(spacing: 10) {
-                Button("Scan Windows") {
+                Button("Scan Now") {
                     scanTriggerId = UUID()
                 }
                 .buttonStyle(.borderedProminent)

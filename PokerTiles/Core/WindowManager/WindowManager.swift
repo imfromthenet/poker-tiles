@@ -20,9 +20,13 @@ class WindowManager {
     var permissionState: PermissionState = .notDetermined
     var hasPermission: Bool { permissionState.hasAccess }
     var isScanning: Bool = false
+    var isAutoScanEnabled: Bool = true
+    var autoScanInterval: TimeInterval = 3.0 // Default 3 seconds
     
     let pokerTableDetector = PokerTableDetector()
     var pokerTables: [PokerTable] = []
+    
+    private var autoScanTask: Task<Void, Never>?
     
     struct WindowInfo: Identifiable {
         let id: String
@@ -48,6 +52,11 @@ class WindowManager {
     
     init() {
         checkPermissions()
+        startAutoScan()
+    }
+    
+    deinit {
+        stopAutoScan()
     }
     
     func checkPermissions() {
@@ -82,6 +91,45 @@ class WindowManager {
     func openSystemPreferences() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
             NSWorkspace.shared.open(url)
+        }
+    }
+    
+    func startAutoScan() {
+        stopAutoScan() // Cancel any existing task
+        
+        guard isAutoScanEnabled else { return }
+        
+        autoScanTask = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self = self else { break }
+                
+                if self.hasPermission && !self.isScanning {
+                    await self.scanWindows()
+                }
+                
+                try? await Task.sleep(nanoseconds: UInt64(self.autoScanInterval * 1_000_000_000))
+            }
+        }
+    }
+    
+    func stopAutoScan() {
+        autoScanTask?.cancel()
+        autoScanTask = nil
+    }
+    
+    func setAutoScanEnabled(_ enabled: Bool) {
+        isAutoScanEnabled = enabled
+        if enabled {
+            startAutoScan()
+        } else {
+            stopAutoScan()
+        }
+    }
+    
+    func setAutoScanInterval(_ interval: TimeInterval) {
+        autoScanInterval = max(1.0, interval) // Minimum 1 second
+        if isAutoScanEnabled {
+            startAutoScan() // Restart with new interval
         }
     }
     
