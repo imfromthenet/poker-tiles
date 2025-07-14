@@ -5,9 +5,20 @@ import Observation
 
 @Observable
 class WindowManager {
+    enum PermissionState {
+        case notDetermined
+        case granted
+        case denied
+        
+        var hasAccess: Bool {
+            self == .granted
+        }
+    }
+    
     var windowCount: Int = 0
     var windows: [WindowInfo] = []
-    var hasPermission: Bool = false
+    var permissionState: PermissionState = .notDetermined
+    var hasPermission: Bool { permissionState.hasAccess }
     var isScanning: Bool = false
     
     let pokerTableDetector = PokerTableDetector()
@@ -40,15 +51,37 @@ class WindowManager {
     }
     
     func checkPermissions() {
-        hasPermission = CGPreflightScreenCaptureAccess()
+        if CGPreflightScreenCaptureAccess() {
+            permissionState = .granted
+        } else {
+            // Check if we can determine if it's denied or just not determined
+            // If we've requested before and still no access, it's likely denied
+            permissionState = .notDetermined
+        }
     }
     
     func requestPermissions() async {
+        // Store current state to detect if user actually made a choice
+        let previousState = permissionState
+        
         CGRequestScreenCaptureAccess()
         
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        // Wait a bit for the system to update
+        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
+        
         await MainActor.run {
             self.checkPermissions()
+            
+            // If still not granted after request, user likely denied
+            if self.permissionState != .granted && previousState == .notDetermined {
+                self.permissionState = .denied
+            }
+        }
+    }
+    
+    func openSystemPreferences() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+            NSWorkspace.shared.open(url)
         }
     }
     

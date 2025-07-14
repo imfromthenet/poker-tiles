@@ -65,7 +65,7 @@ final class WindowManagerIntegrationTests: XCTestCase {
     
     func testScanWindowsWithoutPermission() async {
         // Force no permission state
-        windowManager.hasPermission = false
+        windowManager.permissionState = .denied
         
         await windowManager.scanWindows()
         
