@@ -12,16 +12,16 @@ final class PermissionHandlingTests: XCTestCase {
     
     func testPermissionStateEnum() {
         // Test hasAccess computed property
-        XCTAssertTrue(WindowManager.PermissionState.granted.hasAccess)
-        XCTAssertFalse(WindowManager.PermissionState.denied.hasAccess)
-        XCTAssertFalse(WindowManager.PermissionState.notDetermined.hasAccess)
+        XCTAssertTrue(PermissionState.granted.hasAccess)
+        XCTAssertFalse(PermissionState.denied.hasAccess)
+        XCTAssertFalse(PermissionState.notDetermined.hasAccess)
     }
     
     func testWindowManagerInitialPermissionState() {
         let windowManager = WindowManager()
         
         // Initial state should be one of the valid states
-        let validStates: [WindowManager.PermissionState] = [.notDetermined, .granted, .denied]
+        let validStates: [PermissionState] = [.notDetermined, .granted, .denied]
         XCTAssertTrue(validStates.contains(windowManager.permissionState))
         
         // hasPermission should match the state

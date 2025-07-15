@@ -5,16 +5,6 @@ import Observation
 
 @Observable
 class WindowManager {
-    enum PermissionState {
-        case notDetermined
-        case granted
-        case denied
-        
-        var hasAccess: Bool {
-            self == .granted
-        }
-    }
-    
     var windowCount: Int = 0
     var windows: [WindowInfo] = []
     var permissionState: PermissionState = .notDetermined
@@ -27,28 +17,6 @@ class WindowManager {
     var pokerTables: [PokerTable] = []
     
     private var autoScanTask: Task<Void, Never>?
-    
-    struct WindowInfo: Identifiable {
-        let id: String
-        let title: String
-        let appName: String
-        let bundleIdentifier: String
-        let isOnScreen: Bool
-        let bounds: CGRect
-        let scWindow: SCWindow
-        var thumbnail: NSImage?
-        
-        init(scWindow: SCWindow, thumbnail: NSImage? = nil) {
-            self.scWindow = scWindow
-            self.id = "\(scWindow.windowID)"
-            self.title = scWindow.title ?? "Untitled"
-            self.appName = scWindow.owningApplication?.applicationName ?? "Unknown"
-            self.bundleIdentifier = scWindow.owningApplication?.bundleIdentifier ?? "unknown"
-            self.isOnScreen = scWindow.isOnScreen
-            self.bounds = scWindow.frame
-            self.thumbnail = thumbnail
-        }
-    }
     
     init() {
         checkPermissions()
@@ -306,7 +274,7 @@ class WindowManager {
         
         let systemBundles = [
             "com.apple.controlcenter",
-            "com.apple.NotificationCenter", 
+            "com.apple.NotificationCenter",
             "com.apple.dock",
             "com.apple.WindowManager",
             "com.apple.systemuiserver",
@@ -326,7 +294,7 @@ class WindowManager {
         }
         
         // Skip system UI elements
-        if title.isEmpty || 
+        if title.isEmpty ||
            title.contains("Menubar") ||
            title.contains("Dock") ||
            title.contains("Item-") ||
@@ -339,8 +307,8 @@ class WindowManager {
         }
         
         // Must be on screen and reasonable size
-        return window.isOnScreen && 
-               window.frame.width > 100 && 
+        return window.isOnScreen &&
+               window.frame.width > 100 &&
                window.frame.height > 100
     }
     
@@ -358,7 +326,7 @@ class WindowManager {
     }
     
     private func captureWithScreenCaptureKit(_ window: SCWindow) async -> NSImage? {
-        do { 
+        do {
             // Try using SCScreenshotManager for a simpler one-shot capture
             let filter = SCContentFilter(desktopIndependentWindow: window)
             let configuration = SCStreamConfiguration()
@@ -442,327 +410,6 @@ class WindowManager {
             print("Failed to capture thumbnail with stream: \(error)")
             return nil
         }
-    }
-}
-
-private class ThumbnailCaptureOutput: NSObject, SCStreamOutput {
-    private let completion: (NSImage?) -> Void
-    private let lock = NSLock()
-    private var _hasCompleted = false
-    
-    var hasCompleted: Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        return _hasCompleted
-    }
-    
-    init(completion: @escaping (NSImage?) -> Void) {
-        self.completion = completion
-        super.init()
-    }
-    
-    func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        lock.lock()
-        guard !_hasCompleted else { 
-            lock.unlock()
-            return 
-        }
-        _hasCompleted = true
-        lock.unlock()
-        
-        print("🎬 Received sample buffer for thumbnail capture")
-        
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            print("❌ Failed to get image buffer from sample")
-            completion(nil)
-            return
-        }
-        
-        let ciImage = CIImage(cvImageBuffer: imageBuffer)
-        let context = CIContext()
-        
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            print("❌ Failed to create CGImage from CIImage")
-            completion(nil)
-            return
-        }
-        
-        let nsImage = NSImage(cgImage: cgImage, size: CGSize(width: cgImage.width, height: cgImage.height))
-        print("✅ Successfully created NSImage: \(nsImage.size)")
-        completion(nsImage)
-    }
-}
-
-// MARK: - Poker Detection Models and Services
-
-enum PokerApp: String, CaseIterable {
-    case pokerStars = "PokerStars"
-    case poker888 = "888poker"
-    case ggPoker = "GGPoker"
-    case partyPoker = "partypoker"
-    case winamax = "Winamax"
-    case ignition = "Ignition"
-    case acr = "Americas Cardroom"
-    case unknown = "Unknown"
-    
-    var bundleIdentifiers: [String] {
-        switch self {
-        case .pokerStars:
-            return ["com.pokerstars", "com.pokerstars.eu", "com.pokerstars.net", "com.pokerstarsuk.poker"]
-        case .poker888:
-            return ["com.888poker", "com.888holdingsplc.888poker"]
-        case .ggPoker:
-            return ["com.ggpoker", "com.goodgame.poker", "com.nsus1.ggpoker"]
-        case .partyPoker:
-            return ["com.partypoker", "com.partygaming.partypoker"]
-        case .winamax:
-            return ["com.winamax", "fr.winamax.poker"]
-        case .ignition:
-            return ["com.ignitioncasino", "com.ignition.poker"]
-        case .acr:
-            return ["com.americascardroom", "com.acr.poker", "com.winningpokernetwork"]
-        case .unknown:
-            return []
-        }
-    }
-    
-    var tableWindowPatterns: [String] {
-        switch self {
-        case .pokerStars:
-            return ["Tournament", "Cash", "Zoom", "Spin & Go", "Table", "6-Max", "9-Max", "Heads-Up"]
-        case .poker888:
-            return ["Table", "Tournament", "SNAP", "BLAST", "Cash Game"]
-        case .ggPoker:
-            return ["Table", "Rush & Cash", "All-In or Fold", "Battle Royale", "Flip & Go"]
-        case .partyPoker:
-            return ["Table", "fastforward", "SPINS", "Cash Game", "Sit & Go"]
-        case .winamax:
-            return ["Table", "Expresso", "Cash Game", "Go Fast"]
-        case .ignition:
-            return ["Table", "Zone Poker", "Jackpot Sit & Go", "Cash"]
-        case .acr:
-            return ["Table", "Blitz", "Jackpot Poker", "Cash Game", "Beast"]
-        case .unknown:
-            return []
-        }
-    }
-    
-    var lobbyWindowPatterns: [String] {
-        switch self {
-        case .pokerStars:
-            return ["Lobby", "Home", "Cashier", "Settings", "Tournament Lobby", "My Stars"]
-        case .poker888:
-            return ["Lobby", "My Account", "Cashier", "Settings", "Promotions"]
-        case .ggPoker:
-            return ["Lobby", "Smart HUD", "Cashier", "Profile", "Shop"]
-        case .partyPoker:
-            return ["Lobby", "My Account", "Cashier", "Rewards"]
-        case .winamax:
-            return ["Lobby", "Mon Compte", "Caisse", "Accueil"]
-        case .ignition:
-            return ["Lobby", "Cashier", "Rewards", "Account"]
-        case .acr:
-            return ["Lobby", "Cashier", "Missions", "The Beast"]
-        case .unknown:
-            return []
-        }
-    }
-    
-    static func from(bundleIdentifier: String) -> PokerApp {
-        for app in PokerApp.allCases {
-            if app.bundleIdentifiers.contains(where: { bundleIdentifier.lowercased().contains($0.lowercased()) }) {
-                return app
-            }
-        }
-        return .unknown
-    }
-    
-    func isTableWindow(title: String) -> Bool {
-        let lowercasedTitle = title.lowercased()
-        
-        // Check if it's a lobby window
-        if lobbyWindowPatterns.contains(where: { lowercasedTitle.contains($0.lowercased()) }) {
-            return false
-        }
-        
-        // Check if it matches table patterns
-        return tableWindowPatterns.contains(where: { lowercasedTitle.contains($0.lowercased()) })
-    }
-}
-
-struct PokerTable: Identifiable {
-    let id: String
-    let windowInfo: WindowManager.WindowInfo
-    let pokerApp: PokerApp
-    let tableType: TableType
-    let isActive: Bool
-    
-    init(windowInfo: WindowManager.WindowInfo) {
-        self.id = windowInfo.id
-        self.windowInfo = windowInfo
-        self.pokerApp = PokerApp.from(bundleIdentifier: windowInfo.bundleIdentifier)
-        self.tableType = TableType.from(title: windowInfo.title, app: self.pokerApp)
-        self.isActive = windowInfo.isOnScreen && !windowInfo.title.isEmpty
-    }
-    
-    enum TableType {
-        case cash
-        case tournament
-        case sitAndGo
-        case fastFold // Zoom, SNAP, Blitz, etc.
-        case unknown
-        
-        static func from(title: String, app: PokerApp) -> TableType {
-            let lowercasedTitle = title.lowercased()
-            
-            // Fast-fold variants
-            if lowercasedTitle.contains("zoom") || 
-               lowercasedTitle.contains("snap") || 
-               lowercasedTitle.contains("blitz") ||
-               lowercasedTitle.contains("zone") ||
-               lowercasedTitle.contains("fast") ||
-               lowercasedTitle.contains("rush") {
-                return .fastFold
-            }
-            
-            // Tournament indicators
-            if lowercasedTitle.contains("tournament") ||
-               lowercasedTitle.contains("mtt") ||
-               lowercasedTitle.contains("turbo") ||
-               lowercasedTitle.contains("bounty") {
-                return .tournament
-            }
-            
-            // Sit & Go indicators
-            if lowercasedTitle.contains("sit & go") ||
-               lowercasedTitle.contains("sit&go") ||
-               lowercasedTitle.contains("sng") ||
-               lowercasedTitle.contains("spin") ||
-               lowercasedTitle.contains("jackpot") ||
-               lowercasedTitle.contains("expresso") {
-                return .sitAndGo
-            }
-            
-            // Cash game indicators
-            if lowercasedTitle.contains("cash") ||
-               lowercasedTitle.contains("nl") ||
-               lowercasedTitle.contains("pl") ||
-               lowercasedTitle.contains("6-max") ||
-               lowercasedTitle.contains("9-max") ||
-               lowercasedTitle.contains("heads-up") {
-                return .cash
-            }
-            
-            // Default to cash if it's a table window but type is unclear
-            if app.isTableWindow(title: title) {
-                return .cash
-            }
-            
-            return .unknown
-        }
-        
-        var displayName: String {
-            switch self {
-            case .cash: return "Cash Game"
-            case .tournament: return "Tournament"
-            case .sitAndGo: return "Sit & Go"
-            case .fastFold: return "Fast Fold"
-            case .unknown: return "Unknown"
-            }
-        }
-    }
-}
-
-class PokerTableDetector {
-    
-    func detectPokerTables(from windows: [WindowManager.WindowInfo]) -> [PokerTable] {
-        var pokerTables: [PokerTable] = []
-        
-        for window in windows {
-            if let pokerTable = analyzeWindow(window) {
-                pokerTables.append(pokerTable)
-            }
-        }
-        
-        return pokerTables.sorted { $0.windowInfo.title < $1.windowInfo.title }
-    }
-    
-    private func analyzeWindow(_ window: WindowManager.WindowInfo) -> PokerTable? {
-        // First check if it's a poker app
-        let pokerApp = PokerApp.from(bundleIdentifier: window.bundleIdentifier)
-        guard pokerApp != .unknown else { return nil }
-        
-        // Create a potential poker table
-        let potentialTable = PokerTable(windowInfo: window)
-        
-        // Filter out non-table windows
-        guard isPokerTableWindow(potentialTable) else { return nil }
-        
-        return potentialTable
-    }
-    
-    private func isPokerTableWindow(_ table: PokerTable) -> Bool {
-        let title = table.windowInfo.title
-        
-        // Skip empty titles
-        guard !title.isEmpty else { return false }
-        
-        // Skip if it's clearly a lobby window
-        if table.pokerApp.lobbyWindowPatterns.contains(where: { title.lowercased().contains($0.lowercased()) }) {
-            return false
-        }
-        
-        // Skip common non-table windows
-        let nonTablePatterns = [
-            "cashier", "settings", "preferences", "options",
-            "history", "statistics", "notes", "chat",
-            "help", "about", "update", "install",
-            "login", "register", "password", "account"
-        ]
-        
-        let lowercasedTitle = title.lowercased()
-        if nonTablePatterns.contains(where: { lowercasedTitle.contains($0) }) {
-            return false
-        }
-        
-        // Check if window is reasonable size for a poker table
-        let bounds = table.windowInfo.bounds
-        guard bounds.width >= 400 && bounds.height >= 300 else { return false }
-        
-        // If it matches table patterns, it's likely a table
-        if table.pokerApp.isTableWindow(title: title) {
-            return true
-        }
-        
-        // Additional heuristics for tables that might not match patterns
-        // Look for table number patterns (e.g., "Table 123456")
-        let tableNumberPattern = try? NSRegularExpression(pattern: "table\\s*\\d+", options: .caseInsensitive)
-        if tableNumberPattern?.firstMatch(in: title, options: [], range: NSRange(title.startIndex..., in: title)) != nil {
-            return true
-        }
-        
-        // Look for stakes patterns (e.g., "$0.50/$1.00", "€5/€10")
-        let stakesPattern = try? NSRegularExpression(pattern: "[$€£]?\\d+([.,]\\d+)?/[$€£]?\\d+([.,]\\d+)?", options: [])
-        if stakesPattern?.firstMatch(in: title, options: [], range: NSRange(title.startIndex..., in: title)) != nil {
-            return true
-        }
-        
-        // Look for player count patterns (e.g., "6-max", "9-handed")
-        let playerCountPattern = try? NSRegularExpression(pattern: "\\d+[-\\s]?(max|handed|players)", options: .caseInsensitive)
-        if playerCountPattern?.firstMatch(in: title, options: [], range: NSRange(title.startIndex..., in: title)) != nil {
-            return true
-        }
-        
-        return false
-    }
-    
-    
-    func groupTablesByApp(_ tables: [PokerTable]) -> [PokerApp: [PokerTable]] {
-        return Dictionary(grouping: tables) { $0.pokerApp }
-    }
-    
-    func groupTablesByType(_ tables: [PokerTable]) -> [PokerTable.TableType: [PokerTable]] {
-        return Dictionary(grouping: tables) { $0.tableType }
     }
 }
 

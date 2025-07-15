@@ -95,7 +95,7 @@ final class WindowManagerIntegrationTests: XCTestCase {
     
     func testPokerTableDetectionPerformance() {
         // Create mock windows for performance testing
-        let mockWindows: [WindowManager.WindowInfo] = []
+        let mockWindows: [WindowInfo] = []
         
         measure {
             _ = windowManager.pokerTableDetector.detectPokerTables(from: mockWindows)
