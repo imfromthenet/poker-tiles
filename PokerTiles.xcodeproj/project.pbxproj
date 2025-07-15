@@ -19,6 +19,8 @@
 		EF96C0C52E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
 		EF96C0C62E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
 		EF96C0C72E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
+		EFA718892E261F200020B2D7 /* PokerTableDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA718882E261F200020B2D7 /* PokerTableDetector.swift */; };
+		EFA7188E2E2620640020B2D7 /* ThumbnailCaptureOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +52,8 @@
 		EF96C0B42E238052002C106F /* PokerTilesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PokerTilesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PokerTiles.xctestplan; sourceTree = "<group>"; };
 		EF96C0C42E238130002C106F /* run-tests.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-tests.sh"; sourceTree = "<group>"; };
+		EFA718882E261F200020B2D7 /* PokerTableDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerTableDetector.swift; sourceTree = "<group>"; };
+		EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailCaptureOutput.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -66,6 +70,11 @@
 		EFA7187E2E256CD90020B2D7 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Models;
+			sourceTree = "<group>";
+		};
+		EFA7188A2E261F4B0020B2D7 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -106,6 +115,9 @@
 		EF4E4A332E22787000F1C677 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */,
+				EFA7188A2E261F4B0020B2D7 /* Services */,
+				EFA718882E261F200020B2D7 /* PokerTableDetector.swift */,
 				EF4E4A322E22787000F1C677 /* WindowManager */,
 			);
 			path = Core;
@@ -202,6 +214,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				EFA7187E2E256CD90020B2D7 /* Models */,
+				EFA7188A2E261F4B0020B2D7 /* Services */,
 			);
 			name = PokerTiles;
 			packageProductDependencies = (
@@ -307,7 +320,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4E4A392E22787000F1C677 /* PokerTilesApp.swift in Sources */,
+				EFA718892E261F200020B2D7 /* PokerTableDetector.swift in Sources */,
 				EF4E4A3B2E22787000F1C677 /* ContentView.swift in Sources */,
+				EFA7188E2E2620640020B2D7 /* ThumbnailCaptureOutput.swift in Sources */,
 				EF4E4A3C2E22787000F1C677 /* WindowManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
