@@ -8,19 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		EF4E4A2F2E22785500F1C677 /* PokerTiles.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = EF4E4A2E2E22785500F1C677 /* PokerTiles.xcconfig */; };
-		EF4E4A392E22787000F1C677 /* PokerTilesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A372E22787000F1C677 /* PokerTilesApp.swift */; };
-		EF4E4A3B2E22787000F1C677 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A352E22787000F1C677 /* ContentView.swift */; };
-		EF4E4A3C2E22787000F1C677 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4E4A302E22787000F1C677 /* WindowManager.swift */; };
-		EF4E4A3D2E22787000F1C677 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF4E4A342E22787000F1C677 /* Assets.xcassets */; };
-		EF4E4A3E2E22787000F1C677 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF4E4A362E22787000F1C677 /* Info.plist */; };
 		EF96C0C12E2380ED002C106F /* PokerTiles.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */; };
 		EF96C0C22E2380ED002C106F /* PokerTiles.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */; };
 		EF96C0C32E2380ED002C106F /* PokerTiles.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */; };
 		EF96C0C52E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
 		EF96C0C62E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
 		EF96C0C72E238130002C106F /* run-tests.sh in Resources */ = {isa = PBXBuildFile; fileRef = EF96C0C42E238130002C106F /* run-tests.sh */; };
-		EFA718892E261F200020B2D7 /* PokerTableDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA718882E261F200020B2D7 /* PokerTableDetector.swift */; };
-		EFA7188E2E2620640020B2D7 /* ThumbnailCaptureOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,19 +35,11 @@
 
 /* Begin PBXFileReference section */
 		EF4E4A2E2E22785500F1C677 /* PokerTiles.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PokerTiles.xcconfig; sourceTree = "<group>"; };
-		EF4E4A302E22787000F1C677 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
-		EF4E4A342E22787000F1C677 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		EF4E4A352E22787000F1C677 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		EF4E4A362E22787000F1C677 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EF4E4A372E22787000F1C677 /* PokerTilesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerTilesApp.swift; sourceTree = "<group>"; };
 		EF96C0972E229491002C106F /* PokerTiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokerTiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF96C09C2E238030002C106F /* PokerTilesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PokerTilesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF96C0B42E238052002C106F /* PokerTilesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PokerTilesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PokerTiles.xctestplan; sourceTree = "<group>"; };
 		EF96C0C42E238130002C106F /* run-tests.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-tests.sh"; sourceTree = "<group>"; };
-		EFA718882E261F200020B2D7 /* PokerTableDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerTableDetector.swift; sourceTree = "<group>"; };
-		EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailCaptureOutput.swift; sourceTree = "<group>"; };
-		EFA718932E2623590020B2D7 /* PokerTiles.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PokerTiles.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -68,14 +53,9 @@
 			path = PokerTilesUITests;
 			sourceTree = "<group>";
 		};
-		EFA7187E2E256CD90020B2D7 /* Models */ = {
+		EFA718CE2E2633CD0020B2D7 /* PokerTiles */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Models;
-			sourceTree = "<group>";
-		};
-		EFA7188A2E261F4B0020B2D7 /* Services */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Services;
+			path = PokerTiles;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -105,46 +85,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		EF4E4A322E22787000F1C677 /* WindowManager */ = {
-			isa = PBXGroup;
-			children = (
-				EF4E4A302E22787000F1C677 /* WindowManager.swift */,
-			);
-			path = WindowManager;
-			sourceTree = "<group>";
-		};
-		EF4E4A332E22787000F1C677 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */,
-				EFA7188A2E261F4B0020B2D7 /* Services */,
-				EFA718882E261F200020B2D7 /* PokerTableDetector.swift */,
-				EF4E4A322E22787000F1C677 /* WindowManager */,
-			);
-			path = Core;
-			sourceTree = "<group>";
-		};
-		EF4E4A382E22787000F1C677 /* PokerTiles */ = {
-			isa = PBXGroup;
-			children = (
-				EFA718932E2623590020B2D7 /* PokerTiles.entitlements */,
-				EFA7187E2E256CD90020B2D7 /* Models */,
-				EF4E4A332E22787000F1C677 /* Core */,
-				EF4E4A342E22787000F1C677 /* Assets.xcassets */,
-				EF4E4A352E22787000F1C677 /* ContentView.swift */,
-				EF4E4A362E22787000F1C677 /* Info.plist */,
-				EF4E4A372E22787000F1C677 /* PokerTilesApp.swift */,
-			);
-			path = PokerTiles;
-			sourceTree = "<group>";
-		};
 		FCB7DDD52E166FB300ECE580 = {
 			isa = PBXGroup;
 			children = (
 				EF96C0C42E238130002C106F /* run-tests.sh */,
 				EF96C0C02E2380ED002C106F /* PokerTiles.xctestplan */,
 				EF4E4A2E2E22785500F1C677 /* PokerTiles.xcconfig */,
-				EF4E4A382E22787000F1C677 /* PokerTiles */,
+				EFA718CE2E2633CD0020B2D7 /* PokerTiles */,
 				EF96C0972E229491002C106F /* PokerTiles.app */,
 				EF96C09C2E238030002C106F /* PokerTilesTests.xctest */,
 				EF96C09D2E238031002C106F /* PokerTilesTests */,
@@ -215,8 +162,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				EFA7187E2E256CD90020B2D7 /* Models */,
-				EFA7188A2E261F4B0020B2D7 /* Services */,
+				EFA718CE2E2633CD0020B2D7 /* PokerTiles */,
 			);
 			name = PokerTiles;
 			packageProductDependencies = (
@@ -292,8 +238,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4E4A3D2E22787000F1C677 /* Assets.xcassets in Resources */,
-				EF4E4A3E2E22787000F1C677 /* Info.plist in Resources */,
 				EF96C0C72E238130002C106F /* run-tests.sh in Resources */,
 				EF4E4A2F2E22785500F1C677 /* PokerTiles.xcconfig in Resources */,
 				EF96C0C32E2380ED002C106F /* PokerTiles.xctestplan in Resources */,
@@ -321,11 +265,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4E4A392E22787000F1C677 /* PokerTilesApp.swift in Sources */,
-				EFA718892E261F200020B2D7 /* PokerTableDetector.swift in Sources */,
-				EF4E4A3B2E22787000F1C677 /* ContentView.swift in Sources */,
-				EFA7188E2E2620640020B2D7 /* ThumbnailCaptureOutput.swift in Sources */,
-				EF4E4A3C2E22787000F1C677 /* WindowManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
