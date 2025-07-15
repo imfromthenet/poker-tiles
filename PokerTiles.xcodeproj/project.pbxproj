@@ -63,6 +63,11 @@
 			path = PokerTilesUITests;
 			sourceTree = "<group>";
 		};
+		EFA7187E2E256CD90020B2D7 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Models;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +114,7 @@
 		EF4E4A382E22787000F1C677 /* PokerTiles */ = {
 			isa = PBXGroup;
 			children = (
+				EFA7187E2E256CD90020B2D7 /* Models */,
 				EF4E4A332E22787000F1C677 /* Core */,
 				EF4E4A342E22787000F1C677 /* Assets.xcassets */,
 				EF4E4A352E22787000F1C677 /* ContentView.swift */,
@@ -193,6 +199,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				EFA7187E2E256CD90020B2D7 /* Models */,
 			);
 			name = PokerTiles;
 			packageProductDependencies = (

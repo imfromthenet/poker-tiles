@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @State private var windowManager = WindowManager()
@@ -32,6 +33,8 @@ struct ContentView: View {
                     testTriggerId: $testTriggerId,
                     windowManager: windowManager
                 )
+                
+                SettingsSection(windowManager: windowManager)
                 
                 if !windowManager.pokerTables.isEmpty {
                     PokerTableSection(windowManager: windowManager)
@@ -295,6 +298,80 @@ struct ActionsSection: View {
         .task(id: testTriggerId) {
             if testTriggerId != nil {
                 await windowManager.testPokerDetection()
+            }
+        }
+    }
+}
+
+// MARK: - Settings Section
+struct SettingsSection: View {
+    let windowManager: WindowManager
+    @State private var showingExportAlert = false
+    @State private var showingImportAlert = false
+    @State private var alertMessage = ""
+    
+    var body: some View {
+        Section("Settings") {
+            HStack {
+                Button("Export Settings") {
+                    exportSettings()
+                }
+                
+                Button("Import Settings") {
+                    importSettings()
+                }
+            }
+        }
+        .alert("Settings", isPresented: Binding(
+            get: { showingExportAlert || showingImportAlert },
+            set: { _ in
+                showingExportAlert = false
+                showingImportAlert = false
+            }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage)
+        }
+    }
+    
+    private func exportSettings() {
+        let savePanel = NSSavePanel()
+        savePanel.title = "Export Settings"
+        savePanel.nameFieldStringValue = "PokerTiles-Settings-\(Date().formatted(date: .abbreviated, time: .omitted)).json"
+        savePanel.allowedContentTypes = [.json]
+        
+        savePanel.begin { response in
+            if response == .OK, let url = savePanel.url {
+                do {
+                    try SettingsManager.saveSettingsToFile(from: windowManager, to: url)
+                    alertMessage = "Settings exported successfully!"
+                    showingExportAlert = true
+                } catch {
+                    alertMessage = "Failed to export settings: \(error.localizedDescription)"
+                    showingExportAlert = true
+                }
+            }
+        }
+    }
+    
+    private func importSettings() {
+        let openPanel = NSOpenPanel()
+        openPanel.title = "Import Settings"
+        openPanel.message = "Select a PokerTiles settings file"
+        openPanel.allowedContentTypes = [.json]
+        openPanel.allowsMultipleSelection = false
+        
+        openPanel.begin { response in
+            if response == .OK, let url = openPanel.url {
+                do {
+                    try SettingsManager.loadSettingsFromFile(from: url, to: windowManager)
+                    alertMessage = "Settings imported successfully!"
+                    showingImportAlert = true
+                } catch {
+                    alertMessage = "Failed to import settings: \(error.localizedDescription)"
+                    showingImportAlert = true
+                }
             }
         }
     }
