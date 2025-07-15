@@ -47,17 +47,20 @@ class PokerTableDetector {
             return false
         }
         
-        // Skip common non-table windows
+        // Skip common non-table windows - use word boundaries to avoid false positives
         let nonTablePatterns = [
-            "cashier", "settings", "preferences", "options",
-            "history", "statistics", "notes", "chat",
-            "help", "about", "update", "install",
-            "login", "register", "password", "account"
+            "\\bcashier\\b", "\\bsettings\\b", "\\bpreferences\\b", "\\boptions\\b",
+            "\\bhistory\\b", "\\bstatistics\\b", "\\bnotes\\b", "\\bchat\\b",
+            "\\bhelp\\b", "\\babout\\b", "\\bupdate\\b", "\\binstall\\b",
+            "\\blogin\\b", "\\bregister\\b", "\\bpassword\\b", "\\baccount\\b"
         ]
         
         let lowercasedTitle = title.lowercased()
-        if nonTablePatterns.contains(where: { lowercasedTitle.contains($0) }) {
-            return false
+        for pattern in nonTablePatterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+               regex.firstMatch(in: lowercasedTitle, options: [], range: NSRange(lowercasedTitle.startIndex..., in: lowercasedTitle)) != nil {
+                return false
+            }
         }
         
         // Check if window is reasonable size for a poker table
@@ -76,8 +79,8 @@ class PokerTableDetector {
             return true
         }
         
-        // Look for stakes patterns (e.g., "$0.50/$1.00", "€5/€10")
-        let stakesPattern = try? NSRegularExpression(pattern: "[$€£]?\\d+([.,]\\d+)?/[$€£]?\\d+([.,]\\d+)?", options: [])
+        // Look for stakes patterns (e.g., "$0.50/$1.00", "€5/€10", "25,000,000/50,000,000")
+        let stakesPattern = try? NSRegularExpression(pattern: "[$€£]?[\\d,]+([.,]\\d+)?/[$€£]?[\\d,]+([.,]\\d+)?", options: [])
         if stakesPattern?.firstMatch(in: title, options: [], range: NSRange(title.startIndex..., in: title)) != nil {
             return true
         }
@@ -85,6 +88,19 @@ class PokerTableDetector {
         // Look for player count patterns (e.g., "6-max", "9-handed")
         let playerCountPattern = try? NSRegularExpression(pattern: "\\d+[-\\s]?(max|handed|players)", options: .caseInsensitive)
         if playerCountPattern?.firstMatch(in: title, options: [], range: NSRange(title.startIndex..., in: title)) != nil {
+            return true
+        }
+        
+        // Look for poker game types (e.g., "Hold'em", "Omaha", "Stud")
+        // Note: Handle both regular apostrophe ' and curly apostrophe '
+        let normalizedTitle = lowercasedTitle.replacingOccurrences(of: "'", with: "'")
+        let gameTypePatterns = ["hold'em", "holdem", "omaha", "stud", "razz", "badugi", "2-7", "plo", "nlh"]
+        if gameTypePatterns.contains(where: { normalizedTitle.contains($0) }) {
+            return true
+        }
+        
+        // Look for Play Money indicators which are common in poker tables
+        if lowercasedTitle.contains("play money") || lowercasedTitle.contains("play chips") {
             return true
         }
         
