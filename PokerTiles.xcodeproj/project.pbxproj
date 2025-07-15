@@ -54,6 +54,7 @@
 		EF96C0C42E238130002C106F /* run-tests.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-tests.sh"; sourceTree = "<group>"; };
 		EFA718882E261F200020B2D7 /* PokerTableDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokerTableDetector.swift; sourceTree = "<group>"; };
 		EFA7188D2E2620640020B2D7 /* ThumbnailCaptureOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailCaptureOutput.swift; sourceTree = "<group>"; };
+		EFA718932E2623590020B2D7 /* PokerTiles.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PokerTiles.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -126,6 +127,7 @@
 		EF4E4A382E22787000F1C677 /* PokerTiles */ = {
 			isa = PBXGroup;
 			children = (
+				EFA718932E2623590020B2D7 /* PokerTiles.entitlements */,
 				EFA7187E2E256CD90020B2D7 /* Models */,
 				EF4E4A332E22787000F1C677 /* Core */,
 				EF4E4A342E22787000F1C677 /* Assets.xcassets */,
@@ -538,6 +540,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PokerTiles/PokerTiles.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -545,7 +548,7 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = PokerTiles;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -573,6 +576,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PokerTiles/PokerTiles.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -580,7 +584,7 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = PokerTiles;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
