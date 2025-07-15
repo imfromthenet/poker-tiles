@@ -95,7 +95,8 @@ class WindowManager {
     }
     
     func setAutoScanInterval(_ interval: TimeInterval) {
-        autoScanInterval = max(0.01, interval) // Minimum 0.01 seconds
+        // Clamp interval between 0.01 and 5.0 seconds
+        autoScanInterval = min(max(0.01, interval), 5.0)
         if isAutoScanEnabled {
             startAutoScan() // Restart with new interval
         }

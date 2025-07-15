@@ -118,4 +118,83 @@ final class SettingsTests: XCTestCase {
         XCTAssertFalse(newWindowManager.isAutoScanEnabled)
         XCTAssertEqual(newWindowManager.autoScanInterval, 1.23)
     }
+    
+    func testAutoScanIntervalClamping() {
+        // Test values below minimum
+        windowManager.setAutoScanInterval(0.001)
+        XCTAssertEqual(windowManager.autoScanInterval, 0.01)
+        
+        // Test values above maximum
+        windowManager.setAutoScanInterval(10.0)
+        XCTAssertEqual(windowManager.autoScanInterval, 5.0)
+        
+        // Test valid values
+        windowManager.setAutoScanInterval(2.5)
+        XCTAssertEqual(windowManager.autoScanInterval, 2.5)
+    }
+    
+    func testImportWithInvalidValues() throws {
+        // Create settings with out-of-range values
+        let settings = AppSettings(
+            exportDate: Date(),
+            isAutoScanEnabled: true,
+            autoScanInterval: 10.0  // Above max
+        )
+        
+        // Apply to window manager
+        settings.apply(to: windowManager)
+        
+        // Verify value was clamped
+        XCTAssertEqual(windowManager.autoScanInterval, 5.0)
+    }
+    
+    func testImportJSONWithInvalidValues() throws {
+        // Create JSON with invalid values
+        let json = """
+        {
+            "version": 1,
+            "exportDate": "2024-01-01T00:00:00Z",
+            "isAutoScanEnabled": true,
+            "autoScanInterval": 0.001
+        }
+        """
+        
+        let data = json.data(using: .utf8)!
+        
+        // Import should succeed and clamp values
+        try SettingsManager.importSettings(data, to: windowManager)
+        
+        // Verify value was clamped to minimum
+        XCTAssertEqual(windowManager.autoScanInterval, 0.01)
+    }
+    
+    func testSettingsValidation() throws {
+        // Test valid settings
+        let validSettings = AppSettings(
+            exportDate: Date(),
+            isAutoScanEnabled: true,
+            autoScanInterval: 2.0
+        )
+        XCTAssertNoThrow(try validSettings.validate())
+        
+        // Test invalid settings - below minimum
+        let belowMinSettings = AppSettings(
+            exportDate: Date(),
+            isAutoScanEnabled: true,
+            autoScanInterval: 0.001
+        )
+        XCTAssertThrowsError(try belowMinSettings.validate()) { error in
+            XCTAssertTrue(error is SettingsError)
+        }
+        
+        // Test invalid settings - above maximum
+        let aboveMaxSettings = AppSettings(
+            exportDate: Date(),
+            isAutoScanEnabled: true,
+            autoScanInterval: 10.0
+        )
+        XCTAssertThrowsError(try aboveMaxSettings.validate()) { error in
+            XCTAssertTrue(error is SettingsError)
+        }
+    }
 }
