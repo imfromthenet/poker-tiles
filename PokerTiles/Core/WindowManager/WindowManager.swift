@@ -18,8 +18,17 @@ class WindowManager {
     
     private var autoScanTask: Task<Void, Never>?
     
+    // Window manipulation components
+    private let windowManipulator = WindowManipulator()
+    private let gridLayoutManager = GridLayoutManager()
+    private let resistanceDetector = WindowResistanceDetector()
+    
+    // Hotkey management
+    private(set) var hotkeyManager: HotkeyManager!
+    
     init() {
         checkPermissions()
+        hotkeyManager = HotkeyManager(windowManager: self)
         startAutoScan()
     }
     
@@ -255,23 +264,29 @@ class WindowManager {
     }
     
     func bringWindowToFront(_ windowInfo: WindowInfo) {
-        guard let scWindow = windowInfo.scWindow,
-              let app = scWindow.owningApplication else {
-            print("No owning application found for window")
-            return
-        }
-        
-        let pid = app.processID
-        let runningApp = NSRunningApplication(processIdentifier: pid)
-        
-        // Activate the application
-        if #available(macOS 14.0, *) {
-            runningApp?.activate()
+        // Use the new window manipulator for better reliability
+        if windowManipulator.bringWindowToFront(windowInfo) {
+            print("✅ Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
         } else {
-            runningApp?.activate(options: .activateIgnoringOtherApps)
+            // Fallback to original method
+            guard let scWindow = windowInfo.scWindow,
+                  let app = scWindow.owningApplication else {
+                print("No owning application found for window")
+                return
+            }
+            
+            let pid = app.processID
+            let runningApp = NSRunningApplication(processIdentifier: pid)
+            
+            // Activate the application
+            if #available(macOS 14.0, *) {
+                runningApp?.activate()
+            } else {
+                runningApp?.activate(options: .activateIgnoringOtherApps)
+            }
+            
+            print("Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
         }
-        
-        print("Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
     }
     
     private func isAppWindow(_ window: SCWindow) -> Bool {
@@ -415,6 +430,125 @@ class WindowManager {
             print("Failed to capture thumbnail with stream: \(error)")
             return nil
         }
+    }
+}
+
+// MARK: - Window Manipulation
+extension WindowManager {
+    
+    /// Move a window to a specific position
+    func moveWindow(_ windowInfo: WindowInfo, to position: CGPoint) -> Bool {
+        return windowManipulator.moveWindow(windowInfo, to: position)
+    }
+    
+    /// Resize a window
+    func resizeWindow(_ windowInfo: WindowInfo, to size: CGSize) -> Bool {
+        return windowManipulator.resizeWindow(windowInfo, to: size)
+    }
+    
+    /// Set window frame (position and size)
+    func setWindowFrame(_ windowInfo: WindowInfo, frame: CGRect) -> Bool {
+        return windowManipulator.setWindowFrame(windowInfo, frame: frame)
+    }
+    
+    /// Arrange poker tables in a grid layout
+    func arrangePokerTablesInGrid(_ layout: GridLayoutManager.GridLayout, on screen: NSScreen? = nil) {
+        let tables = pokerTables.map { $0.windowInfo }
+        let targetScreen = screen ?? NSScreen.main ?? NSScreen.screens.first!
+        
+        windowManipulator.arrangeWindowsInGrid(tables, on: targetScreen, rows: layout.rows, cols: layout.columns)
+    }
+    
+    /// Auto-arrange all poker tables
+    func autoArrangePokerTables() {
+        guard !pokerTables.isEmpty else {
+            print("No poker tables to arrange")
+            return
+        }
+        
+        // Use the preferred screen or main screen
+        let screen = NSScreen.main ?? NSScreen.screens.first!
+        
+        // Get optimal layout
+        let layout = gridLayoutManager.getBestLayout(for: pokerTables.count)
+        print("Auto-arranging \(pokerTables.count) tables in \(layout.displayName) layout")
+        
+        arrangePokerTablesInGrid(layout, on: screen)
+    }
+    
+    /// Cascade poker tables
+    func cascadePokerTables() {
+        let screen = NSScreen.main ?? NSScreen.screens.first!
+        let windows = pokerTables.map { $0.windowInfo }
+        let frames = gridLayoutManager.createCascadeLayout(for: windows, on: screen)
+        
+        for (index, table) in pokerTables.enumerated() {
+            if index < frames.count {
+                setWindowFrame(table.windowInfo, frame: frames[index])
+            }
+        }
+    }
+    
+    /// Stack poker tables (all in same position)
+    func stackPokerTables() {
+        let screen = NSScreen.main ?? NSScreen.screens.first!
+        let windows = pokerTables.map { $0.windowInfo }
+        let frames = gridLayoutManager.createStackLayout(for: windows, on: screen)
+        
+        for (index, table) in pokerTables.enumerated() {
+            if index < frames.count {
+                setWindowFrame(table.windowInfo, frame: frames[index])
+            }
+        }
+    }
+    
+    /// Distribute tables across multiple screens
+    func distributeTablesAcrossScreens() {
+        let screens = NSScreen.screens
+        guard screens.count > 1 else {
+            print("Only one screen available, using grid layout instead")
+            autoArrangePokerTables()
+            return
+        }
+        
+        let windows = pokerTables.map { $0.windowInfo }
+        let distribution = gridLayoutManager.distributeAcrossScreens(windows, screens: screens)
+        
+        for (window, _, frame) in distribution {
+            setWindowFrame(window, frame: frame)
+        }
+    }
+    
+    /// Analyze window resistance
+    func analyzeWindowResistance() {
+        print("\n=== Window Resistance Analysis ===")
+        
+        let resistantWindows = resistanceDetector.getResistantWindows(from: windows)
+        
+        if resistantWindows.isEmpty {
+            print("✅ No resistant windows detected")
+        } else {
+            print("⚠️ Found \(resistantWindows.count) resistant window(s):")
+            
+            for window in resistantWindows {
+                let profile = resistanceDetector.analyzeWindow(window)
+                print("\n  Window: \(window.title)")
+                print("  App: \(window.appName)")
+                print("  Resistance: \(profile.resistanceType)")
+                print("  Details: \(profile.details)")
+                
+                if let method = profile.suggestedMethod {
+                    print("  Suggested workaround: \(method)")
+                }
+            }
+        }
+        
+        print("\n=== Analysis Complete ===")
+    }
+    
+    /// Get window manipulation statistics
+    func getManipulationStatistics() -> String {
+        return windowManipulator.getStatistics().summary
     }
 }
 

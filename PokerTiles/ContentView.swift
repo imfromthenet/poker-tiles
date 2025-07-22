@@ -36,8 +36,18 @@ struct ContentView: View {
                 
                 SettingsSection(windowManager: windowManager)
                 
+                // Hotkey Settings
+                Section("Hotkeys") {
+                    HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
+                }
+                
                 if !windowManager.pokerTables.isEmpty {
                     PokerTableSection(windowManager: windowManager)
+                    
+                    // Grid Layout Section
+                    Section("Window Layout") {
+                        GridLayoutView(windowManager: windowManager)
+                    }
                 } else if !windowManager.getPokerAppWindows().isEmpty {
                     Text("No poker tables detected. Open a poker table to see it here.")
                         .foregroundColor(.secondary)
