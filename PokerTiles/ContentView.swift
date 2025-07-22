@@ -264,7 +264,7 @@ struct AutoScanSection: View {
         .onAppear {
             tempInterval = windowManager.autoScanInterval
         }
-        .onChange(of: windowManager.autoScanInterval) { newValue in
+        .onChange(of: windowManager.autoScanInterval) { oldValue, newValue in
             tempInterval = newValue
         }
     }

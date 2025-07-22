@@ -137,10 +137,13 @@ class WindowManager {
                 }
             }
             
+            let capturedWindowInfos = windowInfos
+            let detectedTables = self.pokerTableDetector.detectPokerTables(from: capturedWindowInfos)
+            
             await MainActor.run {
-                self.windows = windowInfos
-                self.windowCount = windowInfos.count
-                self.pokerTables = self.pokerTableDetector.detectPokerTables(from: windowInfos)
+                self.windows = capturedWindowInfos
+                self.windowCount = capturedWindowInfos.count
+                self.pokerTables = detectedTables
                 self.isScanning = false
             }
             
@@ -252,7 +255,8 @@ class WindowManager {
     }
     
     func bringWindowToFront(_ windowInfo: WindowInfo) {
-        guard let app = windowInfo.scWindow.owningApplication else {
+        guard let scWindow = windowInfo.scWindow,
+              let app = scWindow.owningApplication else {
             print("No owning application found for window")
             return
         }
@@ -264,7 +268,7 @@ class WindowManager {
         if #available(macOS 14.0, *) {
             runningApp?.activate()
         } else {
-            runningApp?.activate(options: [.activateIgnoringOtherApps])
+            runningApp?.activate(options: .activateIgnoringOtherApps)
         }
         
         print("Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")

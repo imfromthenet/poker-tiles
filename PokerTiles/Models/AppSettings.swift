@@ -8,7 +8,7 @@
 import Foundation
 
 struct AppSettings: Codable {
-    let version: Int = 1 // For future compatibility
+    var version: Int = 1 // For future compatibility
     let exportDate: Date
     
     // Auto-scan settings
