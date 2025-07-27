@@ -125,6 +125,16 @@ struct GridLayoutView: View {
     private func arrangeInSelectedLayout() {
         isArranging = true
         
+        print("🎯 Arranging \(windowManager.pokerTables.count) tables in \(selectedLayout.displayName)")
+        
+        // Check permissions first
+        if !PermissionManager.hasAccessibilityPermission() {
+            print("❌ No Accessibility permission - requesting...")
+            PermissionManager.requestAccessibilityPermission()
+            isArranging = false
+            return
+        }
+        
         Task {
             await MainActor.run {
                 windowManager.arrangePokerTablesInGrid(selectedLayout)
@@ -139,14 +149,32 @@ struct GridLayoutView: View {
     }
     
     private func cascadeTables() {
+        print("🎯 Cascading \(windowManager.pokerTables.count) tables")
+        if !PermissionManager.hasAccessibilityPermission() {
+            print("❌ No Accessibility permission - requesting...")
+            PermissionManager.requestAccessibilityPermission()
+            return
+        }
         windowManager.cascadePokerTables()
     }
     
     private func stackTables() {
+        print("🎯 Stacking \(windowManager.pokerTables.count) tables")
+        if !PermissionManager.hasAccessibilityPermission() {
+            print("❌ No Accessibility permission - requesting...")
+            PermissionManager.requestAccessibilityPermission()
+            return
+        }
         windowManager.stackPokerTables()
     }
     
     private func distributeAcrossScreens() {
+        print("🎯 Distributing \(windowManager.pokerTables.count) tables across screens")
+        if !PermissionManager.hasAccessibilityPermission() {
+            print("❌ No Accessibility permission - requesting...")
+            PermissionManager.requestAccessibilityPermission()
+            return
+        }
         windowManager.distributeTablesAcrossScreens()
     }
     

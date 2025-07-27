@@ -45,29 +45,45 @@ class WindowManipulator {
     /// Move a window using the best available method
     @discardableResult
     func moveWindow(_ windowInfo: WindowInfo, to position: CGPoint) -> Bool {
+        print("🎯 Attempting to move window '\(windowInfo.title)' to position \(position)")
+        
         let method = getPreferredMethod(for: windowInfo)
+        print("📋 Using method: \(method)")
+        
         var success = false
         
         switch method {
         case .accessibilityFirst:
-            success = tryAccessibilityMove(windowInfo, to: position) ||
-                     tryAppleScriptMove(windowInfo, to: position)
+            print("🔧 Trying Accessibility API first...")
+            success = tryAccessibilityMove(windowInfo, to: position)
+            if !success {
+                print("🔄 Accessibility failed, trying AppleScript...")
+                success = tryAppleScriptMove(windowInfo, to: position)
+            }
             
         case .appleScriptFirst:
-            success = tryAppleScriptMove(windowInfo, to: position) ||
-                     tryAccessibilityMove(windowInfo, to: position)
+            print("🔧 Trying AppleScript first...")
+            success = tryAppleScriptMove(windowInfo, to: position)
+            if !success {
+                print("🔄 AppleScript failed, trying Accessibility...")
+                success = tryAccessibilityMove(windowInfo, to: position)
+            }
             
         case .accessibilityWithRetry:
+            print("🔧 Using Accessibility with retry...")
             success = accessibilityManager.moveWindowWithRetry(windowInfo, to: position)
             
         case .gradualMovement:
+            print("🔧 Using gradual movement...")
             success = accessibilityManager.moveWindow(windowInfo, to: position, gradual: true)
         }
         
         // Update statistics
         stats.recordAttempt(app: windowInfo.appName, success: success)
         
-        if !success {
+        if success {
+            print("✅ Successfully moved window '\(windowInfo.title)'")
+        } else {
             print("❌ Failed to move window '\(windowInfo.title)' for app '\(windowInfo.appName)'")
         }
         
@@ -157,6 +173,8 @@ class WindowManipulator {
     
     /// Arrange windows in a grid
     func arrangeWindowsInGrid(_ windows: [WindowInfo], on screen: NSScreen, rows: Int, cols: Int) {
+        print("📐 Arranging \(windows.count) windows in \(rows)x\(cols) grid on screen \(screen.localizedName)")
+        
         let gridManager = GridLayoutManager()
         let grid = gridManager.calculateGridLayout(for: screen, rows: rows, cols: cols)
         
@@ -168,6 +186,7 @@ class WindowManipulator {
                 let window = windows[windowIndex]
                 let frame = grid[row][col]
                 
+                print("📍 Placing window '\(window.title)' at row \(row), col \(col) - frame: \(frame)")
                 setWindowFrame(window, frame: frame)
                 windowIndex += 1
             }

@@ -41,24 +41,24 @@ class HotkeyManager: ObservableObject {
             }
         }
         
-        var defaultKey: Key? {
+        var defaultKeyCode: UInt16? {
             switch self {
             // Layout hotkeys (Cmd+Shift+Number)
-            case .grid2x1: return .one
-            case .grid2x2: return .two
-            case .grid3x3: return .three
-            case .cascade: return .c
-            case .stack: return .s
-            case .autoArrange: return .a
+            case .grid2x1: return GlobalHotkeyMonitor.KeyCode.one
+            case .grid2x2: return GlobalHotkeyMonitor.KeyCode.two
+            case .grid3x3: return GlobalHotkeyMonitor.KeyCode.three
+            case .cascade: return GlobalHotkeyMonitor.KeyCode.c
+            case .stack: return GlobalHotkeyMonitor.KeyCode.s
+            case .autoArrange: return GlobalHotkeyMonitor.KeyCode.a
                 
             // Poker action hotkeys
-            case .fold: return .f
-            case .check: return .space
-            case .call: return .c
-            case .raise: return .r
-            case .allIn: return .a
-            case .nextTable: return .tab
-            case .previousTable: return .tab
+            case .fold: return GlobalHotkeyMonitor.KeyCode.f
+            case .check: return GlobalHotkeyMonitor.KeyCode.space
+            case .call: return GlobalHotkeyMonitor.KeyCode.c
+            case .raise: return GlobalHotkeyMonitor.KeyCode.r
+            case .allIn: return GlobalHotkeyMonitor.KeyCode.a
+            case .nextTable: return GlobalHotkeyMonitor.KeyCode.tab
+            case .previousTable: return GlobalHotkeyMonitor.KeyCode.tab
             }
         }
         
@@ -83,21 +83,22 @@ class HotkeyManager: ObservableObject {
     
     struct HotkeyBinding: Codable {
         let action: String
-        let keyCode: Int
-        let modifiers: Int
+        let keyCode: UInt16
+        let modifiers: UInt
         
-        init(action: HotkeyAction, key: Key, modifiers: NSEvent.ModifierFlags) {
+        init(action: HotkeyAction, keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
             self.action = action.rawValue
-            self.keyCode = Int(key.carbonKeyCode)
-            self.modifiers = Int(modifiers.rawValue)
+            self.keyCode = keyCode
+            self.modifiers = modifiers.rawValue
         }
     }
     
     // MARK: - Properties
     
     @Published var isEnabled = false
-    private var hotkeys: [HotkeyAction: HotKey] = [:]
+    private var registeredHotkeys: [HotkeyAction: (keyCode: UInt16, modifiers: NSEvent.ModifierFlags)] = [:]
     private weak var windowManager: WindowManager?
+    private let monitor = GlobalHotkeyMonitor.shared
     
     // MARK: - Initialization
     
@@ -112,45 +113,52 @@ class HotkeyManager: ObservableObject {
         isEnabled = enabled
         
         if enabled {
-            registerAllHotkeys()
+            if monitor.startMonitoring() {
+                registerAllHotkeys()
+            } else {
+                isEnabled = false
+                print("❌ Failed to start hotkey monitoring - check Accessibility permission")
+            }
         } else {
             unregisterAllHotkeys()
+            monitor.stopMonitoring()
         }
     }
     
-    func registerHotkey(_ action: HotkeyAction, key: Key, modifiers: NSEvent.ModifierFlags) {
+    func registerHotkey(_ action: HotkeyAction, keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
         // Unregister existing hotkey if any
         unregisterHotkey(action)
         
-        // Create and register new hotkey
-        let hotkey = HotKey(key: key, modifiers: modifiers)
-        hotkey.keyDownHandler = { [weak self] in
+        // Register with monitor
+        monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
             self?.handleHotkeyAction(action)
         }
         
-        hotkeys[action] = hotkey
+        // Store registration
+        registeredHotkeys[action] = (keyCode: keyCode, modifiers: modifiers)
         
         // Save to preferences
-        saveHotkey(action: action, key: key, modifiers: modifiers)
+        saveHotkey(action: action, keyCode: keyCode, modifiers: modifiers)
     }
     
     func unregisterHotkey(_ action: HotkeyAction) {
-        hotkeys[action] = nil
+        if let (keyCode, modifiers) = registeredHotkeys[action] {
+            monitor.unregister(keyCode: keyCode, modifiers: modifiers)
+            registeredHotkeys.removeValue(forKey: action)
+        }
     }
     
-    func getHotkey(for action: HotkeyAction) -> (key: Key, modifiers: NSEvent.ModifierFlags)? {
-        guard let hotkey = hotkeys[action] else { return nil }
-        
-        return (hotkey.key, hotkey.modifiers)
+    func getHotkey(for action: HotkeyAction) -> (keyCode: UInt16, modifiers: NSEvent.ModifierFlags)? {
+        return registeredHotkeys[action]
     }
     
     func resetToDefaults() {
         unregisterAllHotkeys()
         
         for action in HotkeyAction.allCases {
-            if let key = action.defaultKey,
+            if let keyCode = action.defaultKeyCode,
                let modifiers = action.defaultModifiers {
-                registerHotkey(action, key: key, modifiers: modifiers)
+                registerHotkey(action, keyCode: keyCode, modifiers: modifiers)
             }
         }
     }
@@ -161,18 +169,28 @@ class HotkeyManager: ObservableObject {
         guard isEnabled else { return }
         
         // Register default hotkeys if none exist
-        if hotkeys.isEmpty {
+        if registeredHotkeys.isEmpty {
             for action in HotkeyAction.allCases {
-                if let key = action.defaultKey,
+                if let keyCode = action.defaultKeyCode,
                    let modifiers = action.defaultModifiers {
-                    registerHotkey(action, key: key, modifiers: modifiers)
+                    registerHotkey(action, keyCode: keyCode, modifiers: modifiers)
+                }
+            }
+        } else {
+            // Re-register existing hotkeys
+            for (action, (keyCode, modifiers)) in registeredHotkeys {
+                monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
+                    self?.handleHotkeyAction(action)
                 }
             }
         }
     }
     
     private func unregisterAllHotkeys() {
-        hotkeys.removeAll()
+        for (_, (keyCode, modifiers)) in registeredHotkeys {
+            monitor.unregister(keyCode: keyCode, modifiers: modifiers)
+        }
+        registeredHotkeys.removeAll()
     }
     
     private func handleHotkeyAction(_ action: HotkeyAction) {
@@ -257,8 +275,8 @@ class HotkeyManager: ObservableObject {
     
     // MARK: - Persistence
     
-    private func saveHotkey(action: HotkeyAction, key: Key, modifiers: NSEvent.ModifierFlags) {
-        let binding = HotkeyBinding(action: action, key: key, modifiers: modifiers)
+    private func saveHotkey(action: HotkeyAction, keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
+        let binding = HotkeyBinding(action: action, keyCode: keyCode, modifiers: modifiers)
         
         var bindings = loadSavedBindings()
         bindings[action.rawValue] = binding
@@ -272,13 +290,12 @@ class HotkeyManager: ObservableObject {
         let bindings = loadSavedBindings()
         
         for (actionName, binding) in bindings {
-            guard let action = HotkeyAction(rawValue: actionName),
-                  let key = Key(carbonKeyCode: UInt32(binding.keyCode)) else {
+            guard let action = HotkeyAction(rawValue: actionName) else {
                 continue
             }
             
-            let modifiers = NSEvent.ModifierFlags(rawValue: UInt(binding.modifiers))
-            registerHotkey(action, key: key, modifiers: modifiers)
+            let modifiers = NSEvent.ModifierFlags(rawValue: binding.modifiers)
+            registerHotkey(action, keyCode: binding.keyCode, modifiers: modifiers)
         }
     }
     
@@ -299,54 +316,3 @@ class HotkeyManager: ObservableObject {
 
 // MARK: - HotKey Package Compatibility
 
-// Mock HotKey implementation
-// In production, you would use the HotKey package from:
-// https://github.com/soffes/HotKey
-class HotKey {
-    let key: Key
-    let modifiers: NSEvent.ModifierFlags
-    var keyDownHandler: (() -> Void)?
-    
-    init(key: Key, modifiers: NSEvent.ModifierFlags) {
-        self.key = key
-        self.modifiers = modifiers
-    }
-}
-
-// Mock Key enum
-enum Key {
-    case a, c, f, r, s
-    case one, two, three
-    case space, tab
-    
-    var carbonKeyCode: UInt32 {
-        switch self {
-        case .a: return 0
-        case .c: return 8
-        case .f: return 3
-        case .r: return 15
-        case .s: return 1
-        case .one: return 18
-        case .two: return 19
-        case .three: return 20
-        case .space: return 49
-        case .tab: return 48
-        }
-    }
-    
-    init?(carbonKeyCode: UInt32) {
-        switch carbonKeyCode {
-        case 0: self = .a
-        case 8: self = .c
-        case 3: self = .f
-        case 15: self = .r
-        case 1: self = .s
-        case 18: self = .one
-        case 19: self = .two
-        case 20: self = .three
-        case 49: self = .space
-        case 48: self = .tab
-        default: return nil
-        }
-    }
-}

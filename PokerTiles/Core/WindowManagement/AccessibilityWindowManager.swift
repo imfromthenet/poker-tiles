@@ -162,47 +162,57 @@ class AccessibilityWindowManager {
     
     /// Get AXUIElement for a window
     private func getAXWindow(for windowInfo: WindowInfo) -> AXUIElement? {
-        guard let scWindow = windowInfo.scWindow,
-              let app = scWindow.owningApplication else {
+        // Try to get the AXUIElement for the window
+        let pid = windowInfo.owningApplication?.processIdentifier ?? 0
+        guard pid > 0 else {
+            print("❌ No valid PID for window")
             return nil
         }
         
-        let pid = app.processID
+        let app = AXUIElementCreateApplication(pid)
         
-        // Get or create application reference
-        let appElement: AXUIElement
-        if let cached = processCache[pid] {
-            appElement = cached
-        } else {
-            appElement = AXUIElementCreateApplication(pid)
-            processCache[pid] = appElement
-        }
+        // Get all windows for the app
+        var windowsRef: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &windowsRef)
         
-        // Find the specific window
-        var windows: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windows)
-        
-        guard result == .success,
-              let windowArray = windows as? [AXUIElement] else {
+        if result != .success {
+            print("❌ Failed to get windows: error \(result.rawValue)")
             return nil
         }
         
-        // Match window by title and position
-        for axWindow in windowArray {
-            if let title = getWindowTitle(axWindow),
+        guard let windows = windowsRef as? [AXUIElement], !windows.isEmpty else {
+            print("❌ No windows found for app")
+            return nil
+        }
+        
+        // Match window by title
+        for window in windows {
+            var titleRef: CFTypeRef?
+            if AXUIElementCopyAttributeValue(window, kAXTitleAttribute as CFString, &titleRef) == .success,
+               let title = titleRef as? String,
                title == windowInfo.title {
-                // Additional verification by position if needed
-                if let pos = getCurrentPosition(axWindow),
-                   abs(pos.x - windowInfo.bounds.origin.x) < 50,
-                   abs(pos.y - windowInfo.bounds.origin.y) < 50 {
-                    return axWindow
+                return window
+            }
+        }
+        
+        // If no match by title, try by position
+        for window in windows {
+            var posRef: CFTypeRef?
+            if AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &posRef) == .success {
+                var currentPos = CGPoint.zero
+                if let posValue = posRef {
+                    AXValueGetValue(posValue as! AXValue, .cgPoint, &currentPos)
+                    if abs(currentPos.x - windowInfo.bounds.origin.x) < 10 &&
+                       abs(currentPos.y - windowInfo.bounds.origin.y) < 10 {
+                        return window
+                    }
                 }
             }
         }
         
         // Fallback: return first window if only one exists
-        if windowArray.count == 1 {
-            return windowArray.first
+        if windows.count == 1 {
+            return windows.first
         }
         
         return nil
@@ -352,4 +362,16 @@ struct WindowState {
     let isResizable: Bool
     let currentPosition: CGPoint?
     let currentSize: CGSize?
+}
+
+// MARK: - WindowInfo Extension
+
+private extension WindowInfo {
+    var owningApplication: NSRunningApplication? {
+        guard let scWindow = scWindow,
+              let app = scWindow.owningApplication else {
+            return nil
+        }
+        return NSRunningApplication(processIdentifier: app.processID)
+    }
 }

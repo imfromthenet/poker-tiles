@@ -34,7 +34,22 @@ struct ContentView: View {
                     windowManager: windowManager
                 )
                 
+                // Quick Actions - Always visible
+                Section("Window Management") {
+                    QuickActionsView(windowManager: windowManager)
+                }
+                
+                // Debug section
+                Section("Debug") {
+                    DebugWindowMoveView()
+                }
+                
                 SettingsSection(windowManager: windowManager)
+                
+                // Permission Status
+                Section("Permissions") {
+                    PermissionStatusView()
+                }
                 
                 // Hotkey Settings
                 Section("Hotkeys") {

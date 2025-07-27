@@ -117,8 +117,8 @@ struct HotkeyRow: View {
             
             Spacer()
             
-            if let (key, modifiers) = hotkeyManager.getHotkey(for: action) {
-                HotkeyDisplay(key: key, modifiers: modifiers)
+            if let (keyCode, modifiers) = hotkeyManager.getHotkey(for: action) {
+                HotkeyDisplay(keyCode: keyCode, modifiers: modifiers)
                     .onTapGesture {
                         onEdit()
                     }
@@ -146,7 +146,7 @@ struct HotkeyRow: View {
 // MARK: - Hotkey Display
 
 struct HotkeyDisplay: View {
-    let key: Key
+    let keyCode: UInt16
     let modifiers: NSEvent.ModifierFlags
     
     var body: some View {
@@ -169,17 +169,28 @@ struct HotkeyDisplay: View {
     }
     
     private var keySymbol: String {
-        switch key {
-        case .a: return "A"
-        case .c: return "C"
-        case .f: return "F"
-        case .r: return "R"
-        case .s: return "S"
-        case .one: return "1"
-        case .two: return "2"
-        case .three: return "3"
-        case .space: return "Space"
-        case .tab: return "Tab"
+        // Map key codes to symbols
+        switch keyCode {
+        case GlobalHotkeyMonitor.KeyCode.a: return "A"
+        case GlobalHotkeyMonitor.KeyCode.c: return "C"
+        case GlobalHotkeyMonitor.KeyCode.f: return "F"
+        case GlobalHotkeyMonitor.KeyCode.r: return "R"
+        case GlobalHotkeyMonitor.KeyCode.s: return "S"
+        case GlobalHotkeyMonitor.KeyCode.one: return "1"
+        case GlobalHotkeyMonitor.KeyCode.two: return "2"
+        case GlobalHotkeyMonitor.KeyCode.three: return "3"
+        case GlobalHotkeyMonitor.KeyCode.space: return "Space"
+        case GlobalHotkeyMonitor.KeyCode.tab: return "Tab"
+        default:
+            // Try to get a string representation for other keys
+            if let source = CGEventSource(stateID: .hidSystemState) {
+                let event = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(keyCode), keyDown: true)
+                if let event = event {
+                    let nsEvent = NSEvent(cgEvent: event)
+                    return nsEvent?.charactersIgnoringModifiers?.uppercased() ?? "?"
+                }
+            }
+            return "Key \(keyCode)"
         }
     }
 }
@@ -210,7 +221,7 @@ struct HotkeyRecorderView: View {
     let hotkeyManager: HotkeyManager
     let onComplete: () -> Void
     
-    @State private var recordedKey: Key?
+    @State private var recordedKeyCode: UInt16?
     @State private var recordedModifiers: NSEvent.ModifierFlags = []
     @Environment(\.dismiss) private var dismiss
     
@@ -225,8 +236,8 @@ struct HotkeyRecorderView: View {
                 .foregroundColor(.secondary)
             
             // Show current combination
-            if let key = recordedKey {
-                HotkeyDisplay(key: key, modifiers: recordedModifiers)
+            if let keyCode = recordedKeyCode {
+                HotkeyDisplay(keyCode: keyCode, modifiers: recordedModifiers)
                     .scaleEffect(1.5)
                     .padding()
             } else {
@@ -244,21 +255,21 @@ struct HotkeyRecorderView: View {
                 .buttonStyle(.bordered)
                 
                 Button("Save") {
-                    if let key = recordedKey {
-                        hotkeyManager.registerHotkey(action, key: key, modifiers: recordedModifiers)
+                    if let keyCode = recordedKeyCode {
+                        hotkeyManager.registerHotkey(action, keyCode: keyCode, modifiers: recordedModifiers)
                     }
                     dismiss()
                     onComplete()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(recordedKey == nil)
+                .disabled(recordedKeyCode == nil)
             }
         }
         .padding(40)
         .frame(width: 400, height: 250)
         .background(KeyRecorderRepresentable(
-            onKeyPress: { key, modifiers in
-                recordedKey = key
+            onKeyPress: { keyCode, modifiers in
+                recordedKeyCode = keyCode
                 recordedModifiers = modifiers
             }
         ))
@@ -268,7 +279,7 @@ struct HotkeyRecorderView: View {
 // MARK: - Key Recorder NSView
 
 struct KeyRecorderRepresentable: NSViewRepresentable {
-    let onKeyPress: (Key, NSEvent.ModifierFlags) -> Void
+    let onKeyPress: (UInt16, NSEvent.ModifierFlags) -> Void
     
     func makeNSView(context: Context) -> KeyRecorderView {
         let view = KeyRecorderView()
@@ -280,7 +291,7 @@ struct KeyRecorderRepresentable: NSViewRepresentable {
 }
 
 class KeyRecorderView: NSView {
-    var onKeyPress: ((Key, NSEvent.ModifierFlags) -> Void)?
+    var onKeyPress: ((UInt16, NSEvent.ModifierFlags) -> Void)?
     
     override var acceptsFirstResponder: Bool { true }
     
@@ -290,29 +301,8 @@ class KeyRecorderView: NSView {
     }
     
     override func keyDown(with event: NSEvent) {
-        guard let key = convertToKey(event.keyCode) else {
-            super.keyDown(with: event)
-            return
-        }
-        
-        onKeyPress?(key, event.modifierFlags.intersection([.command, .shift, .control, .option]))
-    }
-    
-    private func convertToKey(_ keyCode: UInt16) -> Key? {
-        // Map common key codes to our Key enum
-        switch keyCode {
-        case 0: return .a
-        case 8: return .c
-        case 3: return .f
-        case 15: return .r
-        case 1: return .s
-        case 18: return .one
-        case 19: return .two
-        case 20: return .three
-        case 49: return .space
-        case 48: return .tab
-        default: return nil
-        }
+        // Pass the raw key code and modifiers
+        onKeyPress?(event.keyCode, event.modifierFlags.intersection([.command, .shift, .control, .option]))
     }
 }
 
