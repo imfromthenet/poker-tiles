@@ -159,6 +159,7 @@ class DirectWindowMover {
         return moveResult == .success
     }
     
+    #if DEBUG
     /// Test window resize functionality
     static func testResizeWindow(appName: String, to size: CGSize) -> Bool {
         guard AXIsProcessTrusted() else {
@@ -228,4 +229,5 @@ class DirectWindowMover {
         
         return resizeResult == .success
     }
+    #endif
 }

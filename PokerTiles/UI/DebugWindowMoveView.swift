@@ -450,11 +450,15 @@ struct DebugWindowMoveView: View {
                     // Test 3: Resize
                     Thread.sleep(forTimeInterval: 0.5)
                     log("\nTest 3: Resizing window to 800x600...")
+                    #if DEBUG
                     if DirectWindowMover.testResizeWindow(appName: appName, to: CGSize(width: 800, height: 600)) {
                         log("✅ Resize test passed!")
                     } else {
                         log("❌ Resize failed")
                     }
+                    #else
+                    log("⚠️ Resize test not available in release build")
+                    #endif
                     
                     testedApp = appName
                     break
@@ -558,11 +562,13 @@ struct DebugWindowMoveView: View {
                 
                 // Try to resize
                 Thread.sleep(forTimeInterval: 0.1)
+                #if DEBUG
                 if DirectWindowMover.testResizeWindow(appName: appName, to: CGSize(width: cellWidth - 10, height: cellHeight - 10)) {
                     log("✅ Resized \(appName)")
                 } else {
                     log("⚠️ Could not resize \(appName)")
                 }
+                #endif
             } else {
                 log("❌ Failed to move \(appName)")
             }
