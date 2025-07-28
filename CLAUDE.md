@@ -152,12 +152,29 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 - **Memory Management**: Efficient capture and processing of table regions
 - **Background Processing**: Non-blocking analysis using Swift Concurrency
 
+## Development Tools
+
+### Debug Window Move View
+- Comprehensive testing interface for window manipulation
+- Features:
+  - Test window movement with verification
+  - Grid arrangement testing (2x2, 3x3)
+  - Window resize testing
+  - Poker window detection
+  - Real-time logging with copy functionality
+- Located at: `PokerTiles/UI/DebugWindowMoveView.swift`
+
 ## Project Configuration
 
 - Bundle ID: `com.olsevskas.PokerTiles`
 - Development Team: Paulius Olsevskas
 - macOS 15+ deployment target
-- App Sandbox with accessibility and screen recording entitlements
+- **App Sandbox: DISABLED** (required for Accessibility API to function properly)
+  - This allows full window manipulation capabilities
+  - See `docs/archive/WINDOW_MOVEMENT_FIX.md` for details
+- Required entitlements:
+  - `com.apple.security.accessibility` - For window manipulation
+  - `com.apple.security.screen-capture` - For window detection
 - SwiftUI Previews enabled for development
 
 ## Summary instructions

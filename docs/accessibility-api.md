@@ -130,7 +130,7 @@ func setupTableMonitoring(element: AXUIElement) {
 Add to Info.plist:
 ```xml
 <key>NSAccessibilityUsageDescription</key>
-<string>PockerTile needs accessibility access to detect and interact with poker tables in web browsers.</string>
+<string>PokerTiles needs accessibility access to detect and interact with poker tables in web browsers.</string>
 ```
 
 Check permissions:
