@@ -16,23 +16,23 @@ class GridLayoutManager {
     /// Predefined grid layouts
     enum GridLayout: CaseIterable {
         case single      // 1x1
-        case twoByOne    // 2x1 (side by side)
-        case oneByTwo    // 1x2 (stacked)
+        case oneByTwo    // 1x2 (side by side)
+        case twoByOne    // 2x1 (stacked)
         case twoByTwo    // 2x2
-        case threeByTwo  // 3x2
+        case twoByThree  // 2x3
         case threeByThree // 3x3
-        case fourByThree // 4x3
+        case threeByFour // 3x4
         case fourByFour  // 4x4
         
         var rows: Int {
             switch self {
             case .single: return 1
-            case .twoByOne: return 1
-            case .oneByTwo: return 2
+            case .oneByTwo: return 1
+            case .twoByOne: return 2
             case .twoByTwo: return 2
-            case .threeByTwo: return 2
+            case .twoByThree: return 2
             case .threeByThree: return 3
-            case .fourByThree: return 3
+            case .threeByFour: return 3
             case .fourByFour: return 4
             }
         }
@@ -40,12 +40,12 @@ class GridLayoutManager {
         var columns: Int {
             switch self {
             case .single: return 1
-            case .twoByOne: return 2
-            case .oneByTwo: return 1
+            case .oneByTwo: return 2
+            case .twoByOne: return 1
             case .twoByTwo: return 2
-            case .threeByTwo: return 3
+            case .twoByThree: return 3
             case .threeByThree: return 3
-            case .fourByThree: return 4
+            case .threeByFour: return 4
             case .fourByFour: return 4
             }
         }
@@ -53,12 +53,12 @@ class GridLayoutManager {
         var displayName: String {
             switch self {
             case .single: return "Single"
-            case .twoByOne: return "2x1 Side by Side"
-            case .oneByTwo: return "1x2 Stacked"
+            case .oneByTwo: return "1x2 Side by Side"
+            case .twoByOne: return "2x1 Stacked"
             case .twoByTwo: return "2x2 Grid"
-            case .threeByTwo: return "3x2 Grid"
+            case .twoByThree: return "2x3 Grid"
             case .threeByThree: return "3x3 Grid"
-            case .fourByThree: return "4x3 Grid"
+            case .threeByFour: return "3x4 Grid"
             case .fourByFour: return "4x4 Grid"
             }
         }

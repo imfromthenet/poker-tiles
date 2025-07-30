@@ -15,6 +15,28 @@ struct HotkeySettingsView: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            // Invalid bindings notification
+            if hotkeyManager.hasInvalidBindings() {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.yellow)
+                    
+                    Text("\(hotkeyManager.invalidBindings.count) hotkey settings couldn't be loaded and were reset to defaults")
+                        .font(.subheadline)
+                    
+                    Spacer()
+                    
+                    Button("Dismiss") {
+                        hotkeyManager.clearInvalidBindings()
+                    }
+                    .buttonStyle(.link)
+                    .controlSize(.small)
+                }
+                .padding()
+                .background(Color.yellow.opacity(0.1))
+                .cornerRadius(8)
+            }
+            
             // Header
             VStack(alignment: .leading, spacing: 8) {
                 Text("Hotkey Settings")

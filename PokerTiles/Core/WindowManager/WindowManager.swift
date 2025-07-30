@@ -29,7 +29,8 @@ class WindowManager {
     init() {
         checkPermissions()
         hotkeyManager = HotkeyManager(windowManager: self)
-        startAutoScan()
+        // Don't start auto-scan immediately to prevent early screenshot capture
+        // startAutoScan()
     }
     
     deinit {
@@ -85,6 +86,18 @@ class WindowManager {
                 }
                 
                 try? await Task.sleep(nanoseconds: UInt64(self.autoScanInterval * 1_000_000_000))
+            }
+        }
+    }
+    
+    func startAutoScanWithDelay(delay: TimeInterval = 2.0) {
+        Task { @MainActor in
+            // Wait for the specified delay before starting auto-scan
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            
+            // Only start if still enabled and has permission
+            if isAutoScanEnabled && hasPermission {
+                startAutoScan()
             }
         }
     }

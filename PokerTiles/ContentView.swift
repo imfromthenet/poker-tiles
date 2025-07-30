@@ -74,6 +74,8 @@ struct ContentView: View {
         .formStyle(.grouped)
         .task(id: "initial_setup") {
             windowManager.checkPermissions()
+            // Start auto-scan with a delay to ensure app is fully initialized
+            windowManager.startAutoScanWithDelay(delay: 2.0)
         }
         .task {
             // Periodically check permissions in case they're revoked

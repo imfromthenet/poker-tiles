@@ -16,7 +16,7 @@ class HotkeyManager: ObservableObject {
     
     enum HotkeyAction: String, CaseIterable {
         // Window Layout Actions
-        case grid2x1 = "2x1 Grid Layout"
+        case grid1x2 = "1x2 Grid Layout"
         case grid2x2 = "2x2 Grid Layout"
         case grid3x3 = "3x3 Grid Layout"
         case cascade = "Cascade Windows"
@@ -34,7 +34,7 @@ class HotkeyManager: ObservableObject {
         
         var category: String {
             switch self {
-            case .grid2x1, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange:
+            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange:
                 return "Window Layout"
             case .fold, .check, .call, .raise, .allIn, .nextTable, .previousTable:
                 return "Poker Actions"
@@ -44,7 +44,7 @@ class HotkeyManager: ObservableObject {
         var defaultKeyCode: UInt16? {
             switch self {
             // Layout hotkeys (Cmd+Shift+Number)
-            case .grid2x1: return GlobalHotkeyMonitor.KeyCode.one
+            case .grid1x2: return GlobalHotkeyMonitor.KeyCode.one
             case .grid2x2: return GlobalHotkeyMonitor.KeyCode.two
             case .grid3x3: return GlobalHotkeyMonitor.KeyCode.three
             case .cascade: return GlobalHotkeyMonitor.KeyCode.c
@@ -65,7 +65,7 @@ class HotkeyManager: ObservableObject {
         var defaultModifiers: NSEvent.ModifierFlags? {
             switch self {
             // Layout hotkeys use Cmd+Shift
-            case .grid2x1, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange:
+            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange:
                 return [.command, .shift]
                 
             // Poker actions use Ctrl
@@ -96,6 +96,7 @@ class HotkeyManager: ObservableObject {
     // MARK: - Properties
     
     @Published var isEnabled = false
+    @Published var invalidBindings: [(action: String, keyCode: UInt16)] = []
     private var registeredHotkeys: [HotkeyAction: (keyCode: UInt16, modifiers: NSEvent.ModifierFlags)] = [:]
     private weak var windowManager: WindowManager?
     private let monitor = GlobalHotkeyMonitor.shared
@@ -108,6 +109,26 @@ class HotkeyManager: ObservableObject {
     }
     
     // MARK: - Public Methods
+    
+    func hasInvalidBindings() -> Bool {
+        return !invalidBindings.isEmpty
+    }
+    
+    func clearInvalidBindings() {
+        // Clear invalid bindings from UserDefaults
+        if !invalidBindings.isEmpty {
+            let count = invalidBindings.count
+            let validBindings = loadSavedBindings().filter { (actionName, _) in
+                HotkeyAction(rawValue: actionName) != nil
+            }
+            
+            if let data = try? JSONEncoder().encode(Array(validBindings.values)) {
+                UserDefaults.standard.set(data, forKey: "PokerTilesHotkeys")
+                invalidBindings.removeAll()
+                print("✅ Cleared \(count) invalid hotkey bindings")
+            }
+        }
+    }
     
     func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
@@ -199,8 +220,8 @@ class HotkeyManager: ObservableObject {
         DispatchQueue.main.async {
             switch action {
             // Window Layout Actions
-            case .grid2x1:
-                windowManager.arrangePokerTablesInGrid(.twoByOne)
+            case .grid1x2:
+                windowManager.arrangePokerTablesInGrid(.oneByTwo)
                 
             case .grid2x2:
                 windowManager.arrangePokerTablesInGrid(.twoByTwo)
@@ -287,15 +308,24 @@ class HotkeyManager: ObservableObject {
     }
     
     private func loadHotkeys() {
+        invalidBindings.removeAll()
         let bindings = loadSavedBindings()
         
         for (actionName, binding) in bindings {
             guard let action = HotkeyAction(rawValue: actionName) else {
+                // Track invalid binding for user feedback
+                invalidBindings.append((action: actionName, keyCode: binding.keyCode))
+                print("⚠️ Invalid hotkey binding found: '\(actionName)' with keyCode: \(binding.keyCode)")
                 continue
             }
             
             let modifiers = NSEvent.ModifierFlags(rawValue: binding.modifiers)
             registerHotkey(action, keyCode: binding.keyCode, modifiers: modifiers)
+        }
+        
+        // Log summary if there were invalid bindings
+        if !invalidBindings.isEmpty {
+            print("❌ Found \(invalidBindings.count) invalid hotkey bindings that were skipped")
         }
     }
     
