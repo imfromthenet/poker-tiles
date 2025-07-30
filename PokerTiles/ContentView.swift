@@ -22,38 +22,20 @@ struct ContentView: View {
                     windowManager: windowManager
                 )
             } else {
+                // Core functionality
                 WindowStatisticsSection(windowManager: windowManager)
                 
                 AutoScanSection(windowManager: windowManager)
                 
-                // Quick Actions - Always visible
+                // Window Management
                 Section("Window Management") {
                     QuickActionsView(windowManager: windowManager)
                 }
                 
-                #if DEBUG
-                // Debug section
-                Section("Debug") {
-                    DebugWindowMoveView()
-                }
-                #endif
-                
-                SettingsSection(windowManager: windowManager)
-                
-                // Permission Status
-                Section("Permissions") {
-                    PermissionStatusView()
-                }
-                
-                // Hotkey Settings
-                Section("Hotkeys") {
-                    HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
-                }
-                
+                // Active tables (when available)
                 if !windowManager.pokerTables.isEmpty {
                     PokerTableSection(windowManager: windowManager)
                     
-                    // Grid Layout Section
                     Section("Window Layout") {
                         GridLayoutView(windowManager: windowManager)
                     }
@@ -63,6 +45,23 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                 }
+                
+                // Configuration
+                Section("Hotkeys") {
+                    HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
+                }
+                
+                SettingsSection(windowManager: windowManager)
+                
+                Section("Permissions") {
+                    PermissionStatusView()
+                }
+                
+                #if DEBUG
+                Section("Debug") {
+                    DebugWindowMoveView()
+                }
+                #endif
             }
         }
         .formStyle(.grouped)
