@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = 0
+    @State private var phase: CGFloat = -1
     let duration: Double
     let bounce: Bool
     
@@ -24,7 +24,7 @@ struct ShimmerModifier: ViewModifier {
                     Animation.linear(duration: duration)
                         .repeatForever(autoreverses: bounce)
                 ) {
-                    phase = 1
+                    phase = 2
                 }
             }
     }
@@ -36,18 +36,20 @@ struct ShimmerView: View {
     
     var body: some View {
         LinearGradient(
-            gradient: Gradient(colors: [
-                Color.white.opacity(0),
-                Color.white.opacity(0.3),
-                Color.white.opacity(0.5),
-                Color.white.opacity(0.3),
-                Color.white.opacity(0)
+            gradient: Gradient(stops: [
+                .init(color: Color.white.opacity(0), location: 0),
+                .init(color: Color.white.opacity(0), location: 0.3),
+                .init(color: Color.white.opacity(0.3), location: 0.45),
+                .init(color: Color.white.opacity(0.4), location: 0.5),
+                .init(color: Color.white.opacity(0.3), location: 0.55),
+                .init(color: Color.white.opacity(0), location: 0.7),
+                .init(color: Color.white.opacity(0), location: 1)
             ]),
             startPoint: .leading,
             endPoint: .trailing
         )
-        .frame(width: size.width * 0.3)
-        .offset(x: -size.width * 0.3 + (size.width * 1.6 * phase))
+        .frame(width: size.width * 0.7)
+        .offset(x: size.width * phase)
         .mask(
             Rectangle()
                 .fill(Color.white)
@@ -71,7 +73,7 @@ struct PlaceholderShimmer: View {
 // MARK: - View Extension
 extension View {
     func shimmering(
-        duration: Double = 1.5,
+        duration: Double = 2.5,
         bounce: Bool = false
     ) -> some View {
         modifier(ShimmerModifier(duration: duration, bounce: bounce))

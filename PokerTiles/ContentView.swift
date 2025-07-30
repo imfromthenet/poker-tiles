@@ -210,38 +210,41 @@ struct WindowStatisticsSection: View {
     
     var body: some View {
         Section("Window Statistics") {
-            if !windowManager.isInitialized {
-                // Loading state with shimmer effect
-                VStack(spacing: 15) {
-                    LoadingStatisticRow(label: "Total Windows:")
-                    LoadingStatisticRow(label: "App Windows:")
-                    LoadingStatisticRow(label: "Poker App Windows:")
-                    LoadingStatisticRow(label: "Poker Tables:")
-                }
-            } else {
-                // Actual statistics
-                VStack(spacing: 15) {
+            VStack(spacing: 15) {
+                if !windowManager.isInitialized {
+                    // Skeleton loading state
+                    SkeletonStatisticRow()
+                    SkeletonStatisticRow()
+                    SkeletonStatisticRow()
+                    SkeletonStatisticRow()
+                } else {
+                    // Actual statistics with fade-in
                     StatisticRow(
                         label: "Total Windows:",
                         value: "\(windowManager.windowCount)"
                     )
+                    .transition(.opacity)
                     
                     StatisticRow(
                         label: "App Windows:",
                         value: "\(windowManager.getAppWindows().count)"
                     )
+                    .transition(.opacity)
                     
                     StatisticRow(
                         label: "Poker App Windows:",
                         value: "\(windowManager.getPokerAppWindows().count)"
                     )
+                    .transition(.opacity)
                     
                     StatisticRow(
                         label: "Poker Tables:",
                         value: "\(windowManager.pokerTables.count)"
                     )
+                    .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: windowManager.isInitialized)
         }
     }
 }
@@ -263,19 +266,6 @@ struct StatisticRow: View {
     }
 }
 
-// MARK: - Loading Statistic Row
-struct LoadingStatisticRow: View {
-    let label: String
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .font(.headline)
-            Spacer()
-            PlaceholderShimmer(width: 40, height: 28)
-        }
-    }
-}
 
 // MARK: - Auto Scan Section
 struct AutoScanSection: View {
