@@ -10,6 +10,7 @@ class WindowManager {
     var permissionState: PermissionState = .notDetermined
     var hasPermission: Bool { permissionState.hasAccess }
     var isScanning: Bool = false
+    var isInitialized: Bool = false
     var isAutoScanEnabled: Bool = true
     var autoScanInterval: TimeInterval = 1.0 // Default 1 second
     
@@ -167,6 +168,7 @@ class WindowManager {
                 self.windowCount = capturedWindowInfos.count
                 self.pokerTables = detectedTables
                 self.isScanning = false
+                self.isInitialized = true
             }
             
             print("Found \(windowInfos.count) windows, \(self.pokerTables.count) poker tables")

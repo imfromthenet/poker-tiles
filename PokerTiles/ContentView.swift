@@ -210,26 +210,37 @@ struct WindowStatisticsSection: View {
     
     var body: some View {
         Section("Window Statistics") {
-            VStack(spacing: 15) {
-                StatisticRow(
-                    label: "Total Windows:",
-                    value: "\(windowManager.windowCount)"
-                )
-                
-                StatisticRow(
-                    label: "App Windows:",
-                    value: "\(windowManager.getAppWindows().count)"
-                )
-                
-                StatisticRow(
-                    label: "Poker App Windows:",
-                    value: "\(windowManager.getPokerAppWindows().count)"
-                )
-                
-                StatisticRow(
-                    label: "Poker Tables:",
-                    value: "\(windowManager.pokerTables.count)"
-                )
+            if !windowManager.isInitialized {
+                // Loading state with shimmer effect
+                VStack(spacing: 15) {
+                    LoadingStatisticRow(label: "Total Windows:")
+                    LoadingStatisticRow(label: "App Windows:")
+                    LoadingStatisticRow(label: "Poker App Windows:")
+                    LoadingStatisticRow(label: "Poker Tables:")
+                }
+            } else {
+                // Actual statistics
+                VStack(spacing: 15) {
+                    StatisticRow(
+                        label: "Total Windows:",
+                        value: "\(windowManager.windowCount)"
+                    )
+                    
+                    StatisticRow(
+                        label: "App Windows:",
+                        value: "\(windowManager.getAppWindows().count)"
+                    )
+                    
+                    StatisticRow(
+                        label: "Poker App Windows:",
+                        value: "\(windowManager.getPokerAppWindows().count)"
+                    )
+                    
+                    StatisticRow(
+                        label: "Poker Tables:",
+                        value: "\(windowManager.pokerTables.count)"
+                    )
+                }
             }
         }
     }
@@ -248,6 +259,20 @@ struct StatisticRow: View {
             Text(value)
                 .font(.title2)
                 .fontWeight(.semibold)
+        }
+    }
+}
+
+// MARK: - Loading Statistic Row
+struct LoadingStatisticRow: View {
+    let label: String
+    
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.headline)
+            Spacer()
+            PlaceholderShimmer(width: 40, height: 28)
         }
     }
 }
