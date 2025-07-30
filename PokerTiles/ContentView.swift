@@ -10,8 +10,6 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @State private var windowManager = WindowManager()
-    @State private var scanTriggerId: UUID?
-    @State private var testTriggerId: UUID?
     @State private var permissionTriggerId: UUID?
     
     var body: some View {
@@ -27,12 +25,6 @@ struct ContentView: View {
                 WindowStatisticsSection(windowManager: windowManager)
                 
                 AutoScanSection(windowManager: windowManager)
-                
-                ActionsSection(
-                    scanTriggerId: $scanTriggerId,
-                    testTriggerId: $testTriggerId,
-                    windowManager: windowManager
-                )
                 
                 // Quick Actions - Always visible
                 Section("Window Management") {
@@ -312,41 +304,6 @@ struct AutoScanSection: View {
     }
 }
 
-// MARK: - Actions Section
-struct ActionsSection: View {
-    @Binding var scanTriggerId: UUID?
-    @Binding var testTriggerId: UUID?
-    let windowManager: WindowManager
-    
-    var body: some View {
-        Section("Actions") {
-            HStack(spacing: 10) {
-                Button("Scan Now") {
-                    scanTriggerId = UUID()
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(windowManager.isScanning)
-                
-                Button("Test Detection") {
-                    testTriggerId = UUID()
-                }
-                .buttonStyle(.bordered)
-                .disabled(windowManager.isScanning)
-            }
-        }
-        .task(id: scanTriggerId) {
-            if scanTriggerId != nil {
-                await windowManager.scanWindows()
-                windowManager.printWindowSummary()
-            }
-        }
-        .task(id: testTriggerId) {
-            if testTriggerId != nil {
-                await windowManager.testPokerDetection()
-            }
-        }
-    }
-}
 
 // MARK: - Settings Section
 struct SettingsSection: View {
