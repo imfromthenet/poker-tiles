@@ -178,7 +178,11 @@ struct DebugWindowMoveView: View {
             
             // Try to activate the app first
             if !app.isActive {
-                app.activate(options: .activateIgnoringOtherApps)
+                if #available(macOS 14.0, *) {
+                    app.activate()
+                } else {
+                    app.activate(options: .activateIgnoringOtherApps)
+                }
                 Thread.sleep(forTimeInterval: 0.5)
             }
             
@@ -333,7 +337,11 @@ struct DebugWindowMoveView: View {
             // Try focusing the app first
             if let app = NSRunningApplication(processIdentifier: pid) {
                 log("Activating app...")
-                app.activate(options: .activateIgnoringOtherApps)
+                if #available(macOS 14.0, *) {
+                    app.activate()
+                } else {
+                    app.activate(options: .activateIgnoringOtherApps)
+                }
                 Thread.sleep(forTimeInterval: 1.0)
                 
                 // Try again
@@ -481,7 +489,7 @@ struct DebugWindowMoveView: View {
         let browsers = ["Safari", "Google Chrome", "Brave Browser", "Firefox", "Microsoft Edge", "Arc"]
         
         for browserName in browsers {
-            if let app = NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == browserName }) {
+            if NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == browserName }) != nil {
                 log("\nFound \(browserName) running...")
                 
                 // Try with DirectWindowMover first

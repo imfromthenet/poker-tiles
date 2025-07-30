@@ -235,7 +235,7 @@ class GridLayoutManager {
         var currentOrigin = CGPoint(x: frame.origin.x + options.padding, 
                                    y: frame.origin.y + frame.height - options.padding - size.height)
         
-        for (index, _) in windows.enumerated() {
+        for _ in windows {
             var rect = CGRect(origin: currentOrigin, size: size)
             
             // Ensure window stays within screen bounds

@@ -291,7 +291,7 @@ class WindowResistanceDetector {
     
     /// Apply workaround for resistant window
     func applyWorkaround(for profile: ResistanceProfile, targetFrame: CGRect) -> Bool {
-        guard let method = profile.suggestedMethod else {
+        guard profile.suggestedMethod != nil else {
             print("❌ No workaround available for \(profile.resistanceType)")
             return false
         }
@@ -336,8 +336,8 @@ class WindowResistanceDetector {
         
         if let appleScript = NSAppleScript(source: script) {
             var error: NSDictionary?
-            let result = appleScript.executeAndReturnError(&error)
-            return error == nil && result != nil
+            _ = appleScript.executeAndReturnError(&error)
+            return error == nil // result is non-optional NSAppleEventDescriptor
         }
         
         return false

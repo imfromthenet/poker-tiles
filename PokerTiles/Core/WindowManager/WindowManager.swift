@@ -499,7 +499,7 @@ extension WindowManager {
         
         for (index, table) in pokerTables.enumerated() {
             if index < frames.count {
-                setWindowFrame(table.windowInfo, frame: frames[index])
+                _ = setWindowFrame(table.windowInfo, frame: frames[index])
             }
         }
     }
@@ -512,7 +512,7 @@ extension WindowManager {
         
         for (index, table) in pokerTables.enumerated() {
             if index < frames.count {
-                setWindowFrame(table.windowInfo, frame: frames[index])
+                _ = setWindowFrame(table.windowInfo, frame: frames[index])
             }
         }
     }
@@ -530,7 +530,7 @@ extension WindowManager {
         let distribution = gridLayoutManager.distributeAcrossScreens(windows, screens: screens)
         
         for (window, _, frame) in distribution {
-            setWindowFrame(window, frame: frame)
+            _ = setWindowFrame(window, frame: frame)
         }
     }
     

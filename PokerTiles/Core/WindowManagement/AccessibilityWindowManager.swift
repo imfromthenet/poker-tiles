@@ -126,7 +126,7 @@ class AccessibilityWindowManager {
             } else {
                 // If a step fails, try to at least get to the last successful position
                 print("⚠️ Gradual move failed at step \(i), reverting to last successful position")
-                setWindowPosition(window, lastSuccessfulPosition)
+                _ = setWindowPosition(window, lastSuccessfulPosition)
                 return false
             }
         }
@@ -332,7 +332,7 @@ extension AccessibilityWindowManager {
         
         if success {
             // Restore original position
-            setWindowPosition(window, currentPos)
+            _ = setWindowPosition(window, currentPos)
             return false
         }
         

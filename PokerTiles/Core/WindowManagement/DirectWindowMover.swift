@@ -32,7 +32,11 @@ class DirectWindowMover {
             print("Testing app: \(app.localizedName ?? "Unknown")")
             
             // Activate the app
-            app.activate(options: .activateIgnoringOtherApps)
+            if #available(macOS 14.0, *) {
+                app.activate()
+            } else {
+                app.activate(options: .activateIgnoringOtherApps)
+            }
             Thread.sleep(forTimeInterval: 0.5)
             
             let axApp = AXUIElementCreateApplication(app.processIdentifier)
@@ -79,7 +83,11 @@ class DirectWindowMover {
         
         // Ensure app is active
         if !app.isActive {
-            app.activate(options: .activateIgnoringOtherApps)
+            if #available(macOS 14.0, *) {
+                app.activate()
+            } else {
+                app.activate(options: .activateIgnoringOtherApps)
+            }
             Thread.sleep(forTimeInterval: 0.3)
         }
         

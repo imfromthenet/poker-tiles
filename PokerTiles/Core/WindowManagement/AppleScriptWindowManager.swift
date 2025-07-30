@@ -275,7 +275,7 @@ class AppleScriptWindowManager {
                 return boolResult
             }
             
-            return result != nil
+            return true // NSAppleEventDescriptor is non-optional, so this is always true
         }
         
         // Compile and cache new script
@@ -302,7 +302,7 @@ class AppleScriptWindowManager {
             return boolResult
         }
         
-        return result != nil
+        return true // NSAppleEventDescriptor is non-optional, so this is always true
     }
     
     /// Escape special characters in strings for AppleScript
