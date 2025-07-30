@@ -31,10 +31,12 @@ struct ContentView: View {
                     QuickActionsView(windowManager: windowManager)
                 }
                 
+                #if DEBUG
                 // Debug section
                 Section("Debug") {
                     DebugWindowMoveView()
                 }
+                #endif
                 
                 SettingsSection(windowManager: windowManager)
                 
