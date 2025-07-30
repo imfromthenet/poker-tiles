@@ -19,7 +19,7 @@ struct QuickActionsView: View {
             // Permission Check
             HStack {
                 Image(systemName: hasAllPermissions ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                    .foregroundColor(hasAllPermissions ? .green : .orange)
+                    .foregroundStyle(hasAllPermissions ? Color.green : Color.orange)
                 
                 Text(hasAllPermissions ? "All permissions granted" : "Missing permissions")
                     .font(.subheadline)
@@ -61,7 +61,7 @@ struct QuickActionsView: View {
                 
                 Text("Quick Layouts")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 
                 HStack(spacing: 8) {
                     Button("2x2") {

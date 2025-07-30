@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @State private var windowManager = WindowManager()
     @State private var permissionTriggerId: UUID?
+    @EnvironmentObject var colorSchemeManager: ColorSchemeManager
     
     var body: some View {
         Form {
@@ -41,7 +42,7 @@ struct ContentView: View {
                     }
                 } else if !windowManager.getPokerAppWindows().isEmpty {
                     Text("No poker tables detected. Open a poker table to see it here.")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                         .padding()
                 }
@@ -67,6 +68,10 @@ struct ContentView: View {
         .formStyle(.grouped)
         .task(id: "initial_setup") {
             windowManager.checkPermissions()
+            // Do an immediate scan to initialize
+            if windowManager.hasPermission {
+                await windowManager.scanWindows()
+            }
             // Start auto-scan with a delay to ensure app is fully initialized
             windowManager.startAutoScanWithDelay(delay: 2.0)
         }
@@ -102,14 +107,14 @@ struct PermissionSection: View {
             VStack(spacing: 10) {
                 Image(systemName: iconName)
                     .font(.system(size: 48))
-                    .foregroundColor(iconColor)
+                    .foregroundStyle(iconColor)
                 
                 Text(titleText)
                     .font(.headline)
                 
                 Text(messageText)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 
                 HStack(spacing: 10) {
                     if windowManager.permissionState == .denied {
@@ -309,12 +314,27 @@ struct AutoScanSection: View {
 // MARK: - Settings Section
 struct SettingsSection: View {
     let windowManager: WindowManager
+    @EnvironmentObject var colorSchemeManager: ColorSchemeManager
     @State private var showingExportAlert = false
     @State private var showingImportAlert = false
     @State private var alertMessage = ""
     
     var body: some View {
+        
         Section("Settings") {
+            // Appearance Settings
+            HStack {
+                Text("Appearance")
+                Spacer()
+                Picker("", selection: $colorSchemeManager.appearanceMode) {
+                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+            }
+            
             HStack {
                 Button("Export Settings") {
                     exportSettings()
@@ -347,7 +367,7 @@ struct SettingsSection: View {
         savePanel.begin { response in
             if response == .OK, let url = savePanel.url {
                 do {
-                    try SettingsManager.saveSettingsToFile(from: windowManager, to: url)
+                    try SettingsManager.saveSettingsToFile(from: windowManager, colorSchemeManager: colorSchemeManager, to: url)
                     alertMessage = "Settings exported successfully!"
                     showingExportAlert = true
                 } catch {
@@ -368,7 +388,7 @@ struct SettingsSection: View {
         openPanel.begin { response in
             if response == .OK, let url = openPanel.url {
                 do {
-                    try SettingsManager.loadSettingsFromFile(from: url, to: windowManager)
+                    try SettingsManager.loadSettingsFromFile(from: url, to: windowManager, colorSchemeManager: colorSchemeManager)
                     alertMessage = "Settings imported successfully!"
                     showingImportAlert = true
                 } catch {
@@ -413,10 +433,10 @@ struct PokerTableRow: View {
                 VStack {
                     Image(systemName: "suit.spade.fill")
                         .font(.title2)
-                        .foregroundColor(appColor(for: table.pokerApp))
+                        .foregroundStyle(appColor(for: table.pokerApp))
                     Text(table.pokerApp.rawValue)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 .frame(width: 60)
                 
@@ -429,13 +449,13 @@ struct PokerTableRow: View {
                     HStack {
                         Label(table.tableType.displayName, systemImage: tableTypeIcon(for: table.tableType))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                         
                         if table.isActive {
                             Spacer()
                             Label("Active", systemImage: "eye.fill")
                                 .font(.caption)
-                                .foregroundColor(.green)
+                                .foregroundStyle(.green)
                         }
                     }
                 }
@@ -451,13 +471,13 @@ struct PokerTableRow: View {
                         .cornerRadius(6)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(Color(.separatorColor), lineWidth: 1)
                         )
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color.gray.opacity(0.05))
+            .background(Color(.secondarySystemFill))
             .cornerRadius(8)
         }
         .buttonStyle(.plain)
@@ -490,4 +510,5 @@ struct PokerTableRow: View {
 
 #Preview {
     ContentView()
+        .environmentObject(ColorSchemeManager())
 }

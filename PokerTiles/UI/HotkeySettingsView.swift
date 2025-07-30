@@ -19,7 +19,7 @@ struct HotkeySettingsView: View {
             if hotkeyManager.hasInvalidBindings() {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.yellow)
+                        .foregroundStyle(.yellow)
                     
                     Text("\(hotkeyManager.invalidBindings.count) hotkey settings couldn't be loaded and were reset to defaults")
                         .font(.subheadline)
@@ -45,7 +45,7 @@ struct HotkeySettingsView: View {
                 
                 Text("Configure global keyboard shortcuts")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -57,7 +57,7 @@ struct HotkeySettingsView: View {
                     hotkeyManager.setEnabled(!hotkeyManager.isEnabled)
                 }
                 .buttonStyle(.bordered)
-                .foregroundColor(hotkeyManager.isEnabled ? .green : .secondary)
+                .foregroundStyle(hotkeyManager.isEnabled ? .green : .secondary)
             }
             
             if hotkeyManager.isEnabled {
@@ -68,7 +68,7 @@ struct HotkeySettingsView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(category)
                                     .font(.headline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                 
                                 VStack(spacing: 4) {
                                     ForEach(actions, id: \.self) { action in
@@ -147,7 +147,7 @@ struct HotkeyRow: View {
                 
                 Button(action: onClear) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             } else {
@@ -160,7 +160,7 @@ struct HotkeyRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(isEditing ? Color.accentColor.opacity(0.1) : Color.gray.opacity(0.05))
+        .background(isEditing ? Color.accentColor.opacity(0.1) : Color(.tertiarySystemFill))
         .cornerRadius(6)
     }
 }
@@ -225,13 +225,13 @@ struct KeyCapView: View {
     var body: some View {
         Text(symbol)
             .font(.system(size: 12, weight: .medium, design: .monospaced))
-            .foregroundColor(.primary)
+            .foregroundStyle(.primary)
             .frame(minWidth: 24, minHeight: 24)
-            .background(Color.gray.opacity(0.2))
+            .background(Color(.tertiarySystemFill))
             .cornerRadius(4)
             .overlay(
                 RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    .stroke(Color(.separatorColor), lineWidth: 1)
             )
     }
 }
@@ -255,7 +255,7 @@ struct HotkeyRecorderView: View {
             
             Text("Recording hotkey for: \(action.rawValue)")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             
             // Show current combination
             if let keyCode = recordedKeyCode {
@@ -265,7 +265,7 @@ struct HotkeyRecorderView: View {
             } else {
                 Text("Press any key combination...")
                     .font(.headline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .padding()
             }
             

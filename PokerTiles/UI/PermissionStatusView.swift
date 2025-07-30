@@ -20,7 +20,7 @@ struct PermissionStatusView: View {
             // Screen Recording Permission
             HStack {
                 Image(systemName: screenRecordingGranted ? "checkmark.circle.fill" : "xmark.circle")
-                    .foregroundColor(screenRecordingGranted ? .green : .red)
+                    .foregroundStyle(screenRecordingGranted ? Color.green : Color.red)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Screen Recording")
@@ -28,7 +28,7 @@ struct PermissionStatusView: View {
                         .fontWeight(.medium)
                     Text("Required to detect poker tables")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
@@ -47,7 +47,7 @@ struct PermissionStatusView: View {
             // Accessibility Permission
             HStack {
                 Image(systemName: accessibilityGranted ? "checkmark.circle.fill" : "xmark.circle")
-                    .foregroundColor(accessibilityGranted ? .green : .red)
+                    .foregroundStyle(accessibilityGranted ? Color.green : Color.red)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Accessibility")
@@ -55,7 +55,7 @@ struct PermissionStatusView: View {
                         .fontWeight(.medium)
                     Text("Required to move and resize windows")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
@@ -74,10 +74,10 @@ struct PermissionStatusView: View {
                 
                 HStack {
                     Image(systemName: "info.circle")
-                        .foregroundColor(.orange)
+                        .foregroundStyle(Color.orange)
                     Text("Grant both permissions for full functionality")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Button("Open System Preferences") {

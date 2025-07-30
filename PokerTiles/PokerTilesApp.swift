@@ -9,9 +9,21 @@ import SwiftUI
 
 @main
 struct PokerTilesApp: App {
+    @StateObject private var colorSchemeManager = ColorSchemeManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRootView()
+                .environmentObject(colorSchemeManager)
         }
+    }
+}
+
+struct AppRootView: View {
+    @EnvironmentObject var colorSchemeManager: ColorSchemeManager
+    
+    var body: some View {
+        ContentView()
+            .applyColorScheme(colorSchemeManager)
     }
 }

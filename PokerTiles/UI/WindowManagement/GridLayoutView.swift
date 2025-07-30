@@ -23,7 +23,7 @@ struct GridLayoutView: View {
                 
                 Text("Arrange poker tables in predefined grid layouts")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -79,16 +79,16 @@ struct GridLayoutView: View {
             if windowManager.pokerTables.isEmpty {
                 HStack {
                     Image(systemName: "info.circle")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     Text("No poker tables detected")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 10)
             } else {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundStyle(.green)
                     Text("\(windowManager.pokerTables.count) poker table\(windowManager.pokerTables.count == 1 ? "" : "s") ready to arrange")
                         .font(.caption)
                 }
@@ -224,12 +224,12 @@ struct LayoutOptionButton: View {
                 // Capacity indicator
                 Text("\(layout.capacity) tables")
                     .font(.caption2)
-                    .foregroundColor(isDisabled ? .red : .secondary)
+                    .foregroundStyle(isDisabled ? .red : .secondary)
             }
             .frame(width: 100, height: 120)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? Color.accentColor.opacity(0.2) : Color.gray.opacity(0.1))
+                    .fill(isSelected ? Color.accentColor.opacity(0.2) : Color(.systemFill))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
@@ -280,7 +280,7 @@ struct ResistanceAnalysisView: View {
                     
                     Text("Identifies windows that may be difficult to manipulate")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
@@ -296,7 +296,7 @@ struct ResistanceAnalysisView: View {
             // Analysis results would go here
             ScrollView {
                 Text("Analysis results will appear here after running window resistance detection.")
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 40)
             }

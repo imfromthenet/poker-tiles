@@ -30,7 +30,7 @@ struct SkeletonBox: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: 4)
-            .fill(Color.gray.opacity(0.3))
+            .fill(Color(.systemFill))
             .frame(width: width, height: height)
             .skeleton()
     }
