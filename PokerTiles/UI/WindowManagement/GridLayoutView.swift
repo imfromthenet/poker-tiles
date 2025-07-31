@@ -47,6 +47,11 @@ struct GridLayoutView: View {
                             tableCount: windowManager.pokerTables.count
                         ) {
                             selectedLayout = layout
+                            // Update overlay if it's visible
+                            if isOverlayVisible {
+                                windowManager.gridOverlayManager?.manualLayoutOverride = layout
+                                windowManager.gridOverlayManager?.updateGridState()
+                            }
                         }
                     }
                 }
@@ -410,12 +415,14 @@ struct GridLayoutView: View {
     }
     
     private func showGridOverlay() {
+        windowManager.gridOverlayManager?.manualLayoutOverride = selectedLayout
         windowManager.gridOverlayManager?.showOverlay()
         isOverlayVisible = true
     }
     
     private func hideGridOverlay() {
         windowManager.gridOverlayManager?.hideOverlay()
+        windowManager.gridOverlayManager?.manualLayoutOverride = nil
         isOverlayVisible = false
     }
 }

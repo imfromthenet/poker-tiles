@@ -25,6 +25,9 @@ class GridOverlayManager: NSObject, ObservableObject {
     @Published var occupiedSlots: Set<Int> = []
     @Published var tableCount: Int = 0
     
+    // Manual layout override
+    var manualLayoutOverride: GridLayoutManager.GridLayout?
+    
     // Appearance
     @Published var gridColor: NSColor = .systemGreen {
         didSet { savePreferences() }
@@ -159,13 +162,17 @@ class GridOverlayManager: NSObject, ObservableObject {
         let tableCount = windowManager.pokerTables.count
         self.tableCount = tableCount
         
-        // Determine best layout - if no tables, still show 2x2 grid
-        let layoutManager = GridLayoutManager()
-        if tableCount > 0 {
-            currentLayout = layoutManager.getBestLayout(for: tableCount)
+        // Use manual override if set, otherwise determine best layout
+        if let override = manualLayoutOverride {
+            currentLayout = override
         } else {
-            // Default to 2x2 when no tables are present
-            currentLayout = .twoByTwo
+            let layoutManager = GridLayoutManager()
+            if tableCount > 0 {
+                currentLayout = layoutManager.getBestLayout(for: tableCount)
+            } else {
+                // Default to 2x2 when no tables are present
+                currentLayout = .twoByTwo
+            }
         }
         
         // Update grid options
@@ -178,10 +185,6 @@ class GridOverlayManager: NSObject, ObservableObject {
             occupiedSlots.insert(i)
         }
         
-        print("[GridOverlayManager] Updated grid state:")
-        print("  Table count: \(tableCount)")
-        print("  Current layout: \(currentLayout.displayName) (\(currentLayout.rows)x\(currentLayout.columns))")
-        print("  Occupied slots: \(occupiedSlots)")
     }
     
     /// Update grid appearance
