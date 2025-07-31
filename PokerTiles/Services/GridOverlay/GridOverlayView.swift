@@ -28,7 +28,9 @@ struct GridOverlayView: View {
                 padding: overlayManager.padding,
                 windowSpacing: overlayManager.windowSpacing,
                 gridColor: overlayManager.gridColor,
-                lineWidth: overlayManager.lineWidth
+                lineWidth: overlayManager.lineWidth,
+                useDashedLines: overlayManager.useDashedLines,
+                cornerRadius: overlayManager.cornerRadius
             )
             .allowsHitTesting(false)
             
@@ -112,6 +114,8 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
     let windowSpacing: CGFloat
     let gridColor: NSColor
     let lineWidth: CGFloat
+    let useDashedLines: Bool
+    let cornerRadius: CGFloat
     
     func makeNSView(context: Context) -> GridDrawingView {
         let view = GridDrawingView()
@@ -120,6 +124,8 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
         view.updateGridOptions(padding: padding, windowSpacing: windowSpacing)
         view.gridColor = gridColor
         view.gridLayer.lineWidth = lineWidth
+        view.gridLayer.useDashedLines = useDashedLines
+        view.gridLayer.gridCornerRadius = cornerRadius
         return view
     }
     
@@ -129,6 +135,8 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
         nsView.updateGridOptions(padding: padding, windowSpacing: windowSpacing)
         nsView.gridColor = gridColor
         nsView.gridLayer.lineWidth = lineWidth
+        nsView.gridLayer.useDashedLines = useDashedLines
+        nsView.gridLayer.gridCornerRadius = cornerRadius
     }
 }
 

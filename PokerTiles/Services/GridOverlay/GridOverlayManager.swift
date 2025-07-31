@@ -34,6 +34,12 @@ class GridOverlayManager: NSObject, ObservableObject {
     @Published var lineWidth: CGFloat = 2 {
         didSet { savePreferences() }
     }
+    @Published var useDashedLines: Bool = false {
+        didSet { savePreferences() }
+    }
+    @Published var cornerRadius: CGFloat = 8 {
+        didSet { savePreferences() }
+    }
     
     // Hotkey tracking
     private var hotkeyPressTime: Date?
@@ -153,9 +159,14 @@ class GridOverlayManager: NSObject, ObservableObject {
         let tableCount = windowManager.pokerTables.count
         self.tableCount = tableCount
         
-        // Determine best layout
+        // Determine best layout - if no tables, still show 2x2 grid
         let layoutManager = GridLayoutManager()
-        currentLayout = layoutManager.getBestLayout(for: tableCount)
+        if tableCount > 0 {
+            currentLayout = layoutManager.getBestLayout(for: tableCount)
+        } else {
+            // Default to 2x2 when no tables are present
+            currentLayout = .twoByTwo
+        }
         
         // Update grid options
         padding = windowManager.gridLayoutOptions.padding
@@ -166,6 +177,11 @@ class GridOverlayManager: NSObject, ObservableObject {
         for i in 0..<min(tableCount, currentLayout.capacity) {
             occupiedSlots.insert(i)
         }
+        
+        print("[GridOverlayManager] Updated grid state:")
+        print("  Table count: \(tableCount)")
+        print("  Current layout: \(currentLayout.displayName) (\(currentLayout.rows)x\(currentLayout.columns))")
+        print("  Occupied slots: \(occupiedSlots)")
     }
     
     /// Update grid appearance
@@ -207,6 +223,13 @@ extension GridOverlayManager {
         if savedLineWidth > 0 {
             lineWidth = CGFloat(savedLineWidth)
         }
+        
+        useDashedLines = defaults.bool(forKey: "gridOverlayUseDashedLines")
+        
+        let savedCornerRadius = defaults.float(forKey: "gridOverlayCornerRadius")
+        if savedCornerRadius > 0 {
+            cornerRadius = CGFloat(savedCornerRadius)
+        }
     }
     
     /// Save preferences
@@ -219,5 +242,7 @@ extension GridOverlayManager {
         
         defaults.set(isToggleMode, forKey: "gridOverlayToggleMode")
         defaults.set(Float(lineWidth), forKey: "gridOverlayLineWidth")
+        defaults.set(useDashedLines, forKey: "gridOverlayUseDashedLines")
+        defaults.set(Float(cornerRadius), forKey: "gridOverlayCornerRadius")
     }
 }

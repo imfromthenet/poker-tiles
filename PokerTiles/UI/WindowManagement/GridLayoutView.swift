@@ -16,6 +16,8 @@ struct GridLayoutView: View {
     @State private var tempWindowSpacing: CGFloat = 5
     @State private var tempLineWidth: CGFloat = 2
     @State private var tempGridColor: Color = .green
+    @State private var tempUseDashedLines: Bool = false
+    @State private var tempCornerRadius: CGFloat = 8
     @State private var isOverlayVisible = false
     
     var body: some View {
@@ -159,6 +161,36 @@ struct GridLayoutView: View {
                         }
                     }
                     
+                    // Style options
+                    HStack {
+                        Text("Style:")
+                            .frame(width: 100, alignment: .leading)
+                        
+                        Toggle("Dashed Lines", isOn: $tempUseDashedLines)
+                            .onChange(of: tempUseDashedLines) { _, newValue in
+                                windowManager.gridOverlayManager?.useDashedLines = newValue
+                            }
+                        
+                        Spacer()
+                        
+                        Text("Corners:")
+                        Slider(
+                            value: $tempCornerRadius,
+                            in: 0...16,
+                            step: 2,
+                            onEditingChanged: { editing in
+                                if !editing {
+                                    windowManager.gridOverlayManager?.cornerRadius = tempCornerRadius
+                                }
+                            }
+                        )
+                        .frame(width: 100)
+                        
+                        Text("\(Int(tempCornerRadius))px")
+                            .frame(width: 45)
+                            .monospacedDigit()
+                    }
+                    
                     // Wall-to-wall preset button
                     HStack {
                         Button("Wall-to-Wall") {
@@ -173,10 +205,14 @@ struct GridLayoutView: View {
                             tempWindowSpacing = 5
                             tempLineWidth = 2
                             tempGridColor = .green
+                            tempUseDashedLines = false
+                            tempCornerRadius = 8
                             windowManager.setGridPadding(10)
                             windowManager.setGridWindowSpacing(5)
                             windowManager.gridOverlayManager?.lineWidth = 2
                             windowManager.gridOverlayManager?.gridColor = .systemGreen
+                            windowManager.gridOverlayManager?.useDashedLines = false
+                            windowManager.gridOverlayManager?.cornerRadius = 8
                         }
                         .buttonStyle(.bordered)
                         
@@ -292,6 +328,8 @@ struct GridLayoutView: View {
             if let nsColor = windowManager.gridOverlayManager?.gridColor {
                 tempGridColor = Color(nsColor)
             }
+            tempUseDashedLines = windowManager.gridOverlayManager?.useDashedLines ?? false
+            tempCornerRadius = windowManager.gridOverlayManager?.cornerRadius ?? 8
         }
     }
     

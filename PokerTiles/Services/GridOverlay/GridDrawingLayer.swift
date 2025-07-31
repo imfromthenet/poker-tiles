@@ -41,7 +41,13 @@ class GridDrawingLayer: CALayer {
         }
     }
     
-    var dashPattern: [CGFloat] = [6, 4] // For empty slots
+    var dashPattern: [CGFloat] = [6, 4] // For dashed lines
+    var useDashedLines: Bool = false {
+        didSet { setNeedsDisplay() }
+    }
+    var gridCornerRadius: CGFloat = 8 {
+        didSet { setNeedsDisplay() }
+    }
     
     // MARK: - Initialization
     
@@ -65,6 +71,8 @@ class GridDrawingLayer: CALayer {
             self.gridColor = gridLayer.gridColor
             self.lineWidth = gridLayer.lineWidth
             self.dashPattern = gridLayer.dashPattern
+            self.useDashedLines = gridLayer.useDashedLines
+            self.gridCornerRadius = gridLayer.gridCornerRadius
         }
     }
     
@@ -113,15 +121,12 @@ class GridDrawingLayer: CALayer {
                 let isOccupied = occupiedSlots.contains(slotIndex)
                 
                 // Draw cell border
-                if isOccupied {
-                    // Solid line for occupied slots
-                    ctx.setLineDash(phase: 0, lengths: [])
-                    drawRoundedRect(in: ctx, rect: cellRect, cornerRadius: 8)
-                } else {
-                    // Dashed line for empty slots
+                if useDashedLines {
                     ctx.setLineDash(phase: 0, lengths: dashPattern)
-                    drawRoundedRect(in: ctx, rect: cellRect, cornerRadius: 8)
+                } else {
+                    ctx.setLineDash(phase: 0, lengths: [])
                 }
+                drawRoundedRect(in: ctx, rect: cellRect, cornerRadius: gridCornerRadius)
                 
                 // Draw slot indicator
                 if isOccupied {
