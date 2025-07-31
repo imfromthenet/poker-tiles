@@ -15,6 +15,7 @@ struct GridLayoutView: View {
     @State private var tempPadding: CGFloat = 10
     @State private var tempWindowSpacing: CGFloat = 5
     @State private var tempLineWidth: CGFloat = 2
+    @State private var tempGridColor: Color = .green
     @State private var isOverlayVisible = false
     
     var body: some View {
@@ -118,6 +119,46 @@ struct GridLayoutView: View {
                             .monospacedDigit()
                     }
                     
+                    // Grid color picker
+                    HStack {
+                        Text("Color:")
+                            .frame(width: 100, alignment: .leading)
+                        
+                        ColorPicker("", selection: $tempGridColor)
+                            .onChange(of: tempGridColor) { _, newColor in
+                                windowManager.gridOverlayManager?.gridColor = NSColor(newColor)
+                            }
+                            .labelsHidden()
+                            .frame(width: 40)
+                        
+                        Spacer()
+                        
+                        // Preset colors
+                        HStack(spacing: 8) {
+                            ForEach([
+                                Color.green,
+                                Color.blue,
+                                Color.red,
+                                Color.yellow,
+                                Color.orange,
+                                Color.purple,
+                                Color.pink
+                            ], id: \.self) { color in
+                                Circle()
+                                    .fill(color)
+                                    .frame(width: 20, height: 20)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(tempGridColor == color ? Color.primary : Color.clear, lineWidth: 2)
+                                    )
+                                    .onTapGesture {
+                                        tempGridColor = color
+                                        windowManager.gridOverlayManager?.gridColor = NSColor(color)
+                                    }
+                            }
+                        }
+                    }
+                    
                     // Wall-to-wall preset button
                     HStack {
                         Button("Wall-to-Wall") {
@@ -131,9 +172,11 @@ struct GridLayoutView: View {
                             tempPadding = 10
                             tempWindowSpacing = 5
                             tempLineWidth = 2
+                            tempGridColor = .green
                             windowManager.setGridPadding(10)
                             windowManager.setGridWindowSpacing(5)
                             windowManager.gridOverlayManager?.lineWidth = 2
+                            windowManager.gridOverlayManager?.gridColor = .systemGreen
                         }
                         .buttonStyle(.bordered)
                         
@@ -246,6 +289,9 @@ struct GridLayoutView: View {
             tempPadding = windowManager.gridLayoutOptions.padding
             tempWindowSpacing = windowManager.gridLayoutOptions.windowSpacing
             tempLineWidth = windowManager.gridOverlayManager?.lineWidth ?? 2
+            if let nsColor = windowManager.gridOverlayManager?.gridColor {
+                tempGridColor = Color(nsColor)
+            }
         }
     }
     

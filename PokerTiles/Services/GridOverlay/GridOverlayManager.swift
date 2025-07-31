@@ -26,10 +26,14 @@ class GridOverlayManager: NSObject, ObservableObject {
     @Published var tableCount: Int = 0
     
     // Appearance
-    @Published var gridColor: NSColor = .systemGreen
+    @Published var gridColor: NSColor = .systemGreen {
+        didSet { savePreferences() }
+    }
     @Published var padding: CGFloat = 10
     @Published var windowSpacing: CGFloat = 5
-    @Published var lineWidth: CGFloat = 2
+    @Published var lineWidth: CGFloat = 2 {
+        didSet { savePreferences() }
+    }
     
     // Hotkey tracking
     private var hotkeyPressTime: Date?
@@ -45,6 +49,7 @@ class GridOverlayManager: NSObject, ObservableObject {
         super.init()
         setupOverlayWindow()
         observeScreenChanges()
+        loadPreferences()
     }
     
     // MARK: - Setup

@@ -33,13 +33,14 @@ struct ContentView: View {
                     QuickActionsView(windowManager: windowManager)
                 }
                 
+                // Window Layout - Always visible
+                Section("Window Layout") {
+                    GridLayoutView(windowManager: windowManager)
+                }
+                
                 // Active tables (when available)
                 if !windowManager.pokerTables.isEmpty {
                     PokerTableSection(windowManager: windowManager)
-                    
-                    Section("Window Layout") {
-                        GridLayoutView(windowManager: windowManager)
-                    }
                 } else if !windowManager.getPokerAppWindows().isEmpty {
                     Text("No poker tables detected. Open a poker table to see it here.")
                         .foregroundStyle(.secondary)

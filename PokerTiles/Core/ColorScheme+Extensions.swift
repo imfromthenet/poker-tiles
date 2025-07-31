@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 extension View {
     func applyColorScheme(_ colorSchemeManager: ColorSchemeManager) -> some View {
@@ -27,3 +28,4 @@ extension ColorSchemeManager {
         }
     }
 }
+
