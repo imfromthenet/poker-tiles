@@ -21,7 +21,11 @@
       "mcp__XcodeBuildMCP__build_run_mac_proj",
       "mcp__XcodeBuildMCP__show_build_set_proj",
       "Bash(ls:*)",
-      "Bash(swift:*)"
+      "Bash(swift:*)",
+      "Bash(open:*)",
+      "Bash(log show:*)",
+      "Bash(killall:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

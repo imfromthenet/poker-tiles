@@ -22,6 +22,7 @@ class HotkeyManager: ObservableObject {
         case cascade = "Cascade Windows"
         case stack = "Stack Windows"
         case autoArrange = "Auto Arrange"
+        case showGridOverlay = "Show Grid Overlay"
         
         // Poker Actions
         case fold = "Fold"
@@ -34,7 +35,7 @@ class HotkeyManager: ObservableObject {
         
         var category: String {
             switch self {
-            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange:
+            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange, .showGridOverlay:
                 return "Window Layout"
             case .fold, .check, .call, .raise, .allIn, .nextTable, .previousTable:
                 return "Poker Actions"
@@ -50,6 +51,7 @@ class HotkeyManager: ObservableObject {
             case .cascade: return GlobalHotkeyMonitor.KeyCode.c
             case .stack: return GlobalHotkeyMonitor.KeyCode.s
             case .autoArrange: return GlobalHotkeyMonitor.KeyCode.a
+            case .showGridOverlay: return GlobalHotkeyMonitor.KeyCode.g
                 
             // Poker action hotkeys
             case .fold: return GlobalHotkeyMonitor.KeyCode.f
@@ -65,7 +67,7 @@ class HotkeyManager: ObservableObject {
         var defaultModifiers: NSEvent.ModifierFlags? {
             switch self {
             // Layout hotkeys use Cmd+Shift
-            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange:
+            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange, .showGridOverlay:
                 return [.command, .shift]
                 
             // Poker actions use Ctrl
@@ -100,11 +102,17 @@ class HotkeyManager: ObservableObject {
     private var registeredHotkeys: [HotkeyAction: (keyCode: UInt16, modifiers: NSEvent.ModifierFlags)] = [:]
     private weak var windowManager: WindowManager?
     private let monitor = GlobalHotkeyMonitor.shared
+    private(set) var gridOverlayManager: GridOverlayManager?
     
     // MARK: - Initialization
     
     init(windowManager: WindowManager? = nil) {
         self.windowManager = windowManager
+        
+        // Initialize grid overlay manager
+        self.gridOverlayManager = GridOverlayManager()
+        self.gridOverlayManager?.windowManager = windowManager
+        
         loadHotkeys()
     }
     
@@ -150,9 +158,20 @@ class HotkeyManager: ObservableObject {
         // Unregister existing hotkey if any
         unregisterHotkey(action)
         
-        // Register with monitor
-        monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
-            self?.handleHotkeyAction(action)
+        // Special handling for grid overlay (needs up/down events)
+        if action == .showGridOverlay {
+            monitor.registerUpDown(keyCode: keyCode, modifiers: modifiers) { [weak self] isKeyDown in
+                if isKeyDown {
+                    self?.gridOverlayManager?.handleHotkeyPress()
+                } else {
+                    self?.gridOverlayManager?.handleHotkeyRelease()
+                }
+            }
+        } else {
+            // Regular hotkey registration
+            monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
+                self?.handleHotkeyAction(action)
+            }
         }
         
         // Store registration
@@ -200,8 +219,18 @@ class HotkeyManager: ObservableObject {
         } else {
             // Re-register existing hotkeys
             for (action, (keyCode, modifiers)) in registeredHotkeys {
-                monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
-                    self?.handleHotkeyAction(action)
+                if action == .showGridOverlay {
+                    monitor.registerUpDown(keyCode: keyCode, modifiers: modifiers) { [weak self] isKeyDown in
+                        if isKeyDown {
+                            self?.gridOverlayManager?.handleHotkeyPress()
+                        } else {
+                            self?.gridOverlayManager?.handleHotkeyRelease()
+                        }
+                    }
+                } else {
+                    monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
+                        self?.handleHotkeyAction(action)
+                    }
                 }
             }
         }
@@ -237,6 +266,10 @@ class HotkeyManager: ObservableObject {
                 
             case .autoArrange:
                 windowManager.autoArrangePokerTables()
+                
+            case .showGridOverlay:
+                // Handled by up/down handler, but toggle if called directly
+                self.gridOverlayManager?.toggleOverlay()
                 
             // Poker Actions (to be implemented)
             case .fold, .check, .call, .raise, .allIn:

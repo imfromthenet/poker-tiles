@@ -14,6 +14,7 @@ struct GridLayoutView: View {
     @State private var showResistanceAnalysis = false
     @State private var tempPadding: CGFloat = 10
     @State private var tempWindowSpacing: CGFloat = 5
+    @State private var isOverlayVisible = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -129,6 +130,29 @@ struct GridLayoutView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(windowManager.pokerTables.isEmpty || isArranging)
+                
+                // Custom hold-to-show button
+                Label("Show Grid Overlay", systemImage: "square.grid.3x3.fill")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(Color.green.opacity(isOverlayVisible ? 0.8 : 0.2))
+                    .foregroundColor(isOverlayVisible ? .white : .green)
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.green, lineWidth: 1)
+                    )
+                    .scaleEffect(isOverlayVisible ? 0.95 : 1.0)
+                    .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
+                        // Never called
+                    } onPressingChanged: { isPressing in
+                        if isPressing {
+                            showGridOverlay()
+                        } else {
+                            hideGridOverlay()
+                        }
+                    }
                 
                 HStack(spacing: 10) {
                     Button(action: cascadeTables) {
@@ -274,6 +298,16 @@ struct GridLayoutView: View {
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.runModal()
+    }
+    
+    private func showGridOverlay() {
+        windowManager.gridOverlayManager?.showOverlay()
+        isOverlayVisible = true
+    }
+    
+    private func hideGridOverlay() {
+        windowManager.gridOverlayManager?.hideOverlay()
+        isOverlayVisible = false
     }
 }
 

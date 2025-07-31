@@ -15,6 +15,7 @@ class GlobalHotkeyMonitor {
     // MARK: - Types
     
     typealias HotkeyHandler = () -> Void
+    typealias HotkeyUpDownHandler = (Bool) -> Void
     
     struct Hotkey: Hashable {
         let keyCode: UInt16
@@ -35,6 +36,7 @@ class GlobalHotkeyMonitor {
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     private var hotkeys: [Hotkey: HotkeyHandler] = [:]
+    private var upDownHotkeys: [Hotkey: HotkeyUpDownHandler] = [:]
     private var isMonitoring = false
     
     // MARK: - Singleton
@@ -58,8 +60,8 @@ class GlobalHotkeyMonitor {
             return false
         }
         
-        // Create event tap
-        let eventMask = (1 << CGEventType.keyDown.rawValue)
+        // Create event tap for both keyDown and keyUp events
+        let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
         
         guard let eventTap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
@@ -120,6 +122,15 @@ class GlobalHotkeyMonitor {
         hotkeys[hotkey] = handler
     }
     
+    /// Register a hotkey with up/down handling
+    func registerUpDown(keyCode: UInt16, modifiers: NSEvent.ModifierFlags, handler: @escaping HotkeyUpDownHandler) {
+        let hotkey = Hotkey(
+            keyCode: keyCode,
+            modifiers: convertModifiers(modifiers)
+        )
+        upDownHotkeys[hotkey] = handler
+    }
+    
     /// Unregister a hotkey
     func unregister(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
         let hotkey = Hotkey(
@@ -127,18 +138,20 @@ class GlobalHotkeyMonitor {
             modifiers: convertModifiers(modifiers)
         )
         hotkeys.removeValue(forKey: hotkey)
+        upDownHotkeys.removeValue(forKey: hotkey)
     }
     
     /// Clear all registered hotkeys
     func clearAll() {
         hotkeys.removeAll()
+        upDownHotkeys.removeAll()
     }
     
     // MARK: - Private Methods
     
     private func handleEvent(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        // Only handle key down events
-        guard type == .keyDown else {
+        // Only handle key down and key up events
+        guard type == .keyDown || type == .keyUp else {
             return Unmanaged.passUnretained(event)
         }
         
@@ -147,8 +160,20 @@ class GlobalHotkeyMonitor {
         
         let hotkey = Hotkey(keyCode: keyCode, modifiers: flags)
         
-        // Check if this hotkey is registered
-        if let handler = hotkeys[hotkey] {
+        // Check for up/down handler first
+        if let upDownHandler = upDownHotkeys[hotkey] {
+            let isKeyDown = (type == .keyDown)
+            // Execute handler on main thread
+            DispatchQueue.main.async {
+                upDownHandler(isKeyDown)
+            }
+            
+            // Consume the event (prevent it from being passed to other apps)
+            return nil
+        }
+        
+        // Check for regular handler (only on keyDown)
+        if type == .keyDown, let handler = hotkeys[hotkey] {
             // Execute handler on main thread
             DispatchQueue.main.async {
                 handler()

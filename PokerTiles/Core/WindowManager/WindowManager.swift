@@ -35,6 +35,11 @@ class WindowManager {
     // Hotkey management
     private(set) var hotkeyManager: HotkeyManager!
     
+    // Grid overlay
+    var gridOverlayManager: GridOverlayManager? {
+        return hotkeyManager?.gridOverlayManager
+    }
+    
     init() {
         // Initialize grid layout manager with default options first
         gridLayoutManager = GridLayoutManager()
