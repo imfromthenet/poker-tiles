@@ -18,9 +18,15 @@ struct AppSettings: Codable {
     // Appearance settings
     let appearanceMode: AppearanceMode?
     
+    // Grid layout settings
+    let gridPadding: CGFloat?
+    let gridWindowSpacing: CGFloat?
+    
     // Valid ranges
     static let minAutoScanInterval: TimeInterval = 0.01
     static let maxAutoScanInterval: TimeInterval = 5.0
+    static let minGridSpacing: CGFloat = 0.0
+    static let maxGridSpacing: CGFloat = 50.0
     
     // Future settings can be added here
     // let hotkeys: [String: String]?
@@ -30,14 +36,18 @@ struct AppSettings: Codable {
         self.isAutoScanEnabled = windowManager.isAutoScanEnabled
         self.autoScanInterval = windowManager.autoScanInterval
         self.appearanceMode = colorSchemeManager.appearanceMode
+        self.gridPadding = windowManager.gridLayoutOptions.padding
+        self.gridWindowSpacing = windowManager.gridLayoutOptions.windowSpacing
     }
     
     // For testing
-    init(exportDate: Date, isAutoScanEnabled: Bool, autoScanInterval: TimeInterval, appearanceMode: AppearanceMode? = nil) {
+    init(exportDate: Date, isAutoScanEnabled: Bool, autoScanInterval: TimeInterval, appearanceMode: AppearanceMode? = nil, gridPadding: CGFloat? = nil, gridWindowSpacing: CGFloat? = nil) {
         self.exportDate = exportDate
         self.isAutoScanEnabled = isAutoScanEnabled
         self.autoScanInterval = autoScanInterval
         self.appearanceMode = appearanceMode
+        self.gridPadding = gridPadding
+        self.gridWindowSpacing = gridWindowSpacing
     }
     
     func apply(to windowManager: WindowManager, colorSchemeManager: ColorSchemeManager) {
@@ -47,6 +57,14 @@ struct AppSettings: Codable {
         
         if let appearanceMode = appearanceMode {
             colorSchemeManager.setAppearanceMode(appearanceMode)
+        }
+        
+        if let padding = gridPadding {
+            windowManager.setGridPadding(padding)
+        }
+        
+        if let spacing = gridWindowSpacing {
+            windowManager.setGridWindowSpacing(spacing)
         }
     }
     
@@ -59,17 +77,40 @@ struct AppSettings: Codable {
                 max: AppSettings.maxAutoScanInterval
             )
         }
+        
+        if let padding = gridPadding, 
+           (padding < AppSettings.minGridSpacing || padding > AppSettings.maxGridSpacing) {
+            throw SettingsError.invalidGridSpacing(
+                type: "padding",
+                value: padding,
+                min: AppSettings.minGridSpacing,
+                max: AppSettings.maxGridSpacing
+            )
+        }
+        
+        if let spacing = gridWindowSpacing,
+           (spacing < AppSettings.minGridSpacing || spacing > AppSettings.maxGridSpacing) {
+            throw SettingsError.invalidGridSpacing(
+                type: "window spacing",
+                value: spacing,
+                min: AppSettings.minGridSpacing,
+                max: AppSettings.maxGridSpacing
+            )
+        }
     }
 }
 
 // MARK: - Settings Error
 enum SettingsError: LocalizedError {
     case invalidAutoScanInterval(value: TimeInterval, min: TimeInterval, max: TimeInterval)
+    case invalidGridSpacing(type: String, value: CGFloat, min: CGFloat, max: CGFloat)
     
     var errorDescription: String? {
         switch self {
         case .invalidAutoScanInterval(let value, let min, let max):
             return "Invalid auto-scan interval: \(String(format: "%.2f", value))s. Must be between \(String(format: "%.2f", min))s and \(String(format: "%.2f", max))s."
+        case .invalidGridSpacing(let type, let value, let min, let max):
+            return "Invalid grid \(type): \(String(format: "%.0f", value))px. Must be between \(String(format: "%.0f", min))px and \(String(format: "%.0f", max))px."
         }
     }
 }

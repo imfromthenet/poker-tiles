@@ -12,6 +12,8 @@ struct GridLayoutView: View {
     @State private var selectedLayout: GridLayoutManager.GridLayout = .twoByTwo
     @State private var isArranging = false
     @State private var showResistanceAnalysis = false
+    @State private var tempPadding: CGFloat = 10
+    @State private var tempWindowSpacing: CGFloat = 5
     
     var body: some View {
         VStack(spacing: 20) {
@@ -43,6 +45,80 @@ struct GridLayoutView: View {
                         }
                     }
                 }
+            }
+            
+            // Spacing Controls
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Spacing")
+                    .font(.headline)
+                
+                VStack(spacing: 16) {
+                    // Padding control
+                    HStack {
+                        Text("Padding:")
+                            .frame(width: 100, alignment: .leading)
+                        
+                        Slider(
+                            value: $tempPadding,
+                            in: AppSettings.minGridSpacing...AppSettings.maxGridSpacing,
+                            step: 1,
+                            onEditingChanged: { editing in
+                                if !editing {
+                                    windowManager.setGridPadding(tempPadding)
+                                }
+                            }
+                        )
+                        
+                        Text("\(Int(tempPadding))px")
+                            .frame(width: 45)
+                            .monospacedDigit()
+                    }
+                    
+                    // Window spacing control
+                    HStack {
+                        Text("Gap:")
+                            .frame(width: 100, alignment: .leading)
+                        
+                        Slider(
+                            value: $tempWindowSpacing,
+                            in: AppSettings.minGridSpacing...AppSettings.maxGridSpacing,
+                            step: 1,
+                            onEditingChanged: { editing in
+                                if !editing {
+                                    windowManager.setGridWindowSpacing(tempWindowSpacing)
+                                }
+                            }
+                        )
+                        
+                        Text("\(Int(tempWindowSpacing))px")
+                            .frame(width: 45)
+                            .monospacedDigit()
+                    }
+                    
+                    // Wall-to-wall preset button
+                    HStack {
+                        Button("Wall-to-Wall") {
+                            tempPadding = 0
+                            tempWindowSpacing = 0
+                            windowManager.setWallToWallLayout()
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Button("Default") {
+                            tempPadding = 10
+                            tempWindowSpacing = 5
+                            windowManager.setGridPadding(10)
+                            windowManager.setGridWindowSpacing(5)
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Spacer()
+                    }
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Color(.controlBackgroundColor))
+                .cornerRadius(8)
             }
             
             // Quick Actions
@@ -117,6 +193,10 @@ struct GridLayoutView: View {
         .frame(width: 400)
         .sheet(isPresented: $showResistanceAnalysis) {
             ResistanceAnalysisView(windowManager: windowManager)
+        }
+        .onAppear {
+            tempPadding = windowManager.gridLayoutOptions.padding
+            tempWindowSpacing = windowManager.gridLayoutOptions.windowSpacing
         }
     }
     

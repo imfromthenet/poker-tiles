@@ -21,17 +21,34 @@ class WindowManager {
     
     // Window manipulation components
     private let windowManipulator = WindowManipulator()
-    private let gridLayoutManager = GridLayoutManager()
+    private let gridLayoutManager: GridLayoutManager
     private let resistanceDetector = WindowResistanceDetector()
+    
+    // Grid layout options (public for settings access)
+    var gridLayoutOptions = GridLayoutManager.LayoutOptions() {
+        didSet {
+            // Update the layout manager with new options
+            updateGridLayoutManager()
+        }
+    }
     
     // Hotkey management
     private(set) var hotkeyManager: HotkeyManager!
     
     init() {
+        // Initialize grid layout manager with default options first
+        gridLayoutManager = GridLayoutManager()
+        
         checkPermissions()
         hotkeyManager = HotkeyManager(windowManager: self)
         // Don't start auto-scan immediately to prevent early screenshot capture
         // startAutoScan()
+        
+        // Load saved grid layout preferences
+        loadGridLayoutPreferences()
+        
+        // Update grid layout manager with loaded preferences
+        gridLayoutManager.updateOptions(gridLayoutOptions)
     }
     
     deinit {
@@ -427,7 +444,22 @@ extension WindowManager {
         let tables = pokerTables.map { $0.windowInfo }
         let targetScreen = screen ?? NSScreen.main ?? NSScreen.screens.first!
         
-        windowManipulator.arrangeWindowsInGrid(tables, on: targetScreen, rows: layout.rows, cols: layout.columns)
+        // Calculate grid positions using our configured layout manager
+        let grid = gridLayoutManager.calculateGridLayout(for: targetScreen, rows: layout.rows, cols: layout.columns)
+        
+        // Arrange windows using calculated positions
+        var windowIndex = 0
+        for row in 0..<layout.rows {
+            for col in 0..<layout.columns {
+                guard windowIndex < tables.count else { return }
+                
+                let window = tables[windowIndex]
+                let frame = grid[row][col]
+                
+                _ = windowManipulator.setWindowFrame(window, frame: frame)
+                windowIndex += 1
+            }
+        }
     }
     
     /// Auto-arrange all poker tables
@@ -520,6 +552,47 @@ extension WindowManager {
     /// Get window manipulation statistics
     func getManipulationStatistics() -> String {
         return windowManipulator.getStatistics().summary
+    }
+    
+    // MARK: - Grid Layout Preferences
+    
+    private func updateGridLayoutManager() {
+        // Update the layout manager with new options
+        gridLayoutManager.updateOptions(gridLayoutOptions)
+    }
+    
+    private func loadGridLayoutPreferences() {
+        let defaults = UserDefaults.standard
+        
+        if defaults.object(forKey: "gridPadding") != nil {
+            gridLayoutOptions.padding = CGFloat(defaults.float(forKey: "gridPadding"))
+        }
+        
+        if defaults.object(forKey: "gridWindowSpacing") != nil {
+            gridLayoutOptions.windowSpacing = CGFloat(defaults.float(forKey: "gridWindowSpacing"))
+        }
+    }
+    
+    private func saveGridLayoutPreferences() {
+        let defaults = UserDefaults.standard
+        defaults.set(Float(gridLayoutOptions.padding), forKey: "gridPadding")
+        defaults.set(Float(gridLayoutOptions.windowSpacing), forKey: "gridWindowSpacing")
+    }
+    
+    func setGridPadding(_ padding: CGFloat) {
+        gridLayoutOptions.padding = max(AppSettings.minGridSpacing, min(AppSettings.maxGridSpacing, padding))
+        saveGridLayoutPreferences()
+    }
+    
+    func setGridWindowSpacing(_ spacing: CGFloat) {
+        gridLayoutOptions.windowSpacing = max(AppSettings.minGridSpacing, min(AppSettings.maxGridSpacing, spacing))
+        saveGridLayoutPreferences()
+    }
+    
+    func setWallToWallLayout() {
+        gridLayoutOptions.padding = 0
+        gridLayoutOptions.windowSpacing = 0
+        saveGridLayoutPreferences()
     }
 }
 

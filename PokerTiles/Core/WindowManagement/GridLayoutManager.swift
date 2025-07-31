@@ -79,12 +79,17 @@ class GridLayoutManager {
     
     // MARK: - Properties
     
-    private let options: LayoutOptions
+    private var options: LayoutOptions
     
     // MARK: - Initialization
     
     init(options: LayoutOptions = LayoutOptions()) {
         self.options = options
+    }
+    
+    // Update options after initialization
+    func updateOptions(_ newOptions: LayoutOptions) {
+        self.options = newOptions
     }
     
     // MARK: - Grid Calculation
