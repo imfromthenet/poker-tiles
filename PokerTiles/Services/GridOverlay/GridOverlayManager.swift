@@ -29,6 +29,7 @@ class GridOverlayManager: NSObject, ObservableObject {
     @Published var gridColor: NSColor = .systemGreen
     @Published var padding: CGFloat = 10
     @Published var windowSpacing: CGFloat = 5
+    @Published var lineWidth: CGFloat = 2
     
     // Hotkey tracking
     private var hotkeyPressTime: Date?
@@ -196,6 +197,11 @@ extension GridOverlayManager {
         }
         
         isToggleMode = defaults.bool(forKey: "gridOverlayToggleMode")
+        
+        let savedLineWidth = defaults.float(forKey: "gridOverlayLineWidth")
+        if savedLineWidth > 0 {
+            lineWidth = CGFloat(savedLineWidth)
+        }
     }
     
     /// Save preferences
@@ -207,5 +213,6 @@ extension GridOverlayManager {
         }
         
         defaults.set(isToggleMode, forKey: "gridOverlayToggleMode")
+        defaults.set(Float(lineWidth), forKey: "gridOverlayLineWidth")
     }
 }

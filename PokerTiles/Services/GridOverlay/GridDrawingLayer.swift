@@ -34,7 +34,11 @@ class GridDrawingLayer: CALayer {
     }
     
     var lineWidth: CGFloat = 2.0 {
-        didSet { setNeedsDisplay() }
+        didSet { 
+            // Clamp between 1 and 10
+            lineWidth = max(1, min(10, lineWidth))
+            setNeedsDisplay() 
+        }
     }
     
     var dashPattern: [CGFloat] = [6, 4] // For empty slots

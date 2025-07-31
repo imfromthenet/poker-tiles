@@ -27,7 +27,8 @@ struct GridOverlayView: View {
                 occupiedSlots: overlayManager.occupiedSlots,
                 padding: overlayManager.padding,
                 windowSpacing: overlayManager.windowSpacing,
-                gridColor: overlayManager.gridColor
+                gridColor: overlayManager.gridColor,
+                lineWidth: overlayManager.lineWidth
             )
             .allowsHitTesting(false)
             
@@ -110,6 +111,7 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
     let padding: CGFloat
     let windowSpacing: CGFloat
     let gridColor: NSColor
+    let lineWidth: CGFloat
     
     func makeNSView(context: Context) -> GridDrawingView {
         let view = GridDrawingView()
@@ -117,6 +119,7 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
         view.occupiedSlots = occupiedSlots
         view.updateGridOptions(padding: padding, windowSpacing: windowSpacing)
         view.gridColor = gridColor
+        view.gridLayer.lineWidth = lineWidth
         return view
     }
     
@@ -125,6 +128,7 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
         nsView.occupiedSlots = occupiedSlots
         nsView.updateGridOptions(padding: padding, windowSpacing: windowSpacing)
         nsView.gridColor = gridColor
+        nsView.gridLayer.lineWidth = lineWidth
     }
 }
 

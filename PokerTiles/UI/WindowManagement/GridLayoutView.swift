@@ -14,6 +14,7 @@ struct GridLayoutView: View {
     @State private var showResistanceAnalysis = false
     @State private var tempPadding: CGFloat = 10
     @State private var tempWindowSpacing: CGFloat = 5
+    @State private var tempLineWidth: CGFloat = 2
     @State private var isOverlayVisible = false
     
     var body: some View {
@@ -96,6 +97,27 @@ struct GridLayoutView: View {
                             .monospacedDigit()
                     }
                     
+                    // Border thickness control
+                    HStack {
+                        Text("Border:")
+                            .frame(width: 100, alignment: .leading)
+                        
+                        Slider(
+                            value: $tempLineWidth,
+                            in: 1...10,
+                            step: 1,
+                            onEditingChanged: { editing in
+                                if !editing {
+                                    windowManager.gridOverlayManager?.lineWidth = tempLineWidth
+                                }
+                            }
+                        )
+                        
+                        Text("\(Int(tempLineWidth))px")
+                            .frame(width: 45)
+                            .monospacedDigit()
+                    }
+                    
                     // Wall-to-wall preset button
                     HStack {
                         Button("Wall-to-Wall") {
@@ -108,8 +130,10 @@ struct GridLayoutView: View {
                         Button("Default") {
                             tempPadding = 10
                             tempWindowSpacing = 5
+                            tempLineWidth = 2
                             windowManager.setGridPadding(10)
                             windowManager.setGridWindowSpacing(5)
+                            windowManager.gridOverlayManager?.lineWidth = 2
                         }
                         .buttonStyle(.bordered)
                         
@@ -221,6 +245,7 @@ struct GridLayoutView: View {
         .onAppear {
             tempPadding = windowManager.gridLayoutOptions.padding
             tempWindowSpacing = windowManager.gridLayoutOptions.windowSpacing
+            tempLineWidth = windowManager.gridOverlayManager?.lineWidth ?? 2
         }
     }
     
