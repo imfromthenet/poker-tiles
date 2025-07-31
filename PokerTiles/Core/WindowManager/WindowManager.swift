@@ -173,12 +173,9 @@ class WindowManager {
                 let windowInfo = WindowInfo(scWindow: window, thumbnail: thumbnail)
                 windowInfos.append(windowInfo)
                 
-                if shouldCapture {
-                    if thumbnail != nil {
-                        print("✅ Captured thumbnail for: \(window.title ?? "Unknown")")
-                    } else {
-                        print("❌ Failed to capture thumbnail for: \(window.title ?? "Unknown")")
-                    }
+                // Only log failures
+                if shouldCapture && thumbnail == nil {
+                    print("❌ Failed to capture thumbnail for: \(window.title ?? "Unknown")")
                 }
             }
             
@@ -333,8 +330,6 @@ class WindowManager {
             return nil
         }
         
-        print("📸 Attempting to capture thumbnail for: \(window.title ?? "Unknown") (\(Int(window.frame.width))x\(Int(window.frame.height)))")
-        
         return await captureWithScreenCaptureKit(window)
     }
     
@@ -357,7 +352,6 @@ class WindowManager {
                 )
                 
                 let nsImage = NSImage(cgImage: screenshot, size: CGSize(width: screenshot.width, height: screenshot.height))
-                print("✅ Successfully captured screenshot: \(nsImage.size)")
                 return nsImage
             } else {
                 // Fallback for older macOS versions
