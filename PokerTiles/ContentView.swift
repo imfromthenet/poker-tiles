@@ -14,66 +14,71 @@ struct ContentView: View {
     @EnvironmentObject var colorSchemeManager: ColorSchemeManager
     
     var body: some View {
-        Form {
-            HeaderSection()
-            
-            if !windowManager.hasPermission {
-                PermissionSection(
-                    permissionTriggerId: $permissionTriggerId,
-                    windowManager: windowManager
-                )
-            } else {
-                // Core functionality
-                WindowStatisticsSection(windowManager: windowManager)
+        TabView {
+            Form {
+                HeaderSection()
                 
-                AutoScanSection(windowManager: windowManager)
-                
-                // Window Management
-                Section("Window Management") {
-                    QuickActionsView(windowManager: windowManager)
-                }
-                
-                // Window Layout - Always visible
-                Section("Window Layout") {
-                    GridLayoutView(windowManager: windowManager)
-                }
-                
-                // Active tables (when available)
-                if !windowManager.pokerTables.isEmpty {
-                    PokerTableSection(windowManager: windowManager)
-                } else if !windowManager.getPokerAppWindows().isEmpty {
-                    Text("No poker tables detected. Open a poker table to see it here.")
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
-                
-                // Hotkey Test Section
-                if !windowManager.pokerTables.isEmpty {
-                    Section("Hotkey Test") {
-                        HotkeyTestView(windowManager: windowManager)
+                if !windowManager.hasPermission {
+                    PermissionSection(
+                        permissionTriggerId: $permissionTriggerId,
+                        windowManager: windowManager
+                    )
+                } else {
+                    // Core functionality
+                    WindowStatisticsSection(windowManager: windowManager)
+                    
+                    AutoScanSection(windowManager: windowManager)
+                    
+                    // Window Management
+                    Section("Window Management") {
+                        QuickActionsView(windowManager: windowManager)
                     }
+                    
+                    // Window Layout - Always visible
+                    Section("Window Layout") {
+                        GridLayoutView(windowManager: windowManager)
+                    }
+                    
+                    // Active tables (when available)
+                    if !windowManager.pokerTables.isEmpty {
+                        PokerTableSection(windowManager: windowManager)
+                    } else if !windowManager.getPokerAppWindows().isEmpty {
+                        Text("No poker tables detected. Open a poker table to see it here.")
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    
+                    // Hotkey Test Section
+                    if !windowManager.pokerTables.isEmpty {
+                        Section("Hotkey Test") {
+                            HotkeyTestView(windowManager: windowManager)
+                        }
+                    }
+                    
+                    // Configuration
+                    Section("Hotkeys") {
+                        HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
+                    }
+                    
+                    SettingsSection(windowManager: windowManager)
+                    
+                    Section("Permissions") {
+                        PermissionStatusView()
+                    }
+                    
+                    #if DEBUG
+                    Section("Debug") {
+                        DebugWindowMoveView()
+                    }
+                    #endif
                 }
-                
-                // Configuration
-                Section("Hotkeys") {
-                    HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
-                }
-                
-                SettingsSection(windowManager: windowManager)
-                
-                Section("Permissions") {
-                    PermissionStatusView()
-                }
-                
-                #if DEBUG
-                Section("Debug") {
-                    DebugWindowMoveView()
-                }
-                #endif
+            }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("Main", systemImage: "list.bullet.rectangle")
             }
         }
-        .formStyle(.grouped)
         .task(id: "initial_setup") {
             windowManager.checkPermissions()
             // Do an immediate scan to initialize
