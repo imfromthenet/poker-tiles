@@ -15,6 +15,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
+            // Main tab - temporary, will be removed later
             Form {
                 HeaderSection()
                 
@@ -77,6 +78,50 @@ struct ContentView: View {
             .formStyle(.grouped)
             .tabItem {
                 Label("Main", systemImage: "list.bullet.rectangle")
+            }
+            
+            // Tables tab - for monitoring poker tables
+            Form {
+                Text("Tables content will go here")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .tabItem {
+                Label("Tables", systemImage: "tablecells")
+            }
+            
+            // Layouts tab - for window arrangements
+            Form {
+                Text("Layouts content will go here")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .tabItem {
+                Label("Layouts", systemImage: "rectangle.grid.2x2")
+            }
+            
+            // Hotkeys tab - for hotkey configuration
+            Form {
+                Text("Hotkeys content will go here")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .tabItem {
+                Label("Hotkeys", systemImage: "keyboard")
+            }
+            
+            // Settings tab - for app settings
+            Form {
+                Text("Settings content will go here")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape")
             }
         }
         .task(id: "initial_setup") {
