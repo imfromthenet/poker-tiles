@@ -25,82 +25,28 @@ struct ContentView: View {
             }
             
             // Layouts tab - for window arrangements
-            Form {
-                if !windowManager.hasPermission {
-                    PermissionSection(
-                        permissionTriggerId: $permissionTriggerId,
-                        windowManager: windowManager
-                    )
-                } else {
-                    // Window Management
-                    Section("Window Management") {
-                        QuickActionsView(windowManager: windowManager)
-                    }
-                    
-                    // Window Layout
-                    Section("Window Layout") {
-                        GridLayoutView(windowManager: windowManager)
-                    }
-                }
-            }
-            .formStyle(.grouped)
+            LayoutsTabView(
+                permissionTriggerId: $permissionTriggerId,
+                windowManager: windowManager
+            )
             .tabItem {
                 Label("Layouts", systemImage: "rectangle.grid.2x2")
             }
             
             // Hotkeys tab - for hotkey configuration
-            Form {
-                if !windowManager.hasPermission {
-                    PermissionSection(
-                        permissionTriggerId: $permissionTriggerId,
-                        windowManager: windowManager
-                    )
-                } else {
-                    // Hotkey Configuration
-                    Section("Hotkeys") {
-                        HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
-                    }
-                    
-                    // Hotkey Test Section
-                    if !windowManager.pokerTables.isEmpty {
-                        Section("Hotkey Test") {
-                            HotkeyTestView(windowManager: windowManager)
-                        }
-                    }
-                }
-            }
-            .formStyle(.grouped)
+            HotkeysTabView(
+                permissionTriggerId: $permissionTriggerId,
+                windowManager: windowManager
+            )
             .tabItem {
                 Label("Hotkeys", systemImage: "keyboard")
             }
             
             // Settings tab - for app settings
-            Form {
-                if !windowManager.hasPermission {
-                    PermissionSection(
-                        permissionTriggerId: $permissionTriggerId,
-                        windowManager: windowManager
-                    )
-                } else {
-                    // Auto Scan
-                    AutoScanSection(windowManager: windowManager)
-                    
-                    // General Settings
-                    SettingsSection(windowManager: windowManager)
-                    
-                    // Permissions
-                    Section("Permissions") {
-                        PermissionStatusView()
-                    }
-                    
-                    #if DEBUG
-                    Section("Debug") {
-                        DebugWindowMoveView()
-                    }
-                    #endif
-                }
-            }
-            .formStyle(.grouped)
+            SettingsTabView(
+                permissionTriggerId: $permissionTriggerId,
+                windowManager: windowManager
+            )
             .tabItem {
                 Label("Settings", systemImage: "gearshape")
             }
