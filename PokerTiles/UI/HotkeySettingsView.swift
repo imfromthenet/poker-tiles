@@ -9,9 +9,10 @@ import SwiftUI
 import AppKit
 
 struct HotkeySettingsView: View {
-    let hotkeyManager: HotkeyManager
+    @ObservedObject var hotkeyManager: HotkeyManager
     @State private var editingAction: HotkeyManager.HotkeyAction?
     @State private var isRecording = false
+    @State private var showAccessibilityAlert = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -53,53 +54,78 @@ struct HotkeySettingsView: View {
             HStack {
                 Text("Global Hotkeys")
                 Spacer()
-                Button(hotkeyManager.isEnabled ? "Enabled" : "Disabled") {
-                    hotkeyManager.setEnabled(!hotkeyManager.isEnabled)
-                }
-                .buttonStyle(.bordered)
-                .foregroundStyle(hotkeyManager.isEnabled ? .green : .secondary)
+                Toggle("", isOn: Binding(
+                    get: { hotkeyManager.isEnabled },
+                    set: { newValue in
+                        if newValue != hotkeyManager.isEnabled {
+                            if newValue && !PermissionManager.hasAccessibilityPermission() {
+                                showAccessibilityAlert = true
+                            } else {
+                                hotkeyManager.setEnabled(newValue)
+                            }
+                        }
+                    }
+                ))
+                .toggleStyle(.switch)
             }
             
-            if hotkeyManager.isEnabled {
-                // Hotkey List
-                ScrollView {
-                    VStack(spacing: 16) {
-                        ForEach(groupedActions(), id: \.0) { category, actions in
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(category)
-                                    .font(.headline)
-                                    .foregroundStyle(.secondary)
-                                
-                                VStack(spacing: 4) {
-                                    ForEach(actions, id: \.self) { action in
-                                        HotkeyRow(
-                                            action: action,
-                                            hotkeyManager: hotkeyManager,
-                                            isEditing: editingAction == action,
-                                            onEdit: {
+            // Status indicator
+            if !hotkeyManager.isEnabled {
+                HStack {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(.secondary)
+                    Text("Hotkeys are disabled. Enable the toggle above to use them.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 8)
+            }
+            
+            // Hotkey List
+            ScrollView {
+                VStack(spacing: 16) {
+                    ForEach(groupedActions(), id: \.0) { category, actions in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(category)
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                            
+                            VStack(spacing: 4) {
+                                ForEach(actions, id: \.self) { action in
+                                    HotkeyRow(
+                                        action: action,
+                                        hotkeyManager: hotkeyManager,
+                                        isEditing: editingAction == action,
+                                        onEdit: {
+                                            if hotkeyManager.isEnabled {
                                                 editingAction = action
                                                 isRecording = true
-                                            },
-                                            onClear: {
+                                            }
+                                        },
+                                        onClear: {
+                                            if hotkeyManager.isEnabled {
                                                 hotkeyManager.unregisterHotkey(action)
                                             }
-                                        )
-                                    }
+                                        }
+                                    )
+                                    .disabled(!hotkeyManager.isEnabled)
                                 }
                             }
                         }
                     }
                 }
-                .frame(maxHeight: 300)
-                
-                Divider()
-                
-                // Reset Button
-                Button("Reset to Defaults") {
-                    hotkeyManager.resetToDefaults()
-                }
-                .buttonStyle(.bordered)
             }
+            .frame(maxHeight: 300)
+            .opacity(hotkeyManager.isEnabled ? 1.0 : 0.5)
+            
+            Divider()
+            
+            // Reset Button
+            Button("Reset to Defaults") {
+                hotkeyManager.resetToDefaults()
+            }
+            .buttonStyle(.bordered)
+            .disabled(!hotkeyManager.isEnabled)
         }
         .padding()
         .frame(width: 500)
@@ -114,6 +140,14 @@ struct HotkeySettingsView: View {
                     }
                 )
             }
+        }
+        .alert("Accessibility Permission Required", isPresented: $showAccessibilityAlert) {
+            Button("Open System Settings") {
+                PermissionManager.requestAccessibilityPermission()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("PokerTiles needs accessibility permission to use global hotkeys.\n\nPlease grant permission in System Settings, then return here to enable hotkeys.")
         }
     }
     
@@ -196,11 +230,15 @@ struct HotkeyDisplay: View {
         case GlobalHotkeyMonitor.KeyCode.a: return "A"
         case GlobalHotkeyMonitor.KeyCode.c: return "C"
         case GlobalHotkeyMonitor.KeyCode.f: return "F"
+        case GlobalHotkeyMonitor.KeyCode.g: return "G"
         case GlobalHotkeyMonitor.KeyCode.r: return "R"
         case GlobalHotkeyMonitor.KeyCode.s: return "S"
         case GlobalHotkeyMonitor.KeyCode.one: return "1"
         case GlobalHotkeyMonitor.KeyCode.two: return "2"
         case GlobalHotkeyMonitor.KeyCode.three: return "3"
+        case GlobalHotkeyMonitor.KeyCode.four: return "4"
+        case GlobalHotkeyMonitor.KeyCode.five: return "5"
+        case GlobalHotkeyMonitor.KeyCode.six: return "6"
         case GlobalHotkeyMonitor.KeyCode.space: return "Space"
         case GlobalHotkeyMonitor.KeyCode.tab: return "Tab"
         default:

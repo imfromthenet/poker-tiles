@@ -21,13 +21,20 @@ class GlobalHotkeyMonitor {
         let keyCode: UInt16
         let modifiers: CGEventFlags
         
+        // Mask for relevant modifier flags only
+        static let modifierMask: CGEventFlags = [.maskCommand, .maskControl, .maskAlternate, .maskShift]
+        
         static func == (lhs: Hotkey, rhs: Hotkey) -> Bool {
-            return lhs.keyCode == rhs.keyCode && lhs.modifiers == rhs.modifiers
+            // Compare only relevant modifier flags
+            let lhsRelevantFlags = lhs.modifiers.intersection(modifierMask)
+            let rhsRelevantFlags = rhs.modifiers.intersection(modifierMask)
+            return lhs.keyCode == rhs.keyCode && lhsRelevantFlags == rhsRelevantFlags
         }
         
         func hash(into hasher: inout Hasher) {
             hasher.combine(keyCode)
-            hasher.combine(modifiers.rawValue)
+            // Hash only relevant modifiers
+            hasher.combine(modifiers.intersection(Hotkey.modifierMask).rawValue)
         }
     }
     
@@ -49,11 +56,17 @@ class GlobalHotkeyMonitor {
     
     /// Start monitoring for global hotkeys
     func startMonitoring() -> Bool {
-        guard !isMonitoring else { return true }
+        guard !isMonitoring else { 
+            print("⚠️ GlobalHotkeyMonitor: Already monitoring")
+            return true 
+        }
         
         // Check for accessibility permissions
         let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
         let trusted = AXIsProcessTrustedWithOptions(options)
+        
+        print("🔍 GlobalHotkeyMonitor: Checking permissions...")
+        print("   - Accessibility permission: \(trusted ? "✅ Granted" : "❌ Not granted")")
         
         if !trusted {
             print("⚠️ Accessibility permission required for global hotkeys")
@@ -62,6 +75,9 @@ class GlobalHotkeyMonitor {
         
         // Create event tap for both keyDown and keyUp events
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
+        
+        print("🔧 GlobalHotkeyMonitor: Creating event tap...")
+        print("   - Event mask: \(String(format: "0x%X", eventMask))")
         
         guard let eventTap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
@@ -76,6 +92,10 @@ class GlobalHotkeyMonitor {
             userInfo: Unmanaged.passUnretained(self).toOpaque()
         ) else {
             print("❌ Failed to create event tap")
+            print("   - This can happen if:")
+            print("     1. Accessibility permission was just granted (restart app)")
+            print("     2. Another app is using exclusive event tap")
+            print("     3. System security settings are blocking event taps")
             return false
         }
         
@@ -89,7 +109,9 @@ class GlobalHotkeyMonitor {
         CGEvent.tapEnable(tap: eventTap, enable: true)
         
         isMonitoring = true
-        print("✅ Global hotkey monitoring started")
+        print("✅ Global hotkey monitoring started successfully")
+        print("   - Event tap created and enabled")
+        print("   - Registered hotkeys: \(hotkeys.count) regular, \(upDownHotkeys.count) up/down")
         return true
     }
     
@@ -120,6 +142,10 @@ class GlobalHotkeyMonitor {
             modifiers: convertModifiers(modifiers)
         )
         hotkeys[hotkey] = handler
+        
+        let modifierStr = describeModifiers(hotkey.modifiers)
+        let keyStr = describeKeyCode(keyCode)
+        print("📌 Registered hotkey: \(modifierStr)\(keyStr)")
     }
     
     /// Register a hotkey with up/down handling
@@ -158,7 +184,9 @@ class GlobalHotkeyMonitor {
         let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
         let flags = event.flags
         
-        let hotkey = Hotkey(keyCode: keyCode, modifiers: flags)
+        // Create hotkey with only relevant modifier flags
+        let relevantFlags = flags.intersection(Hotkey.modifierMask)
+        let hotkey = Hotkey(keyCode: keyCode, modifiers: relevantFlags)
         
         // Check for up/down handler first
         if let upDownHandler = upDownHotkeys[hotkey] {
@@ -185,6 +213,39 @@ class GlobalHotkeyMonitor {
         
         // Pass through unhandled events
         return Unmanaged.passUnretained(event)
+    }
+    
+    private func describeModifiers(_ flags: CGEventFlags) -> String {
+        var parts: [String] = []
+        if flags.contains(.maskCommand) { parts.append("⌘") }
+        if flags.contains(.maskControl) { parts.append("⌃") }
+        if flags.contains(.maskAlternate) { parts.append("⌥") }
+        if flags.contains(.maskShift) { parts.append("⇧") }
+        return parts.joined()
+    }
+    
+    private func describeKeyCode(_ keyCode: UInt16) -> String {
+        // Map common key codes to readable names
+        switch keyCode {
+        case KeyCode.tab: return "Tab"
+        case KeyCode.space: return "Space"
+        case KeyCode.return: return "Return"
+        case KeyCode.escape: return "Escape"
+        case KeyCode.delete: return "Delete"
+        case KeyCode.f: return "F"
+        case KeyCode.c: return "C"
+        case KeyCode.r: return "R"
+        case KeyCode.a: return "A"
+        case KeyCode.n: return "N"
+        case KeyCode.p: return "P"
+        case KeyCode.one: return "1"
+        case KeyCode.two: return "2"
+        case KeyCode.three: return "3"
+        case KeyCode.four: return "4"
+        case KeyCode.five: return "5"
+        case KeyCode.six: return "6"
+        default: return "Key\(keyCode)"
+        }
     }
     
     private func convertModifiers(_ modifiers: NSEvent.ModifierFlags) -> CGEventFlags {

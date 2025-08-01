@@ -14,11 +14,17 @@ class HotkeyManager: ObservableObject {
     
     // MARK: - Types
     
+    // Track last switched table index for continuous navigation
+    private static var lastSwitchedTableIndex: Int?
+    
     enum HotkeyAction: String, CaseIterable {
         // Window Layout Actions
         case grid1x2 = "1x2 Grid Layout"
         case grid2x2 = "2x2 Grid Layout"
+        case grid2x3 = "2x3 Grid Layout"
         case grid3x3 = "3x3 Grid Layout"
+        case grid3x4 = "3x4 Grid Layout"
+        case grid4x4 = "4x4 Grid Layout"
         case cascade = "Cascade Windows"
         case stack = "Stack Windows"
         case autoArrange = "Auto Arrange"
@@ -35,7 +41,7 @@ class HotkeyManager: ObservableObject {
         
         var category: String {
             switch self {
-            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange, .showGridOverlay:
+            case .grid1x2, .grid2x2, .grid2x3, .grid3x3, .grid3x4, .grid4x4, .cascade, .stack, .autoArrange, .showGridOverlay:
                 return "Window Layout"
             case .fold, .check, .call, .raise, .allIn, .nextTable, .previousTable:
                 return "Poker Actions"
@@ -47,7 +53,10 @@ class HotkeyManager: ObservableObject {
             // Layout hotkeys (Cmd+Shift+Number)
             case .grid1x2: return GlobalHotkeyMonitor.KeyCode.one
             case .grid2x2: return GlobalHotkeyMonitor.KeyCode.two
-            case .grid3x3: return GlobalHotkeyMonitor.KeyCode.three
+            case .grid2x3: return GlobalHotkeyMonitor.KeyCode.three
+            case .grid3x3: return GlobalHotkeyMonitor.KeyCode.four
+            case .grid3x4: return GlobalHotkeyMonitor.KeyCode.five
+            case .grid4x4: return GlobalHotkeyMonitor.KeyCode.six
             case .cascade: return GlobalHotkeyMonitor.KeyCode.c
             case .stack: return GlobalHotkeyMonitor.KeyCode.s
             case .autoArrange: return GlobalHotkeyMonitor.KeyCode.a
@@ -59,15 +68,15 @@ class HotkeyManager: ObservableObject {
             case .call: return GlobalHotkeyMonitor.KeyCode.c
             case .raise: return GlobalHotkeyMonitor.KeyCode.r
             case .allIn: return GlobalHotkeyMonitor.KeyCode.a
-            case .nextTable: return GlobalHotkeyMonitor.KeyCode.tab
-            case .previousTable: return GlobalHotkeyMonitor.KeyCode.tab
+            case .nextTable: return GlobalHotkeyMonitor.KeyCode.n
+            case .previousTable: return GlobalHotkeyMonitor.KeyCode.p
             }
         }
         
         var defaultModifiers: NSEvent.ModifierFlags? {
             switch self {
             // Layout hotkeys use Cmd+Shift
-            case .grid1x2, .grid2x2, .grid3x3, .cascade, .stack, .autoArrange, .showGridOverlay:
+            case .grid1x2, .grid2x2, .grid2x3, .grid3x3, .grid3x4, .grid4x4, .cascade, .stack, .autoArrange, .showGridOverlay:
                 return [.command, .shift]
                 
             // Poker actions use Ctrl
@@ -139,18 +148,28 @@ class HotkeyManager: ObservableObject {
     }
     
     func setEnabled(_ enabled: Bool) {
-        isEnabled = enabled
-        
         if enabled {
+            // Check for accessibility permission first
+            if !PermissionManager.hasAccessibilityPermission() {
+                print("❌ Accessibility permission required for hotkeys")
+                PermissionManager.requestAccessibilityPermission()
+                isEnabled = false
+                return
+            }
+            
             if monitor.startMonitoring() {
+                isEnabled = true
                 registerAllHotkeys()
+                print("✅ Hotkeys enabled")
             } else {
                 isEnabled = false
-                print("❌ Failed to start hotkey monitoring - check Accessibility permission")
+                print("❌ Failed to start hotkey monitoring")
             }
         } else {
+            isEnabled = false
             unregisterAllHotkeys()
             monitor.stopMonitoring()
+            print("✅ Hotkeys disabled")
         }
     }
     
@@ -160,7 +179,9 @@ class HotkeyManager: ObservableObject {
         
         // Special handling for grid overlay (needs up/down events)
         if action == .showGridOverlay {
+            print("📐 Registering grid overlay hotkey with up/down handling")
             monitor.registerUpDown(keyCode: keyCode, modifiers: modifiers) { [weak self] isKeyDown in
+                print("📐 Grid overlay hotkey \(isKeyDown ? "pressed" : "released")")
                 if isKeyDown {
                     self?.gridOverlayManager?.handleHotkeyPress()
                 } else {
@@ -218,9 +239,12 @@ class HotkeyManager: ObservableObject {
             }
         } else {
             // Re-register existing hotkeys
+            print("📋 Re-registering \(registeredHotkeys.count) existing hotkeys")
             for (action, (keyCode, modifiers)) in registeredHotkeys {
                 if action == .showGridOverlay {
+                    print("📐 Re-registering grid overlay hotkey")
                     monitor.registerUpDown(keyCode: keyCode, modifiers: modifiers) { [weak self] isKeyDown in
+                        print("📐 Grid overlay hotkey \(isKeyDown ? "pressed" : "released")")
                         if isKeyDown {
                             self?.gridOverlayManager?.handleHotkeyPress()
                         } else {
@@ -228,6 +252,7 @@ class HotkeyManager: ObservableObject {
                         }
                     }
                 } else {
+                    print("🔑 Re-registering hotkey: \(action.rawValue)")
                     monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
                         self?.handleHotkeyAction(action)
                     }
@@ -244,19 +269,34 @@ class HotkeyManager: ObservableObject {
     }
     
     private func handleHotkeyAction(_ action: HotkeyAction) {
-        guard let windowManager = windowManager else { return }
+        guard let windowManager = windowManager else { 
+            print("❌ No window manager available for hotkey action")
+            return 
+        }
+        
+        print("🎯 Hotkey triggered: \(action.rawValue)")
         
         DispatchQueue.main.async {
             switch action {
             // Window Layout Actions
             case .grid1x2:
+                print("Arranging tables in 1x2 grid")
                 windowManager.arrangePokerTablesInGrid(.oneByTwo)
                 
             case .grid2x2:
                 windowManager.arrangePokerTablesInGrid(.twoByTwo)
                 
+            case .grid2x3:
+                windowManager.arrangePokerTablesInGrid(.twoByThree)
+                
             case .grid3x3:
                 windowManager.arrangePokerTablesInGrid(.threeByThree)
+                
+            case .grid3x4:
+                windowManager.arrangePokerTablesInGrid(.threeByFour)
+                
+            case .grid4x4:
+                windowManager.arrangePokerTablesInGrid(.fourByFour)
                 
             case .cascade:
                 windowManager.cascadePokerTables()
@@ -296,19 +336,41 @@ class HotkeyManager: ObservableObject {
     }
     
     private func switchToNextTable() {
-        guard let windowManager = windowManager else { return }
+        guard let windowManager = windowManager else { 
+            print("❌ switchToNextTable: No window manager")
+            return 
+        }
         
         let tables = windowManager.pokerTables
         guard !tables.isEmpty else { return }
         
-        // Find current active table
-        if let currentIndex = tables.firstIndex(where: { $0.isActive }) {
-            let nextIndex = (currentIndex + 1) % tables.count
-            windowManager.bringWindowToFront(tables[nextIndex].windowInfo)
-        } else {
-            // No active table, activate the first one
-            windowManager.bringWindowToFront(tables[0].windowInfo)
+        // Get the frontmost app to determine current table
+        let workspace = NSWorkspace.shared
+        let frontmostApp = workspace.frontmostApplication
+        
+        // Try to find the current table
+        var currentIndex: Int?
+        
+        // First check if we have a last switched index (for rapid switching)
+        if let lastIndex = HotkeyManager.lastSwitchedTableIndex, lastIndex < tables.count {
+            currentIndex = lastIndex
+        } else if let frontmostBundleId = frontmostApp?.bundleIdentifier {
+            // Otherwise, check if any poker table's app is frontmost
+            currentIndex = tables.firstIndex { table in
+                table.windowInfo.bundleIdentifier == frontmostBundleId
+            }
         }
+        
+        // Determine next index
+        let nextIndex: Int
+        if let index = currentIndex {
+            nextIndex = (index + 1) % tables.count
+        } else {
+            nextIndex = 0
+        }
+        
+        windowManager.bringWindowToFront(tables[nextIndex].windowInfo)
+        HotkeyManager.lastSwitchedTableIndex = nextIndex  // Remember what we switched to
     }
     
     private func switchToPreviousTable() {
@@ -317,14 +379,33 @@ class HotkeyManager: ObservableObject {
         let tables = windowManager.pokerTables
         guard !tables.isEmpty else { return }
         
-        // Find current active table
-        if let currentIndex = tables.firstIndex(where: { $0.isActive }) {
-            let previousIndex = currentIndex > 0 ? currentIndex - 1 : tables.count - 1
-            windowManager.bringWindowToFront(tables[previousIndex].windowInfo)
-        } else {
-            // No active table, activate the last one
-            windowManager.bringWindowToFront(tables[tables.count - 1].windowInfo)
+        // Get the frontmost app to determine current table
+        let workspace = NSWorkspace.shared
+        let frontmostApp = workspace.frontmostApplication
+        
+        // Try to find the current table
+        var currentIndex: Int?
+        
+        // First check if we have a last switched index (for rapid switching)
+        if let lastIndex = HotkeyManager.lastSwitchedTableIndex, lastIndex < tables.count {
+            currentIndex = lastIndex
+        } else if let frontmostBundleId = frontmostApp?.bundleIdentifier {
+            // Otherwise, check if any poker table's app is frontmost
+            currentIndex = tables.firstIndex { table in
+                table.windowInfo.bundleIdentifier == frontmostBundleId
+            }
         }
+        
+        // Determine previous index
+        let previousIndex: Int
+        if let index = currentIndex {
+            previousIndex = index > 0 ? index - 1 : tables.count - 1
+        } else {
+            previousIndex = tables.count - 1
+        }
+        
+        windowManager.bringWindowToFront(tables[previousIndex].windowInfo)
+        HotkeyManager.lastSwitchedTableIndex = previousIndex  // Remember what we switched to
     }
     
     // MARK: - Persistence
@@ -344,19 +425,35 @@ class HotkeyManager: ObservableObject {
         invalidBindings.removeAll()
         let bindings = loadSavedBindings()
         
-        for (actionName, binding) in bindings {
-            guard let action = HotkeyAction(rawValue: actionName) else {
-                // Track invalid binding for user feedback
-                invalidBindings.append((action: actionName, keyCode: binding.keyCode))
-                print("⚠️ Invalid hotkey binding found: '\(actionName)' with keyCode: \(binding.keyCode)")
-                continue
+        print("📖 Loading saved hotkeys: \(bindings.count) bindings found")
+        
+        // If no saved bindings exist, register defaults immediately
+        if bindings.isEmpty {
+            print("📖 No saved hotkeys found, registering defaults")
+            for action in HotkeyAction.allCases {
+                if let keyCode = action.defaultKeyCode,
+                   let modifiers = action.defaultModifiers {
+                    print("   Registering default: \(action.rawValue)")
+                    registeredHotkeys[action] = (keyCode: keyCode, modifiers: modifiers)
+                    saveHotkey(action: action, keyCode: keyCode, modifiers: modifiers)
+                }
             }
-            
-            let modifiers = NSEvent.ModifierFlags(rawValue: binding.modifiers)
-            registerHotkey(action, keyCode: binding.keyCode, modifiers: modifiers)
+        } else {
+            // Load saved bindings
+            for (actionName, binding) in bindings {
+                guard let action = HotkeyAction(rawValue: actionName) else {
+                    // Track invalid binding for user feedback
+                    invalidBindings.append((action: actionName, keyCode: binding.keyCode))
+                    print("⚠️ Invalid hotkey binding found: '\(actionName)' with keyCode: \(binding.keyCode)")
+                    continue
+                }
+                
+                let modifiers = NSEvent.ModifierFlags(rawValue: binding.modifiers)
+                print("📖 Loading hotkey: \(action.rawValue) -> keyCode: \(binding.keyCode), modifiers: \(binding.modifiers)")
+                registeredHotkeys[action] = (keyCode: binding.keyCode, modifiers: modifiers)
+            }
         }
         
-        // Log summary if there were invalid bindings
         if !invalidBindings.isEmpty {
             print("❌ Found \(invalidBindings.count) invalid hotkey bindings that were skipped")
         }

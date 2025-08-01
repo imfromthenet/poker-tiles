@@ -254,28 +254,82 @@ class WindowManager {
     }
     
     func bringWindowToFront(_ windowInfo: WindowInfo) {
-        // Use the new window manipulator for better reliability
-        if windowManipulator.bringWindowToFront(windowInfo) {
-            print("✅ Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
+        // First try to find if we're dealing with multiple windows from the same app
+        let sameAppTables = pokerTables.filter { $0.windowInfo.bundleIdentifier == windowInfo.bundleIdentifier }
+        
+        if sameAppTables.count > 1 {
+            // Multiple windows from same app - we need to be more specific
+            // Try using accessibility API to raise specific window
+            if let pid = windowInfo.scWindow?.owningApplication?.processID {
+                focusSpecificWindow(windowInfo: windowInfo, pid: pid)
+            }
         } else {
-            // Fallback to original method
-            guard let scWindow = windowInfo.scWindow,
-                  let app = scWindow.owningApplication else {
-                print("No owning application found for window")
-                return
-            }
+            // Single window from this app - safe to just activate the app
             
-            let pid = app.processID
-            let runningApp = NSRunningApplication(processIdentifier: pid)
-            
-            // Activate the application
-            if #available(macOS 14.0, *) {
-                runningApp?.activate()
+            // Use the new window manipulator for better reliability
+            if windowManipulator.bringWindowToFront(windowInfo) {
+                print("✅ Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
             } else {
-                runningApp?.activate(options: .activateIgnoringOtherApps)
+                // Fallback to original method
+                guard let scWindow = windowInfo.scWindow,
+                      let app = scWindow.owningApplication else {
+                    print("No owning application found for window")
+                    return
+                }
+                
+                let pid = app.processID
+                let runningApp = NSRunningApplication(processIdentifier: pid)
+                
+                // Activate the application
+                if #available(macOS 14.0, *) {
+                    runningApp?.activate()
+                } else {
+                    runningApp?.activate(options: .activateIgnoringOtherApps)
+                }
+                
+                print("Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
             }
-            
-            print("Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
+        }
+    }
+    
+    private func focusSpecificWindow(windowInfo: WindowInfo, pid: pid_t) {
+        // Get the app element
+        let appElement = AXUIElementCreateApplication(pid)
+        
+        // Get all windows
+        var windowsRef: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowsRef)
+        
+        guard result == .success,
+              let windows = windowsRef as? [AXUIElement] else {
+            return
+        }
+        
+        // Find the specific window by title
+        for window in windows {
+            var titleRef: CFTypeRef?
+            if AXUIElementCopyAttributeValue(window, kAXTitleAttribute as CFString, &titleRef) == .success,
+               let title = titleRef as? String {
+                if title == windowInfo.title {
+                    // Found our window - raise it
+                    AXUIElementPerformAction(window, kAXRaiseAction as CFString)
+                    
+                    // Also set it as main window
+                    var mainRef: CFTypeRef = kCFBooleanTrue
+                    AXUIElementSetAttributeValue(window, kAXMainAttribute as CFString, mainRef)
+                    
+                    // Activate the app
+                    if let runningApp = NSRunningApplication(processIdentifier: pid) {
+                        if #available(macOS 14.0, *) {
+                            runningApp.activate()
+                        } else {
+                            runningApp.activate(options: .activateIgnoringOtherApps)
+                        }
+                    }
+                    
+                    return
+                }
+            }
         }
     }
     
