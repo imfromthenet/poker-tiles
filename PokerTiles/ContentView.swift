@@ -15,39 +15,87 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            // Main tab - temporary, will be removed later
+            // Tables tab - for monitoring poker tables
             Form {
-                HeaderSection()
-                
                 if !windowManager.hasPermission {
                     PermissionSection(
                         permissionTriggerId: $permissionTriggerId,
                         windowManager: windowManager
                     )
                 } else {
-                    // Core functionality
+                    // Window Statistics
                     WindowStatisticsSection(windowManager: windowManager)
                     
-                    AutoScanSection(windowManager: windowManager)
-                    
+                    // Active tables
+                    if !windowManager.pokerTables.isEmpty {
+                        PokerTableSection(windowManager: windowManager)
+                    } else if !windowManager.getPokerAppWindows().isEmpty {
+                        Section {
+                            Text("No poker tables detected. Open a poker table to see it here.")
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                        }
+                    } else {
+                        Section {
+                            VStack(spacing: 10) {
+                                Image(systemName: "tablecells")
+                                    .font(.system(size: 48))
+                                    .foregroundStyle(.secondary)
+                                Text("No poker apps detected")
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                                Text("Open a poker application to start monitoring tables")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                        }
+                    }
+                }
+            }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("Tables", systemImage: "tablecells")
+            }
+            
+            // Layouts tab - for window arrangements
+            Form {
+                if !windowManager.hasPermission {
+                    PermissionSection(
+                        permissionTriggerId: $permissionTriggerId,
+                        windowManager: windowManager
+                    )
+                } else {
                     // Window Management
                     Section("Window Management") {
                         QuickActionsView(windowManager: windowManager)
                     }
                     
-                    // Window Layout - Always visible
+                    // Window Layout
                     Section("Window Layout") {
                         GridLayoutView(windowManager: windowManager)
                     }
-                    
-                    // Active tables (when available)
-                    if !windowManager.pokerTables.isEmpty {
-                        PokerTableSection(windowManager: windowManager)
-                    } else if !windowManager.getPokerAppWindows().isEmpty {
-                        Text("No poker tables detected. Open a poker table to see it here.")
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding()
+                }
+            }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("Layouts", systemImage: "rectangle.grid.2x2")
+            }
+            
+            // Hotkeys tab - for hotkey configuration
+            Form {
+                if !windowManager.hasPermission {
+                    PermissionSection(
+                        permissionTriggerId: $permissionTriggerId,
+                        windowManager: windowManager
+                    )
+                } else {
+                    // Hotkey Configuration
+                    Section("Hotkeys") {
+                        HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
                     }
                     
                     // Hotkey Test Section
@@ -56,14 +104,28 @@ struct ContentView: View {
                             HotkeyTestView(windowManager: windowManager)
                         }
                     }
+                }
+            }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("Hotkeys", systemImage: "keyboard")
+            }
+            
+            // Settings tab - for app settings
+            Form {
+                if !windowManager.hasPermission {
+                    PermissionSection(
+                        permissionTriggerId: $permissionTriggerId,
+                        windowManager: windowManager
+                    )
+                } else {
+                    // Auto Scan
+                    AutoScanSection(windowManager: windowManager)
                     
-                    // Configuration
-                    Section("Hotkeys") {
-                        HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
-                    }
-                    
+                    // General Settings
                     SettingsSection(windowManager: windowManager)
                     
+                    // Permissions
                     Section("Permissions") {
                         PermissionStatusView()
                     }
@@ -76,50 +138,6 @@ struct ContentView: View {
                 }
             }
             .formStyle(.grouped)
-            .tabItem {
-                Label("Main", systemImage: "list.bullet.rectangle")
-            }
-            
-            // Tables tab - for monitoring poker tables
-            Form {
-                Text("Tables content will go here")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .tabItem {
-                Label("Tables", systemImage: "tablecells")
-            }
-            
-            // Layouts tab - for window arrangements
-            Form {
-                Text("Layouts content will go here")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .tabItem {
-                Label("Layouts", systemImage: "rectangle.grid.2x2")
-            }
-            
-            // Hotkeys tab - for hotkey configuration
-            Form {
-                Text("Hotkeys content will go here")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .tabItem {
-                Label("Hotkeys", systemImage: "keyboard")
-            }
-            
-            // Settings tab - for app settings
-            Form {
-                Text("Settings content will go here")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
             .tabItem {
                 Label("Settings", systemImage: "gearshape")
             }
@@ -139,18 +157,6 @@ struct ContentView: View {
                 try? await Task.sleep(nanoseconds: 5_000_000_000) // Check every 5 seconds
                 windowManager.checkPermissions()
             }
-        }
-    }
-}
-
-// MARK: - Header Section
-struct HeaderSection: View {
-    var body: some View {
-        Section {
-            Text("PokerTiles Window Manager")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }
