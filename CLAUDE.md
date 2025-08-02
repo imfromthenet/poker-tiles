@@ -249,5 +249,3 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 ## Summary instructions
 
 When you are using compact, please focus on test output and code changes
-
-```
