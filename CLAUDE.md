@@ -4,15 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PokerTiles is a comprehensive poker table management application for macOS, designed to enhance multi-tabling experiences with advanced overlays, hotkeys, and table organization features. The app combines Accessibility API and ScreenCaptureKit to read, monitor, and control poker tables across various poker clients.
+PokerTiles is a comprehensive poker table management application for macOS, designed to enhance multi-tabling experiences with advanced overlays, hotkeys, and table organization features. The app combines Accessibility API and ScreenCaptureKit to read, monitor, and control poker tables from desktop poker applications.
 
 ## Core Features
 
-- **Poker Table Detection**: Automatically detect and track poker tables across browsers
-- **Custom Overlays**: HUD-style information displays with statistics and notes
-- **Hotkey System**: Configurable shortcuts for poker actions (fold, call, raise, etc.)
+### ✅ Implemented
+- **Poker Table Detection**: Automatically detect and track poker tables from desktop applications
 - **Table Organization**: Grid layouts, stacking, and positioning for optimal multi-tabling
-- **Multi-Platform Support**: Works with browser-based poker sites and desktop applications
+
+### 🟡 Partially Implemented
+- **Hotkey System**: Configurable shortcuts framework (actions not yet connected)
+
+### 🔴 Planned
+- **Custom Overlays**: HUD-style information displays with statistics and notes
+- **Game State Tracking**: Real-time detection of cards, betting rounds, and pot sizes
+
+## Implementation Status
+
+### ✅ Implemented Features
+- **Window Detection**: Desktop application window discovery via Accessibility API
+- **Poker Table Detection**: Basic title-based identification of poker tables
+- **Window Management**: Move, resize, and arrange windows in grid layouts
+- **Grid Overlay**: Visual grid overlay for window arrangement
+- **Permission Management**: Accessibility and Screen Recording permission handling
+- **Auto-scan**: Automatic window scanning with configurable intervals
+- **Basic Hotkey System**: Framework for global hotkeys (actions not yet implemented)
+- **Dark Mode Support**: Full color scheme management
+
+### 🚧 In Development
+- **Enhanced Table Detection**: More sophisticated pattern matching
+- **Debug UI Improvements**: Visual distinction for debug components
+
+### 📋 Planned Features (Not Yet Implemented)
+- **Computer Vision Integration**: OCR for card/chip detection
+- **Core ML Models**: Custom models for poker element recognition
+- **Game State Tracking**: Real-time tracking of betting rounds
+- **HUD System**: Statistics display and player notes
+- **Advanced Overlays**: Pot odds calculator, timers, action indicators
+- **Poker Action Automation**: Hotkey-triggered poker actions
 
 ## Architecture Overview
 
@@ -22,74 +51,72 @@ PokerTiles is a comprehensive poker table management application for macOS, desi
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐  │
 │  │   SwiftUI   │  │   AppKit     │  │  Permissions    │  │
-│  │   Tables    │  │  Overlays    │  │   Manager       │  │
+│  │  Tables 🟢  │  │ Overlays 🔴  │  │  Manager 🟢     │  │
 │  └──────┬──────┘  └──────┬───────┘  └────────┬─────────┘  │
 │         │                 │                    │            │
 │  ┌──────▼─────────────────▼────────────────────▼────────┐  │
-│  │              Poker Table Manager                      │  │
-│  │  • Table Discovery    • Table State Tracking        │  │
-│  │  • Site Detection     • Multi-Table Coordination    │  │
+│  │              Poker Table Manager 🟢                   │  │
+│  │  • Table Discovery    • Table State Tracking 🔴      │  │
+│  │  • App Detection      • Multi-Table Coordination     │  │
 │  └──────────────────────┬───────────────────────────────┘  │
 │                         │                                   │
 │  ┌─────────────┐       │       ┌─────────────────────┐   │
 │  │   Poker     │       │       │   Computer Vision   │   │
 │  │ Element     │◄──────┼──────►│   Poker Detector    │   │
-│  │ Detector    │       │       │   (Cards/Chips)     │   │
+│  │ Detector 🔴 │       │       │   (Cards/Chips) 🔴  │   │
 │  └─────────────┘       │       └─────────────────────┘   │
 │                         │                                   │
 │  ┌─────────────────────▼─────────────────────────────────┐  │
-│  │                Poker Overlay System                    │  │
+│  │                Poker Overlay System 🔴                 │  │
 │  │  • HUD Widgets     • Statistics Display              │  │
 │  │  • Action Buttons  • Timer Overlays                  │  │
 │  └─────────────────────┬─────────────────────────────────┘  │
 │                         │                                   │
 │  ┌─────────────────────▼─────────────────────────────────┐  │
-│  │                 Hotkey Engine                          │  │
+│  │                 Hotkey Engine 🟡                       │  │
 │  │  • Action Mapping  • Global Shortcuts                │  │
 │  │  • Context Aware   • Multi-Table Support             │  │
 │  └─────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
+🟢 Implemented | 🟡 Partial | 🔴 Planned
 
 ## Key Technologies
 
 ### Core Frameworks
-- **Accessibility API (AXUIElement)**: Direct access to browser DOM elements for precise poker table detection
+- **Accessibility API (AXUIElement)**: Direct access to application UI elements for precise poker table detection
 - **ScreenCaptureKit**: High-performance window capture for visual analysis
-- **Vision Framework**: OCR and computer vision for card/chip detection
-- **Core ML**: Custom models for poker-specific element recognition
+- **Vision Framework**: OCR and computer vision for card/chip detection (Planned)
+- **Core ML**: Custom models for poker-specific element recognition (Planned)
 - **SwiftUI + AppKit**: Modern UI with custom overlay windows
-
-### Multi-platform Support
-- Platform-specific optimizations for major poker platforms
 
 ## Project Structure
 
 ```
 PokerTiles/
-├── App/
+├── PokerTiles/
 │   ├── PokerTilesApp.swift          # Main app entry point
-│   └── AppDelegate.swift            # App lifecycle management
-├── Core/
-│   ├── WindowManager/               # Browser window discovery and tracking
-│   ├── Accessibility/               # AX API integration for content access
-│   ├── ScreenCapture/               # Screen capture and frame processing
-│   └── Permissions/                 # Permission management and onboarding
-├── Models/
-│   ├── PokerTable.swift             # Poker table data model
-│   ├── PokerElements.swift          # Detected poker UI elements
-│   ├── GameState.swift              # Poker game state tracking
-│   └── BrowserType.swift            # Browser-specific configurations
-├── Services/
-│   ├── PokerDetection/              # Poker table detection and analysis
-│   ├── OverlaySystem/               # HUD overlay management
-│   ├── HotkeyEngine/                # Global hotkey handling
-│   └── TableManager/                # Multi-table coordination
-└── UI/
-    ├── MainWindow/                  # Primary application interface
-    ├── TableList/                   # Active tables list view
-    ├── OverlayViews/                # Poker HUD components
-    └── Settings/                    # Configuration interface
+│   ├── ContentView.swift            # Main tab view container
+│   ├── Core/
+│   │   ├── WindowManager/           # Window discovery and management
+│   │   ├── WindowManagement/        # Window manipulation implementations
+│   │   ├── HotkeyManager/           # Global hotkey handling
+│   │   ├── Permissions/             # Permission management
+│   │   ├── PokerTableDetector.swift # Table detection logic
+│   │   └── ColorSchemeManager.swift # Theme management
+│   ├── Models/
+│   │   ├── PokerTable.swift         # Poker table data model
+│   │   ├── PokerApp.swift           # Poker app definitions
+│   │   ├── WindowInfo.swift         # Window information model
+│   │   ├── AppSettings.swift        # Application settings
+│   │   └── PermissionState.swift    # Permission status model
+│   ├── Services/
+│   │   └── GridOverlay/             # Grid overlay system (only service)
+│   └── UI/
+│       ├── Tabs/                    # Main tab views
+│       ├── Sections/                # Reusable UI sections
+│       ├── Components/              # UI components
+│       └── WindowManagement/        # Window management UI
 ```
 
 ## Development Commands
@@ -122,28 +149,63 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 ## Poker-Specific Features
 
 ### Table Detection
-- Automatic recognition of poker tables across major platforms
-- Real-time game state tracking (preflop, flop, turn, river)
-- Player position and action detection
-- Pot size and betting analysis
+- Automatic recognition of poker tables from desktop applications ✅
+- Real-time game state tracking (preflop, flop, turn, river) 🔴 Planned
+- Player position and action detection 🔴 Planned
+- Pot size and betting analysis 🔴 Planned
 
-### Overlay System
+### Overlay System 🔴 Planned
 - Customizable HUD with statistics and notes
 - Pot odds calculator
 - Timer displays and action indicators
 - Player tracking and history
 
 ### Hotkey Actions
-- Betting actions: fold, call, raise, all-in, check
-- Table navigation: next/previous table
-- HUD controls: show/hide overlays
-- Table management: resize, reposition, close
+- Betting actions: fold, call, raise, all-in, check 🔴 Planned
+- Table navigation: next/previous table 🔴 Planned
+- HUD controls: show/hide overlays 🔴 Planned
+- Table management: resize, reposition, close 🟡 Partial (resize/reposition work)
 
 ### Multi-Table Support
-- Simultaneous table monitoring
-- Priority-based processing for active tables
-- Coordinated action handling across tables
-- Automatic table arrangement and organization
+- Simultaneous table monitoring ✅
+- Priority-based processing for active tables 🔴 Planned
+- Coordinated action handling across tables 🔴 Planned
+- Automatic table arrangement and organization ✅ (Grid layouts)
+
+## Current Limitations
+
+- **Poker Action Automation**: Hotkeys are detected but don't execute poker actions yet
+- **Visual Detection**: No OCR or computer vision - relies on window titles only
+- **No Game State Tracking**: Cannot detect cards, chips, or betting rounds
+- **Basic Table Detection**: May miss tables with non-standard titles
+- **Debug UI**: Debug views not visually distinguished from production UI
+
+## Development Priorities
+
+### Immediate Tasks (Production Quality)
+1. **Convert Debug Output to Logging**: Convert 50+ print statements to proper logging system with debug mode support
+2. **Implement Logging System**: Add structured logging with OSLog
+3. **Permission Code Refactoring**: Extract duplicated permission checking
+
+### Short-term Improvements
+1. **Error Handling**: Standardize error patterns across the app
+2. **Constants Management**: Extract magic numbers to constants file
+3. **Debug UI Styling**: Mark debug views with different colors/styling
+4. **Test Coverage**: Add unit tests for core functionality
+
+### Long-term Goals
+1. **Poker Action Automation**: Implement hotkey-triggered poker actions
+2. **Computer Vision Integration**: Add OCR for game state detection
+3. **HUD System**: Implement statistics and overlay features
+
+## Known Issues
+
+- Multiple debug print statements throughout codebase
+- Permission checking code duplication (6+ occurrences)
+- Hotkey actions not connected to poker operations
+- No standardized error handling pattern
+- Missing constants file for magic numbers
+- Debug views not visually distinguished from production UI
 
 ## Performance Considerations
 
