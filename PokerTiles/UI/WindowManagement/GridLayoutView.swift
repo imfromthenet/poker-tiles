@@ -24,10 +24,6 @@ struct GridLayoutView: View {
         VStack(spacing: 20) {
             // Header
             VStack(alignment: .leading, spacing: 8) {
-                Text("Window Layout")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
                 Text("Arrange poker tables in predefined grid layouts")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
