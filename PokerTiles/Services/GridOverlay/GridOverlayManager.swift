@@ -32,21 +32,21 @@ class GridOverlayManager: NSObject, ObservableObject {
     @Published var gridColor: NSColor = .systemGreen {
         didSet { savePreferences() }
     }
-    @Published var padding: CGFloat = 10
-    @Published var windowSpacing: CGFloat = 5
-    @Published var lineWidth: CGFloat = 2 {
+    @Published var padding: CGFloat = SettingsConstants.GridLayout.defaultPadding
+    @Published var windowSpacing: CGFloat = SettingsConstants.GridLayout.defaultWindowSpacing
+    @Published var lineWidth: CGFloat = SettingsConstants.GridLayout.defaultLineWidth {
         didSet { savePreferences() }
     }
     @Published var useDashedLines: Bool = false {
         didSet { savePreferences() }
     }
-    @Published var cornerRadius: CGFloat = 8 {
+    @Published var cornerRadius: CGFloat = SettingsConstants.GridLayout.defaultCornerRadius {
         didSet { savePreferences() }
     }
     
     // Hotkey tracking
     private var hotkeyPressTime: Date?
-    private let quickReleaseThreshold: TimeInterval = 0.2
+    private let quickReleaseThreshold: TimeInterval = SettingsConstants.Hotkey.quickReleaseThreshold
     private var isToggleMode = false
     
     // Window manager reference (will be set during integration)

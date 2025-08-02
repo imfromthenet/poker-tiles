@@ -12,18 +12,18 @@ struct GridLayoutView: View {
     @State private var selectedLayout: GridLayoutManager.GridLayout = .twoByTwo
     @State private var isArranging = false
     @State private var showResistanceAnalysis = false
-    @State private var tempPadding: CGFloat = 10
-    @State private var tempWindowSpacing: CGFloat = 5
-    @State private var tempLineWidth: CGFloat = 2
+    @State private var tempPadding: CGFloat = SettingsConstants.GridLayout.defaultPadding
+    @State private var tempWindowSpacing: CGFloat = SettingsConstants.GridLayout.defaultWindowSpacing
+    @State private var tempLineWidth: CGFloat = SettingsConstants.GridLayout.defaultLineWidth
     @State private var tempGridColor: Color = .green
     @State private var tempUseDashedLines: Bool = false
-    @State private var tempCornerRadius: CGFloat = 8
+    @State private var tempCornerRadius: CGFloat = SettingsConstants.GridLayout.defaultCornerRadius
     @State private var isOverlayVisible = false
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: UIConstants.Spacing.huge) {
             // Header
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: UIConstants.Spacing.standard) {
                 Text("Arrange poker tables in predefined grid layouts")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -31,11 +31,11 @@ struct GridLayoutView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             // Layout Options
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
                 Text("Select Layout")
                     .font(.headline)
                 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: UIConstants.FrameDimensions.layoutButtonSize))], spacing: UIConstants.Spacing.medium) {
                     ForEach(GridLayoutManager.GridLayout.allCases, id: \.self) { layout in
                         LayoutOptionButton(
                             layout: layout,
@@ -54,20 +54,20 @@ struct GridLayoutView: View {
             }
             
             // Spacing Controls
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
                 Text("Spacing")
                     .font(.headline)
                 
-                VStack(spacing: 16) {
+                VStack(spacing: UIConstants.Spacing.extraLarge) {
                     // Padding control
                     HStack {
                         Text("Padding:")
-                            .frame(width: 100, alignment: .leading)
+                            .frame(width: UIConstants.FrameDimensions.labelWidth, alignment: .leading)
                         
                         Slider(
                             value: $tempPadding,
-                            in: AppSettings.minGridSpacing...AppSettings.maxGridSpacing,
-                            step: 1,
+                            in: SettingsConstants.GridLayout.minSpacing...SettingsConstants.GridLayout.maxSpacing,
+                            step: UIConstants.LineWidth.thin,
                             onEditingChanged: { editing in
                                 if !editing {
                                     windowManager.setGridPadding(tempPadding)
@@ -76,19 +76,19 @@ struct GridLayoutView: View {
                         )
                         
                         Text("\(Int(tempPadding))px")
-                            .frame(width: 45)
+                            .frame(width: UIConstants.FrameDimensions.textFieldWidth)
                             .monospacedDigit()
                     }
                     
                     // Window spacing control
                     HStack {
                         Text("Gap:")
-                            .frame(width: 100, alignment: .leading)
+                            .frame(width: UIConstants.FrameDimensions.labelWidth, alignment: .leading)
                         
                         Slider(
                             value: $tempWindowSpacing,
-                            in: AppSettings.minGridSpacing...AppSettings.maxGridSpacing,
-                            step: 1,
+                            in: SettingsConstants.GridLayout.minSpacing...SettingsConstants.GridLayout.maxSpacing,
+                            step: UIConstants.LineWidth.thin,
                             onEditingChanged: { editing in
                                 if !editing {
                                     windowManager.setGridWindowSpacing(tempWindowSpacing)
@@ -97,19 +97,19 @@ struct GridLayoutView: View {
                         )
                         
                         Text("\(Int(tempWindowSpacing))px")
-                            .frame(width: 45)
+                            .frame(width: UIConstants.FrameDimensions.textFieldWidth)
                             .monospacedDigit()
                     }
                     
                     // Border thickness control
                     HStack {
                         Text("Border:")
-                            .frame(width: 100, alignment: .leading)
+                            .frame(width: UIConstants.FrameDimensions.labelWidth, alignment: .leading)
                         
                         Slider(
                             value: $tempLineWidth,
-                            in: 1...10,
-                            step: 1,
+                            in: SettingsConstants.GridLayout.minLineWidth...SettingsConstants.GridLayout.maxLineWidth,
+                            step: UIConstants.LineWidth.thin,
                             onEditingChanged: { editing in
                                 if !editing {
                                     windowManager.gridOverlayManager?.lineWidth = tempLineWidth
@@ -118,26 +118,26 @@ struct GridLayoutView: View {
                         )
                         
                         Text("\(Int(tempLineWidth))px")
-                            .frame(width: 45)
+                            .frame(width: UIConstants.FrameDimensions.textFieldWidth)
                             .monospacedDigit()
                     }
                     
                     // Grid color picker
                     HStack {
                         Text("Color:")
-                            .frame(width: 100, alignment: .leading)
+                            .frame(width: UIConstants.FrameDimensions.labelWidth, alignment: .leading)
                         
                         ColorPicker("", selection: $tempGridColor)
                             .onChange(of: tempGridColor) { _, newColor in
                                 windowManager.gridOverlayManager?.gridColor = NSColor(newColor)
                             }
                             .labelsHidden()
-                            .frame(width: 40)
+                            .frame(width: UIConstants.FrameDimensions.buttonHeight)
                         
                         Spacer()
                         
                         // Preset colors
-                        HStack(spacing: 8) {
+                        HStack(spacing: UIConstants.Spacing.standard) {
                             ForEach([
                                 Color.green,
                                 Color.blue,
@@ -149,10 +149,10 @@ struct GridLayoutView: View {
                             ], id: \.self) { color in
                                 Circle()
                                     .fill(color)
-                                    .frame(width: 20, height: 20)
+                                    .frame(width: UIConstants.Spacing.huge, height: UIConstants.Spacing.huge)
                                     .overlay(
                                         Circle()
-                                            .stroke(tempGridColor == color ? Color.primary : Color.clear, lineWidth: 2)
+                                            .stroke(tempGridColor == color ? Color.primary : Color.clear, lineWidth: UIConstants.LineWidth.standard)
                                     )
                                     .onTapGesture {
                                         tempGridColor = color
@@ -165,7 +165,7 @@ struct GridLayoutView: View {
                     // Style options
                     HStack {
                         Text("Style:")
-                            .frame(width: 100, alignment: .leading)
+                            .frame(width: UIConstants.FrameDimensions.labelWidth, alignment: .leading)
                         
                         Toggle("Dashed Lines", isOn: $tempUseDashedLines)
                             .onChange(of: tempUseDashedLines) { _, newValue in
@@ -177,57 +177,57 @@ struct GridLayoutView: View {
                         Text("Corners:")
                         Slider(
                             value: $tempCornerRadius,
-                            in: 0...16,
-                            step: 2,
+                            in: 0...SettingsConstants.GridLayout.maxCornerRadius,
+                            step: UIConstants.LineWidth.standard,
                             onEditingChanged: { editing in
                                 if !editing {
                                     windowManager.gridOverlayManager?.cornerRadius = tempCornerRadius
                                 }
                             }
                         )
-                        .frame(width: 100)
+                        .frame(width: UIConstants.FrameDimensions.labelWidth)
                         
                         Text("\(Int(tempCornerRadius))px")
-                            .frame(width: 45)
+                            .frame(width: UIConstants.FrameDimensions.textFieldWidth)
                             .monospacedDigit()
                     }
                     
                     // Wall-to-wall preset button
                     HStack {
                         Button("Wall-to-Wall") {
-                            tempPadding = 0
-                            tempWindowSpacing = 0
+                            tempPadding = SettingsConstants.GridLayout.minSpacing
+                            tempWindowSpacing = SettingsConstants.GridLayout.minSpacing
                             windowManager.setWallToWallLayout()
                         }
                         .buttonStyle(.bordered)
                         
                         Button("Default") {
-                            tempPadding = 10
-                            tempWindowSpacing = 5
-                            tempLineWidth = 2
+                            tempPadding = SettingsConstants.GridLayout.defaultPadding
+                            tempWindowSpacing = SettingsConstants.GridLayout.defaultWindowSpacing
+                            tempLineWidth = SettingsConstants.GridLayout.defaultLineWidth
                             tempGridColor = .green
                             tempUseDashedLines = false
-                            tempCornerRadius = 8
-                            windowManager.setGridPadding(10)
-                            windowManager.setGridWindowSpacing(5)
-                            windowManager.gridOverlayManager?.lineWidth = 2
+                            tempCornerRadius = SettingsConstants.GridLayout.defaultCornerRadius
+                            windowManager.setGridPadding(SettingsConstants.GridLayout.defaultPadding)
+                            windowManager.setGridWindowSpacing(SettingsConstants.GridLayout.defaultWindowSpacing)
+                            windowManager.gridOverlayManager?.lineWidth = SettingsConstants.GridLayout.defaultLineWidth
                             windowManager.gridOverlayManager?.gridColor = .systemGreen
                             windowManager.gridOverlayManager?.useDashedLines = false
-                            windowManager.gridOverlayManager?.cornerRadius = 8
+                            windowManager.gridOverlayManager?.cornerRadius = SettingsConstants.GridLayout.defaultCornerRadius
                         }
                         .buttonStyle(.bordered)
                         
                         Spacer()
                     }
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
+                .padding(.vertical, UIConstants.Spacing.standard)
+                .padding(.horizontal, UIConstants.Spacing.large)
                 .background(Color(.controlBackgroundColor))
-                .cornerRadius(8)
+                .cornerRadius(UIConstants.CornerRadius.standard)
             }
             
             // Quick Actions
-            VStack(spacing: 10) {
+            VStack(spacing: UIConstants.Spacing.medium) {
                 Button(action: arrangeInSelectedLayout) {
                     Label("Arrange Tables", systemImage: "rectangle.grid.2x2")
                         .frame(maxWidth: .infinity)
@@ -238,16 +238,16 @@ struct GridLayoutView: View {
                 // Custom hold-to-show button
                 Label("Show Grid Overlay", systemImage: "square.grid.3x3.fill")
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 12)
-                    .background(Color.green.opacity(isOverlayVisible ? 0.8 : 0.2))
+                    .padding(.vertical, UIConstants.Spacing.compact)
+                    .padding(.horizontal, UIConstants.Spacing.large)
+                    .background(Color.green.opacity(isOverlayVisible ? UIConstants.Opacity.semiOpaque : UIConstants.Opacity.light))
                     .foregroundColor(isOverlayVisible ? .white : .green)
-                    .cornerRadius(6)
+                    .cornerRadius(UIConstants.CornerRadius.small)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.green, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small)
+                            .stroke(Color.green, lineWidth: UIConstants.LineWidth.thin)
                     )
-                    .scaleEffect(isOverlayVisible ? 0.95 : 1.0)
+                    .scaleEffect(isOverlayVisible ? UIConstants.Scale.pressed : 1.0)
                     .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity) {
                         // Never called
                     } onPressingChanged: { isPressing in
@@ -258,7 +258,7 @@ struct GridLayoutView: View {
                         }
                     }
                 
-                HStack(spacing: 10) {
+                HStack(spacing: UIConstants.Spacing.medium) {
                     Button(action: cascadeTables) {
                         Label("Cascade", systemImage: "square.stack.3d.down.forward")
                     }
@@ -288,7 +288,7 @@ struct GridLayoutView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, UIConstants.Spacing.medium)
             } else {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
@@ -296,14 +296,14 @@ struct GridLayoutView: View {
                     Text("\(windowManager.pokerTables.count) poker table\(windowManager.pokerTables.count == 1 ? "" : "s") ready to arrange")
                         .font(.caption)
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, UIConstants.Spacing.medium)
             }
             
             Divider()
             
             // Advanced Options
             DisclosureGroup("Advanced") {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
                     Button(action: analyzeResistance) {
                         Label("Analyze Window Resistance", systemImage: "exclamationmark.triangle")
                     }
@@ -314,23 +314,23 @@ struct GridLayoutView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                .padding(.top, 10)
+                .padding(.top, UIConstants.Spacing.medium)
             }
         }
         .padding()
-        .frame(width: 400)
+        .frame(width: UIConstants.FrameDimensions.formWidth)
         .sheet(isPresented: $showResistanceAnalysis) {
             ResistanceAnalysisView(windowManager: windowManager)
         }
         .onAppear {
             tempPadding = windowManager.gridLayoutOptions.padding
             tempWindowSpacing = windowManager.gridLayoutOptions.windowSpacing
-            tempLineWidth = windowManager.gridOverlayManager?.lineWidth ?? 2
+            tempLineWidth = windowManager.gridOverlayManager?.lineWidth ?? SettingsConstants.GridLayout.defaultLineWidth
             if let nsColor = windowManager.gridOverlayManager?.gridColor {
                 tempGridColor = Color(nsColor)
             }
             tempUseDashedLines = windowManager.gridOverlayManager?.useDashedLines ?? false
-            tempCornerRadius = windowManager.gridOverlayManager?.cornerRadius ?? 8
+            tempCornerRadius = windowManager.gridOverlayManager?.cornerRadius ?? SettingsConstants.GridLayout.defaultCornerRadius
         }
     }
     
@@ -354,7 +354,7 @@ struct GridLayoutView: View {
                 windowManager.arrangePokerTablesInGrid(selectedLayout)
             }
             
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 second
+            try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.short) // 0.5 second
             
             await MainActor.run {
                 isArranging = false
@@ -440,7 +440,7 @@ struct LayoutOptionButton: View {
             VStack(spacing: 8) {
                 // Grid visualization
                 GridVisualization(rows: layout.rows, columns: layout.columns)
-                    .frame(width: 60, height: 60)
+                    .frame(width: UIConstants.FrameDimensions.gridCellSize, height: UIConstants.FrameDimensions.gridCellSize)
                 
                 // Layout name
                 Text(layout.displayName)
@@ -452,19 +452,19 @@ struct LayoutOptionButton: View {
                     .font(.caption2)
                     .foregroundStyle(isDisabled ? .red : .secondary)
             }
-            .frame(width: 100, height: 120)
+            .frame(width: UIConstants.FrameDimensions.labelWidth, height: UIConstants.FrameDimensions.layoutButtonSize)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? Color.accentColor.opacity(0.2) : Color(.systemFill))
+                RoundedRectangle(cornerRadius: UIConstants.CornerRadius.standard)
+                    .fill(isSelected ? Color.accentColor.opacity(UIConstants.Opacity.light) : Color(.systemFill))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: UIConstants.CornerRadius.standard)
+                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: UIConstants.LineWidth.standard)
             )
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
-        .opacity(isDisabled ? 0.5 : 1)
+        .opacity(isDisabled ? UIConstants.Opacity.medium : UIConstants.Opacity.opaque)
     }
 }
 
@@ -475,13 +475,13 @@ struct GridVisualization: View {
     let columns: Int
     
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: UIConstants.Spacing.extraSmall) {
             ForEach(0..<rows, id: \.self) { row in
-                HStack(spacing: 2) {
+                HStack(spacing: UIConstants.Spacing.extraSmall) {
                     ForEach(0..<columns, id: \.self) { col in
                         Rectangle()
-                            .fill(Color.accentColor.opacity(0.3))
-                            .aspectRatio(1.6, contentMode: .fit)
+                            .fill(Color.accentColor.opacity(UIConstants.Opacity.semiLight))
+                            .aspectRatio(UIConstants.AspectRatio.pokerTable, contentMode: .fit)
                     }
                 }
             }
@@ -496,7 +496,7 @@ struct ResistanceAnalysisView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.huge) {
             // Header
             HStack {
                 VStack(alignment: .leading) {
@@ -524,11 +524,11 @@ struct ResistanceAnalysisView: View {
                 Text("Analysis results will appear here after running window resistance detection.")
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 40)
+                    .padding(.vertical, UIConstants.Spacing.gigantic)
             }
         }
         .padding()
-        .frame(width: 600, height: 400)
+        .frame(width: UIConstants.FrameDimensions.sheetWidthMedium, height: UIConstants.FrameDimensions.formWidth)
     }
 }
 

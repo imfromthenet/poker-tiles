@@ -23,10 +23,10 @@ struct AppSettings: Codable {
     let gridWindowSpacing: CGFloat?
     
     // Valid ranges
-    static let minAutoScanInterval: TimeInterval = 0.01
-    static let maxAutoScanInterval: TimeInterval = 5.0
-    static let minGridSpacing: CGFloat = 0.0
-    static let maxGridSpacing: CGFloat = 50.0
+    static let minAutoScanInterval: TimeInterval = SettingsConstants.AutoScan.minInterval
+    static let maxAutoScanInterval: TimeInterval = SettingsConstants.AutoScan.maxInterval
+    static let minGridSpacing: CGFloat = SettingsConstants.GridLayout.minSpacing
+    static let maxGridSpacing: CGFloat = SettingsConstants.GridLayout.maxSpacing
     
     // Future settings can be added here
     // let hotkeys: [String: String]?
