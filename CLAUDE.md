@@ -197,6 +197,9 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 1. **Poker Action Automation**: Implement hotkey-triggered poker actions
 2. **Computer Vision Integration**: Add OCR for game state detection
 3. **HUD System**: Implement statistics and overlay features
+4. **CI/CD Pipeline**: Implement automated testing and deployment
+   - See detailed research: `docs/development/CICD_AND_TICKETING_RESEARCH.md`
+   - Recommended: GitHub Actions with self-hosted runner + local AI for $0/month
 
 ## Known Issues
 
@@ -239,6 +242,12 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
   - `com.apple.security.screen-capture` - For window detection
 - SwiftUI Previews enabled for development
 
+## Development Principles
+
+- **Always build before attempting to commit**
+
 ## Summary instructions
 
 When you are using compact, please focus on test output and code changes
+
+```
