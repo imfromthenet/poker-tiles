@@ -42,6 +42,7 @@ struct ContentView: View {
                 Label("Settings", systemImage: "gearshape")
             }
             
+            #if DEBUG
             // Tables tab - for monitoring poker tables
             TablesTabView(
                 permissionTriggerId: $permissionTriggerId,
@@ -50,6 +51,7 @@ struct ContentView: View {
             .tabItem {
                 Label("Tables", systemImage: "tablecells")
             }
+            #endif
         }
         .task(id: "initial_setup") {
             windowManager.checkPermissions()
