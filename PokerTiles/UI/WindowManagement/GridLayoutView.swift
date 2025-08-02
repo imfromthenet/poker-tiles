@@ -448,7 +448,7 @@ struct LayoutOptionButton: View {
                     .multilineTextAlignment(.center)
                 
                 // Capacity indicator
-                Text("\(layout.capacity) \(layout.capacity == 1 ? "table" : "tables")")
+                Text("Up to \(layout.capacity) \(layout.capacity == 1 ? "table" : "tables")")
                     .font(.caption2)
                     .foregroundStyle(isDisabled ? .red : .secondary)
             }
