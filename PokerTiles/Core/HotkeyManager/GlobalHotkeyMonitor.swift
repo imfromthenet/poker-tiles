@@ -8,6 +8,7 @@
 import Foundation
 import AppKit
 import Carbon
+import OSLog
 
 /// Native implementation of global hotkey monitoring
 class GlobalHotkeyMonitor {
@@ -57,7 +58,7 @@ class GlobalHotkeyMonitor {
     /// Start monitoring for global hotkeys
     func startMonitoring() -> Bool {
         guard !isMonitoring else { 
-            print("⚠️ GlobalHotkeyMonitor: Already monitoring")
+            Logger.hotkeys.notice("GlobalHotkeyMonitor: Already monitoring")
             return true 
         }
         
@@ -65,19 +66,19 @@ class GlobalHotkeyMonitor {
         let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
         let trusted = AXIsProcessTrustedWithOptions(options)
         
-        print("🔍 GlobalHotkeyMonitor: Checking permissions...")
-        print("   - Accessibility permission: \(trusted ? "✅ Granted" : "❌ Not granted")")
+        Logger.hotkeys.debug("GlobalHotkeyMonitor: Checking permissions...")
+        Logger.hotkeys.debug("   - Accessibility permission: \(trusted ? "Granted" : "Not granted")")
         
         if !trusted {
-            print("⚠️ Accessibility permission required for global hotkeys")
+            Logger.permissions.notice("Accessibility permission required for global hotkeys")
             return false
         }
         
         // Create event tap for both keyDown and keyUp events
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
         
-        print("🔧 GlobalHotkeyMonitor: Creating event tap...")
-        print("   - Event mask: \(String(format: "0x%X", eventMask))")
+        Logger.hotkeys.debug("GlobalHotkeyMonitor: Creating event tap...")
+        Logger.hotkeys.debug("   - Event mask: \(String(format: "0x%X", eventMask), privacy: .public)")
         
         guard let eventTap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
@@ -91,11 +92,11 @@ class GlobalHotkeyMonitor {
             },
             userInfo: Unmanaged.passUnretained(self).toOpaque()
         ) else {
-            print("❌ Failed to create event tap")
-            print("   - This can happen if:")
-            print("     1. Accessibility permission was just granted (restart app)")
-            print("     2. Another app is using exclusive event tap")
-            print("     3. System security settings are blocking event taps")
+            Logger.hotkeys.error("Failed to create event tap")
+            Logger.hotkeys.error("   - This can happen if:")
+            Logger.hotkeys.error("     1. Accessibility permission was just granted (restart app)")
+            Logger.hotkeys.error("     2. Another app is using exclusive event tap")
+            Logger.hotkeys.error("     3. System security settings are blocking event taps")
             return false
         }
         
@@ -109,9 +110,9 @@ class GlobalHotkeyMonitor {
         CGEvent.tapEnable(tap: eventTap, enable: true)
         
         isMonitoring = true
-        print("✅ Global hotkey monitoring started successfully")
-        print("   - Event tap created and enabled")
-        print("   - Registered hotkeys: \(hotkeys.count) regular, \(upDownHotkeys.count) up/down")
+        Logger.hotkeys.debug("✓ Global hotkey monitoring started successfully")
+        Logger.hotkeys.info("   - Event tap created and enabled")
+        Logger.hotkeys.info("   - Registered hotkeys: \(self.hotkeys.count) regular, \(self.upDownHotkeys.count) up/down")
         return true
     }
     
@@ -132,7 +133,7 @@ class GlobalHotkeyMonitor {
         runLoopSource = nil
         isMonitoring = false
         
-        print("✅ Global hotkey monitoring stopped")
+        Logger.hotkeys.debug("✓ Global hotkey monitoring stopped")
     }
     
     /// Register a hotkey
@@ -145,7 +146,7 @@ class GlobalHotkeyMonitor {
         
         let modifierStr = describeModifiers(hotkey.modifiers)
         let keyStr = describeKeyCode(keyCode)
-        print("📌 Registered hotkey: \(modifierStr)\(keyStr)")
+        Logger.hotkeys.info("Registered hotkey: \(modifierStr, privacy: .public)\(keyStr, privacy: .public)")
     }
     
     /// Register a hotkey with up/down handling

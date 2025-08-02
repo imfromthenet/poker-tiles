@@ -7,6 +7,7 @@
 
 import Foundation
 import AppKit
+import OSLog
 
 /// Detects and categorizes window resistance patterns
 class WindowResistanceDetector {
@@ -292,7 +293,7 @@ class WindowResistanceDetector {
     /// Apply workaround for resistant window
     func applyWorkaround(for profile: ResistanceProfile, targetFrame: CGRect) -> Bool {
         guard profile.suggestedMethod != nil else {
-            print("❌ No workaround available for \(profile.resistanceType)")
+            Logger.windowMovement.error("No workaround available for \(String(describing: profile.resistanceType))")
             return false
         }
         

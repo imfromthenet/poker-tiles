@@ -2,6 +2,7 @@ import Foundation
 import ScreenCaptureKit
 import AppKit
 import Observation
+import OSLog
 
 @Observable
 class WindowManager {
@@ -149,7 +150,7 @@ class WindowManager {
     
     func scanWindows() async {
         guard hasPermission else {
-            print("Screen capture permission not granted")
+            Logger.permissions.error("Screen capture permission not granted")
             return
         }
         
@@ -175,7 +176,7 @@ class WindowManager {
                 
                 // Only log failures
                 if shouldCapture && thumbnail == nil {
-                    print("❌ Failed to capture thumbnail for: \(window.title ?? "Unknown")")
+                    Logger.thumbnails.error("Failed to capture thumbnail for: \(window.title ?? "Unknown", privacy: .private)")
                 }
             }
             
@@ -190,10 +191,10 @@ class WindowManager {
                 self.isInitialized = true
             }
             
-            print("Found \(windowInfos.count) windows, \(self.pokerTables.count) poker tables")
+            Logger.windowManager.debug("Found \(windowInfos.count) windows, \(self.pokerTables.count) poker tables")
             
         } catch {
-            print("Failed to get window content: \(error)")
+            Logger.windowManager.error("Failed to get window content: \(error.localizedDescription)")
             await MainActor.run {
                 self.isScanning = false
             }
@@ -268,12 +269,12 @@ class WindowManager {
             
             // Use the new window manipulator for better reliability
             if windowManipulator.bringWindowToFront(windowInfo) {
-                print("✅ Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
+                Logger.windowManager.debug("✓ Brought window '\(windowInfo.title, privacy: .private)' from app '\(windowInfo.appName, privacy: .public)' to front")
             } else {
                 // Fallback to original method
                 guard let scWindow = windowInfo.scWindow,
                       let app = scWindow.owningApplication else {
-                    print("No owning application found for window")
+                    Logger.windowManager.error("No owning application found for window")
                     return
                 }
                 
@@ -287,7 +288,7 @@ class WindowManager {
                     runningApp?.activate(options: .activateIgnoringOtherApps)
                 }
                 
-                print("Brought window '\(windowInfo.title)' from app '\(windowInfo.appName)' to front")
+                Logger.windowManager.info("Brought window '\(windowInfo.title, privacy: .private)' from app '\(windowInfo.appName, privacy: .public)' to front")
             }
         }
     }
@@ -385,7 +386,7 @@ class WindowManager {
         guard window.isOnScreen,
               window.frame.width > UIConstants.FrameDimensions.thumbnailSmall,
               window.frame.height > UIConstants.FrameDimensions.thumbnailSmall else {
-            print("⏩ Skipping thumbnail for '\(window.title ?? "Unknown")' - not on screen or too small")
+            Logger.thumbnails.debug("Skipping thumbnail for '\(window.title ?? "Unknown", privacy: .private)' - not on screen or too small")
             return nil
         }
         
@@ -417,7 +418,7 @@ class WindowManager {
                 return await captureWithStreamForOlderOS(window, filter: filter, config: configuration)
             }
         } catch {
-            print("❌ Screenshot capture failed: \(error)")
+            Logger.thumbnails.error("Screenshot capture failed: \(error.localizedDescription)")
             return nil
         }
     }
@@ -473,7 +474,7 @@ class WindowManager {
                 }
             }
         } catch {
-            print("Failed to capture thumbnail with stream: \(error)")
+            Logger.thumbnails.error("Failed to capture thumbnail with stream: \(error.localizedDescription)")
             return nil
         }
     }
@@ -523,7 +524,7 @@ extension WindowManager {
     /// Auto-arrange all poker tables
     func autoArrangePokerTables() {
         guard !pokerTables.isEmpty else {
-            print("No poker tables to arrange")
+            Logger.windowManager.info("No poker tables to arrange")
             return
         }
         
@@ -532,7 +533,7 @@ extension WindowManager {
         
         // Get optimal layout
         let layout = gridLayoutManager.getBestLayout(for: pokerTables.count)
-        print("Auto-arranging \(pokerTables.count) tables in \(layout.displayName) layout")
+        Logger.windowManager.info("Auto-arranging \(self.pokerTables.count) tables in \(layout.displayName) layout")
         
         arrangePokerTablesInGrid(layout, on: screen)
     }
@@ -567,7 +568,7 @@ extension WindowManager {
     func distributeTablesAcrossScreens() {
         let screens = NSScreen.screens
         guard screens.count > 1 else {
-            print("Only one screen available, using grid layout instead")
+            Logger.windowManager.notice("Only one screen available, using grid layout instead")
             autoArrangePokerTables()
             return
         }

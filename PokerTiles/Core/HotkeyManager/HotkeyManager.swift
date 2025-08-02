@@ -8,6 +8,7 @@
 import Foundation
 import AppKit
 import Combine
+import OSLog
 
 /// Manages global hotkeys for poker actions and window management
 class HotkeyManager: ObservableObject {
@@ -142,7 +143,7 @@ class HotkeyManager: ObservableObject {
             if let data = try? JSONEncoder().encode(Array(validBindings.values)) {
                 UserDefaults.standard.set(data, forKey: "PokerTilesHotkeys")
                 invalidBindings.removeAll()
-                print("✅ Cleared \(count) invalid hotkey bindings")
+                Logger.hotkeys.info("Cleared \(count) invalid hotkey bindings")
             }
         }
     }
@@ -151,7 +152,7 @@ class HotkeyManager: ObservableObject {
         if enabled {
             // Check for accessibility permission first
             if !PermissionManager.hasAccessibilityPermission() {
-                print("❌ Accessibility permission required for hotkeys")
+                Logger.permissions.error("Accessibility permission required for hotkeys")
                 PermissionManager.requestAccessibilityPermission()
                 isEnabled = false
                 return
@@ -160,16 +161,16 @@ class HotkeyManager: ObservableObject {
             if monitor.startMonitoring() {
                 isEnabled = true
                 registerAllHotkeys()
-                print("✅ Hotkeys enabled")
+                Logger.hotkeys.debug("✓ Hotkeys enabled")
             } else {
                 isEnabled = false
-                print("❌ Failed to start hotkey monitoring")
+                Logger.hotkeys.error("Failed to start hotkey monitoring")
             }
         } else {
             isEnabled = false
             unregisterAllHotkeys()
             monitor.stopMonitoring()
-            print("✅ Hotkeys disabled")
+            Logger.hotkeys.debug("✓ Hotkeys disabled")
         }
     }
     
@@ -179,9 +180,9 @@ class HotkeyManager: ObservableObject {
         
         // Special handling for grid overlay (needs up/down events)
         if action == .showGridOverlay {
-            print("📐 Registering grid overlay hotkey with up/down handling")
+            Logger.hotkeys.debug("Registering grid overlay hotkey with up/down handling")
             monitor.registerUpDown(keyCode: keyCode, modifiers: modifiers) { [weak self] isKeyDown in
-                print("📐 Grid overlay hotkey \(isKeyDown ? "pressed" : "released")")
+                Logger.hotkeys.debug("Grid overlay hotkey \(isKeyDown ? "pressed" : "released")")
                 if isKeyDown {
                     self?.gridOverlayManager?.handleHotkeyPress()
                 } else {
@@ -239,12 +240,12 @@ class HotkeyManager: ObservableObject {
             }
         } else {
             // Re-register existing hotkeys
-            print("📋 Re-registering \(registeredHotkeys.count) existing hotkeys")
+            Logger.hotkeys.info("Re-registering \(self.registeredHotkeys.count) existing hotkeys")
             for (action, (keyCode, modifiers)) in registeredHotkeys {
                 if action == .showGridOverlay {
-                    print("📐 Re-registering grid overlay hotkey")
+                    Logger.hotkeys.debug("Re-registering grid overlay hotkey")
                     monitor.registerUpDown(keyCode: keyCode, modifiers: modifiers) { [weak self] isKeyDown in
-                        print("📐 Grid overlay hotkey \(isKeyDown ? "pressed" : "released")")
+                        Logger.hotkeys.debug("Grid overlay hotkey \(isKeyDown ? "pressed" : "released")")
                         if isKeyDown {
                             self?.gridOverlayManager?.handleHotkeyPress()
                         } else {
@@ -252,7 +253,7 @@ class HotkeyManager: ObservableObject {
                         }
                     }
                 } else {
-                    print("🔑 Re-registering hotkey: \(action.rawValue)")
+                    Logger.hotkeys.debug("Re-registering hotkey: \(action.rawValue)")
                     monitor.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
                         self?.handleHotkeyAction(action)
                     }
@@ -270,17 +271,17 @@ class HotkeyManager: ObservableObject {
     
     private func handleHotkeyAction(_ action: HotkeyAction) {
         guard let windowManager = windowManager else { 
-            print("❌ No window manager available for hotkey action")
+            Logger.hotkeys.error("No window manager available for hotkey action")
             return 
         }
         
-        print("🎯 Hotkey triggered: \(action.rawValue)")
+        Logger.hotkeys.info("Hotkey triggered: \(action.rawValue)")
         
         DispatchQueue.main.async {
             switch action {
             // Window Layout Actions
             case .grid1x2:
-                print("Arranging tables in 1x2 grid")
+                Logger.hotkeys.debug("Arranging tables in 1x2 grid")
                 windowManager.arrangePokerTablesInGrid(.oneByTwo)
                 
             case .grid2x2:
@@ -332,12 +333,12 @@ class HotkeyManager: ObservableObject {
         // 2. Locating the appropriate button
         // 3. Simulating a click on that button
         
-        print("Poker action '\(action.rawValue)' triggered - implementation pending")
+        Logger.hotkeys.notice("Poker action '\(action.rawValue)' triggered - implementation pending")
     }
     
     private func switchToNextTable() {
         guard let windowManager = windowManager else { 
-            print("❌ switchToNextTable: No window manager")
+            Logger.hotkeys.error("switchToNextTable: No window manager")
             return 
         }
         
@@ -425,15 +426,15 @@ class HotkeyManager: ObservableObject {
         invalidBindings.removeAll()
         let bindings = loadSavedBindings()
         
-        print("📖 Loading saved hotkeys: \(bindings.count) bindings found")
+        Logger.hotkeys.info("Loading saved hotkeys: \(bindings.count) bindings found")
         
         // If no saved bindings exist, register defaults immediately
         if bindings.isEmpty {
-            print("📖 No saved hotkeys found, registering defaults")
+            Logger.hotkeys.info("No saved hotkeys found, registering defaults")
             for action in HotkeyAction.allCases {
                 if let keyCode = action.defaultKeyCode,
                    let modifiers = action.defaultModifiers {
-                    print("   Registering default: \(action.rawValue)")
+                    Logger.hotkeys.debug("   Registering default: \(action.rawValue)")
                     registeredHotkeys[action] = (keyCode: keyCode, modifiers: modifiers)
                     saveHotkey(action: action, keyCode: keyCode, modifiers: modifiers)
                 }
@@ -444,18 +445,18 @@ class HotkeyManager: ObservableObject {
                 guard let action = HotkeyAction(rawValue: actionName) else {
                     // Track invalid binding for user feedback
                     invalidBindings.append((action: actionName, keyCode: binding.keyCode))
-                    print("⚠️ Invalid hotkey binding found: '\(actionName)' with keyCode: \(binding.keyCode)")
+                    Logger.hotkeys.notice("Invalid hotkey binding found: '\(actionName, privacy: .public)' with keyCode: \(binding.keyCode)")
                     continue
                 }
                 
                 let modifiers = NSEvent.ModifierFlags(rawValue: binding.modifiers)
-                print("📖 Loading hotkey: \(action.rawValue) -> keyCode: \(binding.keyCode), modifiers: \(binding.modifiers)")
+                Logger.hotkeys.debug("Loading hotkey: \(action.rawValue) -> keyCode: \(binding.keyCode), modifiers: \(binding.modifiers)")
                 registeredHotkeys[action] = (keyCode: binding.keyCode, modifiers: modifiers)
             }
         }
         
         if !invalidBindings.isEmpty {
-            print("❌ Found \(invalidBindings.count) invalid hotkey bindings that were skipped")
+            Logger.hotkeys.error("Found \(self.invalidBindings.count) invalid hotkey bindings that were skipped")
         }
     }
     

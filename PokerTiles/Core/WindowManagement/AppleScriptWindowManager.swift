@@ -7,6 +7,7 @@
 
 import Foundation
 import AppKit
+import OSLog
 
 /// Manages window positioning using AppleScript as a fallback method
 class AppleScriptWindowManager {
@@ -266,7 +267,7 @@ class AppleScriptWindowManager {
             let result = cachedScript.executeAndReturnError(&error)
             
             if let error = error {
-                print("❌ AppleScript error: \(error)")
+                Logger.windowMovement.error("AppleScript error: \(error)")
                 return false
             }
             
@@ -280,7 +281,7 @@ class AppleScriptWindowManager {
         
         // Compile and cache new script
         guard let script = NSAppleScript(source: source) else {
-            print("❌ Failed to compile AppleScript")
+            Logger.windowMovement.error("Failed to compile AppleScript")
             return false
         }
         
@@ -293,7 +294,7 @@ class AppleScriptWindowManager {
         let result = script.executeAndReturnError(&error)
         
         if let error = error {
-            print("❌ AppleScript error: \(error)")
+            Logger.windowMovement.error("AppleScript error: \(error)")
             return false
         }
         

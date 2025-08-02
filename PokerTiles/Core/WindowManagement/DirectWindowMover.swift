@@ -8,6 +8,7 @@
 import Foundation
 import AppKit
 import ApplicationServices
+import OSLog
 
 /// Direct window mover that bypasses caching and complex logic
 class DirectWindowMover {
@@ -15,7 +16,7 @@ class DirectWindowMover {
     /// Attempt to move any visible window as a test
     static func testMoveFirstWindow() -> Bool {
         guard AXIsProcessTrusted() else {
-            print("❌ Not trusted")
+            Logger.permissions.error("Accessibility access not trusted")
             return false
         }
         
@@ -29,7 +30,7 @@ class DirectWindowMover {
                 continue
             }
             
-            print("Testing app: \(app.localizedName ?? "Unknown")")
+            Logger.windowMovement.debug("Testing app: \(app.localizedName ?? "Unknown", privacy: .public)")
             
             // Activate the app
             if #available(macOS 14.0, *) {
@@ -56,10 +57,10 @@ class DirectWindowMover {
                 let moveResult = AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, posValue)
                 
                 if moveResult == .success {
-                    print("✅ Successfully moved window!")
+                    Logger.windowMovement.debug("✓ Successfully moved window")
                     return true
                 } else {
-                    print("❌ Failed to move: \(moveResult.rawValue)")
+                    Logger.windowMovement.error("Failed to move window: AXError \(moveResult.rawValue)")
                 }
             }
         }
@@ -70,16 +71,16 @@ class DirectWindowMover {
     /// Direct move for a specific app by name with verification
     static func moveAppWindow(appName: String, to position: CGPoint) -> Bool {
         guard AXIsProcessTrusted() else {
-            print("❌ Not AXTrusted")
+            Logger.permissions.error("Accessibility access not trusted")
             return false
         }
         
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == appName }) else {
-            print("App not found: \(appName)")
+            Logger.windowMovement.error("App not found: \(appName, privacy: .public)")
             return false
         }
         
-        print("Found app: \(appName) with PID: \(app.processIdentifier)")
+        Logger.windowMovement.debug("Found app: \(appName, privacy: .public) with PID: \(app.processIdentifier)")
         
         // Ensure app is active
         if !app.isActive {
@@ -101,7 +102,7 @@ class DirectWindowMover {
         while attempts < 3 && result != .success {
             result = AXUIElementCopyAttributeValue(axApp, kAXWindowsAttribute as CFString, &windowsRef)
             if result != .success {
-                print("Attempt \(attempts + 1) failed, retrying...")
+                Logger.windowMovement.debug("Attempt \(attempts + 1) failed to get windows, retrying...")
                 Thread.sleep(forTimeInterval: 0.2)
                 attempts += 1
             }
@@ -110,7 +111,7 @@ class DirectWindowMover {
         guard result == .success,
               let windows = windowsRef as? [AXUIElement],
               !windows.isEmpty else {
-            print("Could not get windows after \(attempts) attempts")
+            Logger.windowMovement.error("Could not get windows after \(attempts) attempts")
             return false
         }
         
@@ -122,7 +123,7 @@ class DirectWindowMover {
         if AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &currentPosRef) == .success,
            let posValue = currentPosRef {
             AXValueGetValue(posValue as! AXValue, .cgPoint, &currentPos)
-            print("Current position: \(currentPos)")
+            Logger.windowMovement.debug("Current position: \(currentPos.x, privacy: .public), \(currentPos.y, privacy: .public)")
         }
         
         // Check if position is settable
@@ -130,7 +131,7 @@ class DirectWindowMover {
         AXUIElementIsAttributeSettable(window, kAXPositionAttribute as CFString, &settable)
         
         if !settable.boolValue {
-            print("Window position is not settable")
+            Logger.windowMovement.error("Window position is not settable")
             return false
         }
         
@@ -140,7 +141,7 @@ class DirectWindowMover {
         let moveResult = AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, posValue)
         
         if moveResult == .success {
-            print("Move command succeeded")
+            Logger.windowMovement.debug("Move command succeeded")
             
             // Verify the move
             Thread.sleep(forTimeInterval: 0.2)
@@ -149,16 +150,16 @@ class DirectWindowMover {
             if AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &newPosRef) == .success,
                let posValue = newPosRef {
                 AXValueGetValue(posValue as! AXValue, .cgPoint, &newPos)
-                print("New position: \(newPos)")
+                Logger.windowMovement.debug("New position: \(newPos.x, privacy: .public), \(newPos.y, privacy: .public)")
                 
                 // Check if position actually changed
                 let moved = abs(newPos.x - position.x) < 5 && abs(newPos.y - position.y) < 5
                 if moved {
-                    print("✅ Window successfully moved to target position")
+                    Logger.windowMovement.debug("✓ Window successfully moved to target position")
                 } else if abs(newPos.x - currentPos.x) > 5 || abs(newPos.y - currentPos.y) > 5 {
-                    print("⚠️ Window moved but not to exact target")
+                    Logger.windowMovement.notice("Window moved but not to exact target position")
                 } else {
-                    print("❌ Window position did not change")
+                    Logger.windowMovement.error("Window position did not change")
                     return false
                 }
             }
@@ -175,7 +176,7 @@ class DirectWindowMover {
         }
         
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == appName }) else {
-            print("App not found: \(appName)")
+            Logger.windowMovement.error("App not found: \(appName, privacy: .public)")
             return false
         }
         
@@ -198,7 +199,7 @@ class DirectWindowMover {
         if AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &currentSizeRef) == .success,
            let sizeValue = currentSizeRef {
             AXValueGetValue(sizeValue as! AXValue, .cgSize, &currentSize)
-            print("Current size: \(currentSize)")
+            Logger.windowMovement.debug("Current size: \(currentSize.width, privacy: .public)x\(currentSize.height, privacy: .public)")
         }
         
         // Check if size is settable
@@ -206,7 +207,7 @@ class DirectWindowMover {
         AXUIElementIsAttributeSettable(window, kAXSizeAttribute as CFString, &settable)
         
         if !settable.boolValue {
-            print("Window size is not settable")
+            Logger.windowMovement.error("Window size is not settable")
             return false
         }
         
@@ -216,7 +217,7 @@ class DirectWindowMover {
         let resizeResult = AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, sizeValue)
         
         if resizeResult == .success {
-            print("Resize command succeeded")
+            Logger.windowMovement.debug("Resize command succeeded")
             
             // Verify
             Thread.sleep(forTimeInterval: 0.2)
@@ -225,12 +226,12 @@ class DirectWindowMover {
             if AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &verifiedSizeRef) == .success,
                let sizeValue = verifiedSizeRef {
                 AXValueGetValue(sizeValue as! AXValue, .cgSize, &verifiedSize)
-                print("New size: \(verifiedSize)")
+                Logger.windowMovement.debug("New size: \(verifiedSize.width, privacy: .public)x\(verifiedSize.height, privacy: .public)")
                 
                 if abs(verifiedSize.width - size.width) < 5 && abs(verifiedSize.height - size.height) < 5 {
-                    print("✅ Window successfully resized")
+                    Logger.windowMovement.debug("✓ Window successfully resized")
                 } else {
-                    print("⚠️ Window resized but not to exact dimensions")
+                    Logger.windowMovement.notice("Window resized but not to exact dimensions")
                 }
             }
         }

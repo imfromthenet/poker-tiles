@@ -8,6 +8,7 @@
 import Foundation
 import AppKit
 import ApplicationServices
+import OSLog
 import ScreenCaptureKit
 
 /// Manages window positioning and sizing using the Accessibility API
@@ -27,7 +28,7 @@ class AccessibilityWindowManager {
     
     init() {
         if !hasPermission {
-            print("⚠️ Accessibility permission not granted. Window management will be limited.")
+            Logger.permissions.notice("Accessibility permission not granted. Window management will be limited.")
         }
     }
     
@@ -42,18 +43,18 @@ class AccessibilityWindowManager {
     @discardableResult
     func moveWindow(_ windowInfo: WindowInfo, to position: CGPoint, gradual: Bool = false) -> Bool {
         guard hasPermission else {
-            print("❌ No accessibility permission")
+            Logger.permissions.error("No accessibility permission")
             return false
         }
         
         guard let window = getAXWindow(for: windowInfo) else {
-            print("❌ Could not get AX reference for window")
+            Logger.accessibility.error("Could not get AX reference for window")
             return false
         }
         
         // Check if window is moveable
         guard isWindowMoveable(window) else {
-            print("❌ Window position is not settable")
+            Logger.accessibility.error("Window position is not settable")
             return false
         }
         
@@ -72,18 +73,18 @@ class AccessibilityWindowManager {
     @discardableResult
     func resizeWindow(_ windowInfo: WindowInfo, to size: CGSize) -> Bool {
         guard hasPermission else {
-            print("❌ No accessibility permission")
+            Logger.permissions.error("No accessibility permission")
             return false
         }
         
         guard let window = getAXWindow(for: windowInfo) else {
-            print("❌ Could not get AX reference for window")
+            Logger.accessibility.error("Could not get AX reference for window")
             return false
         }
         
         // Check if window is resizable
         guard isWindowResizable(window) else {
-            print("❌ Window size is not settable")
+            Logger.accessibility.error("Window size is not settable")
             return false
         }
         
@@ -125,7 +126,7 @@ class AccessibilityWindowManager {
                 Thread.sleep(forTimeInterval: 0.05) // Small delay between moves
             } else {
                 // If a step fails, try to at least get to the last successful position
-                print("⚠️ Gradual move failed at step \(i), reverting to last successful position")
+                Logger.windowMovement.notice("Gradual move failed at step \(i), reverting to last successful position")
                 _ = setWindowPosition(window, lastSuccessfulPosition)
                 return false
             }
@@ -145,7 +146,7 @@ class AccessibilityWindowManager {
     func moveWindowWithRetry(_ windowInfo: WindowInfo, to position: CGPoint, maxRetries: Int = 3) -> Bool {
         for attempt in 0..<maxRetries {
             if attempt > 0 {
-                print("🔄 Retry attempt \(attempt + 1) for window movement")
+                Logger.windowMovement.debug("Retry attempt \(attempt + 1) for window movement")
                 Thread.sleep(forTimeInterval: 0.1 * Double(attempt))
             }
             
@@ -154,7 +155,7 @@ class AccessibilityWindowManager {
             }
         }
         
-        print("❌ Failed to move window after \(maxRetries) attempts")
+        Logger.windowMovement.error("Failed to move window after \(maxRetries) attempts")
         return false
     }
     
@@ -165,7 +166,7 @@ class AccessibilityWindowManager {
         // Try to get the AXUIElement for the window
         let pid = windowInfo.owningApplication?.processIdentifier ?? 0
         guard pid > 0 else {
-            print("❌ No valid PID for window")
+            Logger.accessibility.error("No valid PID for window")
             return nil
         }
         
@@ -176,12 +177,12 @@ class AccessibilityWindowManager {
         let result = AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &windowsRef)
         
         if result != .success {
-            print("❌ Failed to get windows: error \(result.rawValue)")
+            Logger.accessibility.error("Failed to get windows: AXError \(result.rawValue)")
             return nil
         }
         
         guard let windows = windowsRef as? [AXUIElement], !windows.isEmpty else {
-            print("❌ No windows found for app")
+            Logger.accessibility.error("No windows found for app")
             return nil
         }
         
@@ -261,7 +262,7 @@ class AccessibilityWindowManager {
         let result = AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, positionValue)
         
         if result != .success {
-            print("❌ Failed to set position: \(result.rawValue)")
+            Logger.accessibility.error("Failed to set position: AXError \(result.rawValue)")
             return false
         }
         
@@ -275,7 +276,7 @@ class AccessibilityWindowManager {
         let result = AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, sizeValue)
         
         if result != .success {
-            print("❌ Failed to set size: \(result.rawValue)")
+            Logger.accessibility.error("Failed to set size: AXError \(result.rawValue)")
             return false
         }
         

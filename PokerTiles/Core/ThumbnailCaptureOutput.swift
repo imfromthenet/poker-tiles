@@ -8,6 +8,7 @@
 import Foundation
 import ScreenCaptureKit
 import AppKit
+import OSLog
 
 class ThumbnailCaptureOutput: NSObject, SCStreamOutput {
     private let completion: (NSImage?) -> Void
@@ -34,10 +35,10 @@ class ThumbnailCaptureOutput: NSObject, SCStreamOutput {
         _hasCompleted = true
         lock.unlock()
         
-        print("🎬 Received sample buffer for thumbnail capture")
+        Logger.thumbnails.debug("Received sample buffer for thumbnail capture")
         
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            print("❌ Failed to get image buffer from sample")
+            Logger.thumbnails.error("Failed to get image buffer from sample")
             completion(nil)
             return
         }
@@ -46,13 +47,13 @@ class ThumbnailCaptureOutput: NSObject, SCStreamOutput {
         let context = CIContext()
         
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            print("❌ Failed to create CGImage from CIImage")
+            Logger.thumbnails.error("Failed to create CGImage from CIImage")
             completion(nil)
             return
         }
         
         let nsImage = NSImage(cgImage: cgImage, size: CGSize(width: cgImage.width, height: cgImage.height))
-        print("✅ Successfully created NSImage: \(nsImage.size)")
+        Logger.thumbnails.debug("✓ Successfully created NSImage: \(nsImage.size.width, privacy: .public)x\(nsImage.size.height, privacy: .public)")
         completion(nsImage)
     }
 }

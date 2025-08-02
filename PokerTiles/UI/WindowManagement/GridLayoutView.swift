@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct GridLayoutView: View {
     let windowManager: WindowManager
@@ -317,11 +318,11 @@ struct GridLayoutView: View {
     private func arrangeInSelectedLayout() {
         isArranging = true
         
-        print("🎯 Arranging \(windowManager.pokerTables.count) tables in \(selectedLayout.displayName)")
+        Logger.ui.info("Arranging \(windowManager.pokerTables.count) tables in \(selectedLayout.displayName)")
         
         // Check permissions first
         if !PermissionManager.hasAccessibilityPermission() {
-            print("❌ No Accessibility permission - requesting...")
+            Logger.permissions.error("No Accessibility permission - requesting...")
             PermissionManager.requestAccessibilityPermission()
             isArranging = false
             return
@@ -341,9 +342,9 @@ struct GridLayoutView: View {
     }
     
     private func cascadeTables() {
-        print("🎯 Cascading \(windowManager.pokerTables.count) tables")
+        Logger.ui.info("Cascading \(windowManager.pokerTables.count) tables")
         if !PermissionManager.hasAccessibilityPermission() {
-            print("❌ No Accessibility permission - requesting...")
+            Logger.permissions.error("No Accessibility permission - requesting...")
             PermissionManager.requestAccessibilityPermission()
             return
         }
@@ -351,9 +352,9 @@ struct GridLayoutView: View {
     }
     
     private func stackTables() {
-        print("🎯 Stacking \(windowManager.pokerTables.count) tables")
+        Logger.ui.info("Stacking \(windowManager.pokerTables.count) tables")
         if !PermissionManager.hasAccessibilityPermission() {
-            print("❌ No Accessibility permission - requesting...")
+            Logger.permissions.error("No Accessibility permission - requesting...")
             PermissionManager.requestAccessibilityPermission()
             return
         }
@@ -361,9 +362,9 @@ struct GridLayoutView: View {
     }
     
     private func distributeAcrossScreens() {
-        print("🎯 Distributing \(windowManager.pokerTables.count) tables across screens")
+        Logger.ui.info("Distributing \(windowManager.pokerTables.count) tables across screens")
         if !PermissionManager.hasAccessibilityPermission() {
-            print("❌ No Accessibility permission - requesting...")
+            Logger.permissions.error("No Accessibility permission - requesting...")
             PermissionManager.requestAccessibilityPermission()
             return
         }

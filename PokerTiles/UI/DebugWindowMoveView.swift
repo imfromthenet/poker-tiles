@@ -8,6 +8,7 @@
 import SwiftUI
 import AppKit
 import ApplicationServices
+import OSLog
 
 struct DebugWindowMoveView: View {
     @State private var logText = ""
@@ -70,6 +71,11 @@ struct DebugWindowMoveView: View {
                         }
                         .buttonStyle(.bordered)
                         .disabled(!hasPermission)
+                        
+                        Button("Test All Log Levels") {
+                            testAllLogLevels()
+                        }
+                        .buttonStyle(.bordered)
                     }
                 }
             }
@@ -585,6 +591,24 @@ struct DebugWindowMoveView: View {
         case .notEnoughPrecision: return "Not enough precision"
         @unknown default: return "Unknown error: \(error.rawValue)"
         }
+    }
+    
+    private func testAllLogLevels() {
+        log("Testing all log levels...")
+        
+        // Test different log levels
+        Logger.windowMovement.debug("DEBUG: This is a debug message - only visible with 'Include Debug Messages' in Console.app")
+        Logger.windowMovement.info("INFO: This is an info message - only visible with 'Include Info Messages' in Console.app")
+        Logger.windowMovement.notice("NOTICE: This is a notice message - visible by default")
+        Logger.windowMovement.warning("WARNING: This is a warning message - visible by default")
+        Logger.windowMovement.error("ERROR: This is an error message - visible by default")
+        Logger.windowMovement.fault("FAULT: This is a fault message - visible by default")
+        
+        log("✅ Logged messages at all levels")
+        log("💡 In Console.app:")
+        log("  - Enable Action → Include Info Messages")
+        log("  - Enable Action → Include Debug Messages")
+        log("  - Or filter by: subsystem:com.olsevskas.PokerTiles")
     }
 }
 
