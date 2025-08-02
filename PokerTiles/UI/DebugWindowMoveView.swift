@@ -14,7 +14,7 @@ struct DebugWindowMoveView: View {
     @State private var hasPermission = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
             HStack {
                 Text("Accessibility Permission:")
                 Text(hasPermission ? "✅ Granted" : "❌ Not Granted")
@@ -22,49 +22,62 @@ struct DebugWindowMoveView: View {
                     .fontWeight(.bold)
             }
             
-            HStack(spacing: 10) {
-                Button("Check Permission") {
-                    checkPermission()
+            VStack(alignment: .leading, spacing: UIConstants.Spacing.standard) {
+                // Permission buttons
+                HStack(spacing: UIConstants.Spacing.standard) {
+                    Button("Check Permission") {
+                        checkPermission()
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    Button("Request Permission") {
+                        requestPermission()
+                    }
+                    .buttonStyle(.bordered)
                 }
                 
-                Button("Request Permission") {
-                    requestPermission()
+                // Test buttons
+                VStack(alignment: .leading, spacing: UIConstants.Spacing.compact) {
+                    Button("Test Move Window") {
+                        testMoveWindow()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!hasPermission)
+                    
+                    Button("Test Direct Move") {
+                        testDirectMove()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!hasPermission)
+                    
+                    Button("Test Poker Window") {
+                        testPokerWindow()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!hasPermission)
+                    
+                    Button("Test Browser Move") {
+                        testBrowserMove()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!hasPermission)
+                    
+                    // Grid arrangement buttons
+                    HStack(spacing: UIConstants.Spacing.standard) {
+                        Button("Test 2x2 Grid") {
+                            testGridArrangement(rows: 2, cols: 2)
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(!hasPermission)
+                        
+                        Button("Test 3x3 Grid") {
+                            testGridArrangement(rows: 3, cols: 3)
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(!hasPermission)
+                    }
                 }
-                
-                Button("Test Move Window") {
-                    testMoveWindow()
-                }
-                .disabled(!hasPermission)
-                
-                Button("Test Direct Move") {
-                    testDirectMove()
-                }
-                .disabled(!hasPermission)
-                
-                Button("Test Poker Window") {
-                    testPokerWindow()
-                }
-                .disabled(!hasPermission)
-                
-                Button("Test Browser Move") {
-                    testBrowserMove()
-                }
-                .disabled(!hasPermission)
             }
-            .buttonStyle(.bordered)
-            
-            HStack(spacing: 10) {
-                Button("Test 2x2 Grid") {
-                    testGridArrangement(rows: 2, cols: 2)
-                }
-                .disabled(!hasPermission)
-                
-                Button("Test 3x3 Grid") {
-                    testGridArrangement(rows: 3, cols: 3)
-                }
-                .disabled(!hasPermission)
-            }
-            .buttonStyle(.bordered)
             
             Divider()
             
@@ -73,9 +86,9 @@ struct DebugWindowMoveView: View {
                     .font(.system(.caption, design: .monospaced))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(height: 200)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(4)
+            .frame(height: UIConstants.FrameDimensions.thumbnailLarge)
+            .background(Color.gray.opacity(UIConstants.Opacity.veryLight))
+            .cornerRadius(UIConstants.CornerRadius.tiny)
             
             HStack {
                 Button("Clear Log") {
