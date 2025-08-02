@@ -12,7 +12,7 @@ class WindowManager {
     var isScanning: Bool = false
     var isInitialized: Bool = false
     var isAutoScanEnabled: Bool = true
-    var autoScanInterval: TimeInterval = 1.0 // Default 1 second
+    var autoScanInterval: TimeInterval = SettingsConstants.AutoScan.defaultInterval // Default 1 second
     
     let pokerTableDetector = PokerTableDetector()
     var pokerTables: [PokerTable] = []
@@ -77,7 +77,7 @@ class WindowManager {
         CGRequestScreenCaptureAccess()
         
         // Wait a bit for the system to update
-        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
+        try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.medium) // 1.5 seconds
         
         await MainActor.run {
             self.checkPermissions()
@@ -113,7 +113,7 @@ class WindowManager {
         }
     }
     
-    func startAutoScanWithDelay(delay: TimeInterval = 2.0) {
+    func startAutoScanWithDelay(delay: TimeInterval = AnimationConstants.Duration.extraLong) {
         Task { @MainActor in
             // Wait for the specified delay before starting auto-scan
             try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
@@ -140,8 +140,8 @@ class WindowManager {
     }
     
     func setAutoScanInterval(_ interval: TimeInterval) {
-        // Clamp interval between 0.01 and 5.0 seconds
-        autoScanInterval = min(max(0.01, interval), 5.0)
+        // Clamp interval between min and max allowed values
+        autoScanInterval = min(max(SettingsConstants.AutoScan.minInterval, interval), SettingsConstants.AutoScan.maxInterval)
         if isAutoScanEnabled {
             startAutoScan() // Restart with new interval
         }
@@ -248,8 +248,8 @@ class WindowManager {
             !window.title.isEmpty &&
             window.title != "Window" &&
             window.title != "Desktop" &&
-            window.bounds.width > 100 &&
-            window.bounds.height > 100
+            window.bounds.width > UIConstants.FrameDimensions.labelWidth &&
+            window.bounds.height > UIConstants.FrameDimensions.labelWidth
         }
     }
     
@@ -372,14 +372,14 @@ class WindowManager {
         
         // Must be on screen and reasonable size
         return window.isOnScreen &&
-               window.frame.width > 100 &&
-               window.frame.height > 100
+               window.frame.width > UIConstants.FrameDimensions.labelWidth &&
+               window.frame.height > UIConstants.FrameDimensions.labelWidth
     }
     
     private func captureWindowThumbnail(_ window: SCWindow) async -> NSImage? {
         guard window.isOnScreen,
-              window.frame.width > 50,
-              window.frame.height > 50 else {
+              window.frame.width > UIConstants.FrameDimensions.thumbnailSmall,
+              window.frame.height > UIConstants.FrameDimensions.thumbnailSmall else {
             print("⏩ Skipping thumbnail for '\(window.title ?? "Unknown")' - not on screen or too small")
             return nil
         }
@@ -394,8 +394,8 @@ class WindowManager {
             let configuration = SCStreamConfiguration()
             
             // Set reasonable thumbnail size
-            configuration.width = min(200, Int(window.frame.width))
-            configuration.height = min(150, Int(window.frame.height))
+            configuration.width = min(Int(UIConstants.FrameDimensions.thumbnailLarge), Int(window.frame.width))
+            configuration.height = min(Int(UIConstants.FrameDimensions.thumbnailMedium), Int(window.frame.height))
             configuration.showsCursor = false
             configuration.scalesToFit = true
             
@@ -454,7 +454,7 @@ class WindowManager {
                     
                     // Set up timeout to ensure continuation is always resumed
                     Task {
-                        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second timeout
+                        try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.standard) // 1 second timeout
                         
                         await MainActor.run {
                             stream.stopCapture { _ in }
@@ -643,8 +643,8 @@ extension WindowManager {
     }
     
     func setWallToWallLayout() {
-        gridLayoutOptions.padding = 0
-        gridLayoutOptions.windowSpacing = 0
+        gridLayoutOptions.padding = SettingsConstants.GridLayout.minSpacing
+        gridLayoutOptions.windowSpacing = SettingsConstants.GridLayout.minSpacing
         saveGridLayoutPreferences()
     }
 }

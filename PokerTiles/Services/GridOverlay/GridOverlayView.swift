@@ -15,7 +15,7 @@ struct GridOverlayView: View {
     
     @ObservedObject var overlayManager: GridOverlayManager
     @State private var showInfo = true
-    @State private var infoOpacity = 1.0
+    @State private var infoOpacity = UIConstants.Opacity.opaque
     
     // MARK: - Body
     
@@ -49,14 +49,14 @@ struct GridOverlayView: View {
                     }
                     Spacer()
                 }
-                .padding(32)
+                .padding(UIConstants.Spacing.giant)
             }
         }
         .onAppear {
             // Fade out info panel after a delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    infoOpacity = 0.3
+            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.Duration.extraLong) {
+                withAnimation(.easeOut(duration: AnimationConstants.Duration.medium)) {
+                    infoOpacity = UIConstants.Opacity.semiLight
                 }
             }
         }
@@ -71,7 +71,7 @@ struct InfoPanel: View {
     let occupiedCount: Int
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.standard) {
             // Layout name
             Text(layout.displayName)
                 .font(.title2)
@@ -79,29 +79,29 @@ struct InfoPanel: View {
                 .foregroundColor(.white)
             
             // Table count
-            HStack(spacing: 4) {
+            HStack(spacing: UIConstants.Spacing.tiny) {
                 Image(systemName: "square.grid.2x2")
                     .foregroundColor(.green)
                 Text("\(occupiedCount) of \(layout.capacity) slots occupied")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(.white.opacity(UIConstants.Opacity.nearlyOpaque))
             }
             
             // Instructions
             Text("Hold ⌘⇧G to show grid")
                 .font(.caption)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(.white.opacity(UIConstants.Opacity.visible))
         }
-        .padding(16)
+        .padding(UIConstants.Spacing.extraLarge)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.black.opacity(0.8))
+            RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
+                .fill(Color.black.opacity(UIConstants.Opacity.semiOpaque))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.green.opacity(0.5), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
+                        .stroke(Color.green.opacity(UIConstants.Opacity.medium), lineWidth: UIConstants.LineWidth.thin)
                 )
         )
-        .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
+        .shadow(color: .black.opacity(UIConstants.Opacity.medium), radius: UIConstants.Spacing.medium, x: 0, y: UIConstants.Spacing.small)
     }
 }
 
@@ -145,7 +145,7 @@ struct GridDrawingViewWrapper: NSViewRepresentable {
 struct GridOverlayView_Previews: PreviewProvider {
     static var previews: some View {
         GridOverlayView(overlayManager: GridOverlayManager())
-            .frame(width: 1920, height: 1080)
-            .background(Color.black.opacity(0.1))
+            .frame(width: UIConstants.FrameDimensions.defaultWindowWidth, height: UIConstants.FrameDimensions.defaultWindowHeight)
+            .background(Color.black.opacity(UIConstants.Opacity.veryLight))
     }
 }

@@ -15,7 +15,7 @@ struct HotkeySettingsView: View {
     @State private var showAccessibilityAlert = false
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: UIConstants.Spacing.huge) {
             // Invalid bindings notification
             if hotkeyManager.hasInvalidBindings() {
                 HStack {
@@ -34,12 +34,12 @@ struct HotkeySettingsView: View {
                     .controlSize(.small)
                 }
                 .padding()
-                .background(Color.yellow.opacity(0.1))
-                .cornerRadius(8)
+                .background(Color.yellow.opacity(UIConstants.Opacity.veryLight))
+                .cornerRadius(UIConstants.CornerRadius.standard)
             }
             
             // Header
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: UIConstants.Spacing.standard) {
                 Text("Hotkey Settings")
                     .font(.title2)
                     .fontWeight(.bold)
@@ -78,19 +78,19 @@ struct HotkeySettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, UIConstants.Spacing.standard)
             }
             
             // Hotkey List
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: UIConstants.Spacing.extraLarge) {
                     ForEach(groupedActions(), id: \.0) { category, actions in
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: UIConstants.Spacing.standard) {
                             Text(category)
                                 .font(.headline)
                                 .foregroundStyle(.secondary)
                             
-                            VStack(spacing: 4) {
+                            VStack(spacing: UIConstants.Spacing.tiny) {
                                 ForEach(actions, id: \.self) { action in
                                     HotkeyRow(
                                         action: action,
@@ -115,8 +115,8 @@ struct HotkeySettingsView: View {
                     }
                 }
             }
-            .frame(maxHeight: 300)
-            .opacity(hotkeyManager.isEnabled ? 1.0 : 0.5)
+            .frame(maxHeight: UIConstants.FrameDimensions.sheetWidthSmall - UIConstants.FrameDimensions.thumbnailLarge)
+            .opacity(hotkeyManager.isEnabled ? UIConstants.Opacity.opaque : UIConstants.Opacity.medium)
             
             Divider()
             
@@ -128,7 +128,7 @@ struct HotkeySettingsView: View {
             .disabled(!hotkeyManager.isEnabled)
         }
         .padding()
-        .frame(width: 500)
+        .frame(width: UIConstants.FrameDimensions.sheetWidthSmall)
         .sheet(isPresented: $isRecording) {
             if let action = editingAction {
                 HotkeyRecorderView(
@@ -192,10 +192,10 @@ struct HotkeyRow: View {
                 .controlSize(.small)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(isEditing ? Color.accentColor.opacity(0.1) : Color(.tertiarySystemFill))
-        .cornerRadius(6)
+        .padding(.horizontal, UIConstants.Spacing.large)
+        .padding(.vertical, UIConstants.Spacing.standard)
+        .background(isEditing ? Color.accentColor.opacity(UIConstants.Opacity.veryLight) : Color(.tertiarySystemFill))
+        .cornerRadius(UIConstants.CornerRadius.small)
     }
 }
 
@@ -206,7 +206,7 @@ struct HotkeyDisplay: View {
     let modifiers: NSEvent.ModifierFlags
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: UIConstants.Spacing.tiny) {
             if modifiers.contains(.control) {
                 KeyCapView(symbol: "⌃")
             }
@@ -262,14 +262,14 @@ struct KeyCapView: View {
     
     var body: some View {
         Text(symbol)
-            .font(.system(size: 12, weight: .medium, design: .monospaced))
+            .font(.system(size: UIConstants.Spacing.large, weight: .medium, design: .monospaced))
             .foregroundStyle(.primary)
-            .frame(minWidth: 24, minHeight: 24)
+            .frame(minWidth: UIConstants.FrameDimensions.iconSmall, minHeight: UIConstants.FrameDimensions.iconSmall)
             .background(Color(.tertiarySystemFill))
-            .cornerRadius(4)
+            .cornerRadius(UIConstants.CornerRadius.tiny)
             .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color(.separatorColor), lineWidth: 1)
+                RoundedRectangle(cornerRadius: UIConstants.CornerRadius.tiny)
+                    .stroke(Color(.separatorColor), lineWidth: UIConstants.LineWidth.thin)
             )
     }
 }
@@ -286,7 +286,7 @@ struct HotkeyRecorderView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: UIConstants.Spacing.huge) {
             Text("Press New Hotkey")
                 .font(.title2)
                 .fontWeight(.bold)
@@ -298,7 +298,7 @@ struct HotkeyRecorderView: View {
             // Show current combination
             if let keyCode = recordedKeyCode {
                 HotkeyDisplay(keyCode: keyCode, modifiers: recordedModifiers)
-                    .scaleEffect(1.5)
+                    .scaleEffect(UIConstants.Scale.enlarged)
                     .padding()
             } else {
                 Text("Press any key combination...")
@@ -307,7 +307,7 @@ struct HotkeyRecorderView: View {
                     .padding()
             }
             
-            HStack(spacing: 10) {
+            HStack(spacing: UIConstants.Spacing.medium) {
                 Button("Cancel") {
                     dismiss()
                     onComplete()
@@ -325,8 +325,8 @@ struct HotkeyRecorderView: View {
                 .disabled(recordedKeyCode == nil)
             }
         }
-        .padding(40)
-        .frame(width: 400, height: 250)
+        .padding(UIConstants.Spacing.gigantic)
+        .frame(width: UIConstants.FrameDimensions.formWidth, height: UIConstants.FrameDimensions.thumbnailLarge + UIConstants.FrameDimensions.thumbnailSmall)
         .background(KeyRecorderRepresentable(
             onKeyPress: { keyCode, modifiers in
                 recordedKeyCode = keyCode

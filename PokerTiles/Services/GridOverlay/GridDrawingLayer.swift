@@ -21,11 +21,11 @@ class GridDrawingLayer: CALayer {
         didSet { setNeedsDisplay() }
     }
     
-    var padding: CGFloat = 10 {
+    var padding: CGFloat = SettingsConstants.GridLayout.defaultPadding {
         didSet { setNeedsDisplay() }
     }
     
-    var windowSpacing: CGFloat = 5 {
+    var windowSpacing: CGFloat = SettingsConstants.GridLayout.defaultWindowSpacing {
         didSet { setNeedsDisplay() }
     }
     
@@ -33,19 +33,19 @@ class GridDrawingLayer: CALayer {
         didSet { setNeedsDisplay() }
     }
     
-    var lineWidth: CGFloat = 2.0 {
+    var lineWidth: CGFloat = SettingsConstants.GridLayout.defaultLineWidth {
         didSet { 
             // Clamp between 1 and 10
-            lineWidth = max(1, min(10, lineWidth))
+            lineWidth = max(SettingsConstants.GridLayout.minLineWidth, min(SettingsConstants.GridLayout.maxLineWidth, lineWidth))
             setNeedsDisplay() 
         }
     }
     
-    var dashPattern: [CGFloat] = [6, 4] // For dashed lines
+    var dashPattern: [CGFloat] = [UIConstants.Spacing.compact, UIConstants.Spacing.tiny] // For dashed lines
     var useDashedLines: Bool = false {
         didSet { setNeedsDisplay() }
     }
-    var gridCornerRadius: CGFloat = 8 {
+    var gridCornerRadius: CGFloat = SettingsConstants.GridLayout.defaultCornerRadius {
         didSet { setNeedsDisplay() }
     }
     
@@ -158,9 +158,9 @@ class GridDrawingLayer: CALayer {
     
     private func drawEmptyIndicator(in ctx: CGContext, rect: CGRect) {
         // Draw dots pattern in center
-        let dotSize: CGFloat = 4
-        let dotSpacing: CGFloat = 16
-        let dotsColor = gridColor.withAlphaComponent(0.3)
+        let dotSize: CGFloat = LayoutConstants.GridCell.dotSize
+        let dotSpacing: CGFloat = LayoutConstants.GridCell.dotSpacing
+        let dotsColor = gridColor.withAlphaComponent(UIConstants.Opacity.semiLight)
         
         ctx.saveGState()
         ctx.setFillColor(dotsColor.cgColor)
@@ -179,7 +179,7 @@ class GridDrawingLayer: CALayer {
     private func drawTableNumber(in ctx: CGContext, rect: CGRect, number: Int) {
         // Draw table number in top-left corner
         let numberStr = "\(number)" as NSString
-        let fontSize: CGFloat = 24
+        let fontSize: CGFloat = UIConstants.Spacing.massive
         let attrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: fontSize, weight: .bold),
             .foregroundColor: NSColor.white
@@ -189,22 +189,22 @@ class GridDrawingLayer: CALayer {
         let textSize = numberStr.size(withAttributes: attrs)
         
         // Position in top-left with padding (remember macOS has origin at bottom-left)
-        let x = rect.minX + 16
-        let y = rect.maxY - textSize.height - 16
+        let x = rect.minX + UIConstants.Spacing.extraLarge
+        let y = rect.maxY - textSize.height - UIConstants.Spacing.extraLarge
         
         // Background for better visibility
         ctx.saveGState()
-        ctx.setFillColor(NSColor.black.withAlphaComponent(0.8).cgColor)
+        ctx.setFillColor(NSColor.black.withAlphaComponent(UIConstants.Opacity.semiOpaque).cgColor)
         let bgRect = CGRect(
-            x: x - 8,
-            y: y - 4,
-            width: textSize.width + 16,
-            height: textSize.height + 8
+            x: x - UIConstants.Spacing.standard,
+            y: y - UIConstants.Spacing.tiny,
+            width: textSize.width + UIConstants.Spacing.extraLarge,
+            height: textSize.height + UIConstants.Spacing.standard
         )
         let bgPath = CGPath(
             roundedRect: bgRect,
-            cornerWidth: 6,
-            cornerHeight: 6,
+            cornerWidth: UIConstants.CornerRadius.small,
+            cornerHeight: UIConstants.CornerRadius.small,
             transform: nil
         )
         ctx.addPath(bgPath)
