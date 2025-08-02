@@ -118,7 +118,7 @@ struct DebugWindowMoveView: View {
     }
     
     private func checkPermission() {
-        hasPermission = AXIsProcessTrusted()
+        hasPermission = PermissionManager.hasAccessibilityPermission()
         log("Permission check: \(hasPermission ? "Granted" : "Not Granted")")
         
         // Additional diagnostics
@@ -128,9 +128,7 @@ struct DebugWindowMoveView: View {
     
     private func requestPermission() {
         log("Requesting permission...")
-        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
-        let result = AXIsProcessTrustedWithOptions(options)
-        log("Request result: \(result)")
+        PermissionManager.requestAccessibilityPermission()
         
         // Check again after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

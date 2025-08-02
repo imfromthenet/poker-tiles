@@ -15,7 +15,7 @@ class DirectWindowMover {
     
     /// Attempt to move any visible window as a test
     static func testMoveFirstWindow() -> Bool {
-        guard AXIsProcessTrusted() else {
+        guard PermissionManager.hasAccessibilityPermission() else {
             Logger.permissions.error("Accessibility access not trusted")
             return false
         }
@@ -70,7 +70,7 @@ class DirectWindowMover {
     
     /// Direct move for a specific app by name with verification
     static func moveAppWindow(appName: String, to position: CGPoint) -> Bool {
-        guard AXIsProcessTrusted() else {
+        guard PermissionManager.hasAccessibilityPermission() else {
             Logger.permissions.error("Accessibility access not trusted")
             return false
         }

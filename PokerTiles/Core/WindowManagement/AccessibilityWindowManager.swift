@@ -21,7 +21,7 @@ class AccessibilityWindowManager {
     
     /// Check if we have accessibility permissions
     var hasPermission: Bool {
-        return AXIsProcessTrusted()
+        return PermissionManager.hasAccessibilityPermission()
     }
     
     // MARK: - Initialization
@@ -308,8 +308,7 @@ class AccessibilityWindowManager {
     
     /// Request accessibility permission
     static func requestPermission() {
-        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
-        AXIsProcessTrustedWithOptions(options)
+        PermissionManager.requestAccessibilityPermission()
     }
 }
 

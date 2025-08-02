@@ -62,7 +62,7 @@ class WindowManager {
     }
     
     func checkPermissions() {
-        if CGPreflightScreenCaptureAccess() {
+        if PermissionManager.hasScreenRecordingPermission() {
             permissionState = .granted
         } else {
             // Check if we can determine if it's denied or just not determined
@@ -75,7 +75,7 @@ class WindowManager {
         // Store current state to detect if user actually made a choice
         let previousState = permissionState
         
-        CGRequestScreenCaptureAccess()
+        PermissionManager.requestScreenRecordingPermission()
         
         // Wait a bit for the system to update
         try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.medium) // 1.5 seconds

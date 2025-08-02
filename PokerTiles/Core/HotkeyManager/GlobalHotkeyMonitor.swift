@@ -63,13 +63,12 @@ class GlobalHotkeyMonitor {
         }
         
         // Check for accessibility permissions
-        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
-        let trusted = AXIsProcessTrustedWithOptions(options)
+        let hasPermission = PermissionManager.hasAccessibilityPermission()
         
         Logger.hotkeys.debug("GlobalHotkeyMonitor: Checking permissions...")
-        Logger.hotkeys.debug("   - Accessibility permission: \(trusted ? "Granted" : "Not granted")")
+        Logger.hotkeys.debug("   - Accessibility permission: \(hasPermission ? "Granted" : "Not granted")")
         
-        if !trusted {
+        if !hasPermission {
             Logger.permissions.notice("Accessibility permission required for global hotkeys")
             return false
         }

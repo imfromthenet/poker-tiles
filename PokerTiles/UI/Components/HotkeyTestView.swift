@@ -240,19 +240,13 @@ struct HotkeyTestView: View {
         // Check accessibility permission
         let hasAccessibility = PermissionManager.hasAccessibilityPermission()
         
-        // Check if Input Monitoring is granted (this is what event taps need)
-        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
-        let trusted = AXIsProcessTrustedWithOptions(options)
-        
         testResult = """
         Accessibility: \(hasAccessibility ? "✅" : "❌")
-        AX Trusted: \(trusted ? "✅" : "❌")
         Hotkeys enabled: \(hotkeyManager?.isEnabled ?? false ? "✅" : "❌")
         """
         
         debugLogs.append("🧪 Permission check:")
         debugLogs.append("   - Accessibility: \(hasAccessibility)")
-        debugLogs.append("   - AX Trusted: \(trusted)")
         debugLogs.append("   - Hotkeys enabled: \(hotkeyManager?.isEnabled ?? false)")
     }
     
