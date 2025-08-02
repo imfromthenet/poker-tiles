@@ -15,9 +15,6 @@ struct DebugWindowMoveView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Window Movement Debug")
-                .font(.headline)
-            
             HStack {
                 Text("Accessibility Permission:")
                 Text(hasPermission ? "✅ Granted" : "❌ Not Granted")
