@@ -19,11 +19,6 @@ struct LayoutsTabView: View {
                     windowManager: windowManager
                 )
             } else {
-                // Window Management
-                Section("Window Management") {
-                    QuickActionsView(windowManager: windowManager)
-                }
-                
                 // Window Layout
                 Section("Window Layout") {
                     GridLayoutView(windowManager: windowManager)
