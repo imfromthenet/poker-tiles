@@ -15,15 +15,6 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            // Tables tab - for monitoring poker tables
-            TablesTabView(
-                permissionTriggerId: $permissionTriggerId,
-                windowManager: windowManager
-            )
-            .tabItem {
-                Label("Tables", systemImage: "tablecells")
-            }
-            
             // Layouts tab - for window arrangements
             LayoutsTabView(
                 permissionTriggerId: $permissionTriggerId,
@@ -49,6 +40,15 @@ struct ContentView: View {
             )
             .tabItem {
                 Label("Settings", systemImage: "gearshape")
+            }
+            
+            // Tables tab - for monitoring poker tables
+            TablesTabView(
+                permissionTriggerId: $permissionTriggerId,
+                windowManager: windowManager
+            )
+            .tabItem {
+                Label("Tables", systemImage: "tablecells")
             }
         }
         .task(id: "initial_setup") {
