@@ -19,8 +19,10 @@ struct SettingsTabView: View {
                     windowManager: windowManager
                 )
             } else {
+                #if DEBUG
                 // Auto Scan
                 AutoScanSection(windowManager: windowManager)
+                #endif
                 
                 // General Settings
                 SettingsSection(windowManager: windowManager)
