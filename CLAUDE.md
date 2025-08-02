@@ -103,7 +103,8 @@ PokerTiles/
 │   │   ├── HotkeyManager/           # Global hotkey handling
 │   │   ├── Permissions/             # Permission management
 │   │   ├── PokerTableDetector.swift # Table detection logic
-│   │   └── ColorSchemeManager.swift # Theme management
+│   │   ├── ColorSchemeManager.swift # Theme management
+│   │   └── Constants.swift          # Centralized constants for UI values
 │   ├── Models/
 │   │   ├── PokerTable.swift         # Poker table data model
 │   │   ├── PokerApp.swift           # Poker app definitions
@@ -189,9 +190,8 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 
 ### Short-term Improvements
 1. **Error Handling**: Standardize error patterns across the app
-2. **Constants Management**: Extract magic numbers to constants file
-3. **Debug UI Styling**: Mark debug views with different colors/styling
-4. **Test Coverage**: Add unit tests for core functionality
+2. **Debug UI Styling**: Mark debug views with different colors/styling
+3. **Test Coverage**: Add unit tests for core functionality
 
 ### Long-term Goals
 1. **Poker Action Automation**: Implement hotkey-triggered poker actions
@@ -207,7 +207,6 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 - Permission checking code duplication (6+ occurrences)
 - Hotkey actions not connected to poker operations
 - No standardized error handling pattern
-- Missing constants file for magic numbers
 - Debug views not visually distinguished from production UI
 
 ## Performance Considerations
@@ -245,6 +244,26 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 ## Development Principles
 
 - **Always build before attempting to commit**
+- **Use centralized constants**: All UI magic numbers should use constants from `Core/Constants.swift`
+
+## Recent Updates
+
+### Magic Number Extraction (Completed)
+- Created comprehensive `Constants.swift` file with organized categories:
+  - UIConstants: spacing, corner radius, line width, frame dimensions, opacity, scale
+  - AnimationConstants: durations and sleep intervals
+  - SettingsConstants: auto scan, grid layout, and hotkey settings
+  - LayoutConstants: window arrangement and grid cell settings
+  - DebugConstants: debug-specific values
+- Updated all major UI files to use centralized constants
+- Removed hardcoded values throughout the codebase
+
+### UI Cleanup (Completed)
+- Removed Advanced section from Layouts tab containing unimplemented features:
+  - Window resistance analysis
+  - Window manipulation statistics
+- Cleaned up unused code and methods from WindowManager
+- Simplified the UI to focus on working features
 
 ## Summary instructions
 
