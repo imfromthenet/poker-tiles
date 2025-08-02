@@ -29,12 +29,6 @@ struct SettingsTabView: View {
                 Section("Permissions") {
                     PermissionStatusView()
                 }
-                
-                #if DEBUG
-                Section("Debug") {
-                    DebugWindowMoveView()
-                }
-                #endif
             }
         }
         .formStyle(.grouped)

@@ -19,6 +19,11 @@ struct DebugTabView: View {
                     windowManager: windowManager
                 )
             } else {
+                // Debug Window Move
+                Section("Debug Window Move") {
+                    DebugWindowMoveView()
+                }
+                
                 // Window Statistics
                 WindowStatisticsSection(windowManager: windowManager)
                 
