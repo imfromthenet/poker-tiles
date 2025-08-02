@@ -276,10 +276,9 @@ struct DebugWindowMoveView: View {
         
         log("Scanning \(windowList.count) windows for poker apps...")
         
-        // Expanded keywords to catch browser tabs with poker sites
-        let pokerKeywords = ["poker", "holdem", "888", "stars", "gg", "party", "winamax", 
-                           "pokerstars", "888poker", "ggpoker", "partypoker", 
-                           "table", "nlh", "plo", "cash game", "tournament"]
+        // Known poker apps and sites - be specific to avoid false positives
+        let pokerApps = ["pokerstars", "888poker", "ggpoker", "partypoker", "winamax", "pokerstars.eu"]
+        let pokerKeywords = ["holdem", "hold'em", "nlh", "plo", "omaha", "cash game", "tournament", "sit & go"]
         var foundPokerWindow = false
         
         for windowInfo in windowList {
@@ -292,10 +291,22 @@ struct DebugWindowMoveView: View {
             let lowerTitle = windowTitle.lowercased()
             let lowerOwner = ownerName.lowercased()
             
-            // Check if this is a poker window
-            let isPoker = pokerKeywords.contains { keyword in
-                lowerTitle.contains(keyword) || lowerOwner.contains(keyword)
+            // Check if this is a poker window (excluding PokerTiles and development tools)
+            let currentAppPID = ProcessInfo.processInfo.processIdentifier
+            let isPokerTiles = pid == currentAppPID || lowerOwner.contains("pokertiles")
+            let isDevelopmentTool = lowerOwner.contains("xcode") || lowerOwner.contains("simulator")
+            
+            // First check for known poker apps
+            let isKnownPokerApp = pokerApps.contains { app in
+                lowerOwner.contains(app) || lowerTitle.contains(app)
             }
+            
+            // Then check for poker keywords (but not in development tools)
+            let hasPokerKeyword = !isDevelopmentTool && pokerKeywords.contains { keyword in
+                lowerTitle.contains(keyword)
+            }
+            
+            let isPoker = !isPokerTiles && (isKnownPokerApp || hasPokerKeyword)
             
             if isPoker {
                 foundPokerWindow = true
