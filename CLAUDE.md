@@ -6,6 +6,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 PokerTiles is a comprehensive poker table management application for macOS, designed to enhance multi-tabling experiences with advanced overlays, hotkeys, and table organization features. The app combines Accessibility API and ScreenCaptureKit to read, monitor, and control poker tables from desktop poker applications.
 
+## Additional Guidelines
+
+Claude Code should also reference the project-specific rules and documentation in the `.claude/` directory:
+
+### Core Development Rules
+- `.claude/rules/modern-swift.md` - Swift/SwiftUI best practices
+- `.claude/rules/implement-task.md` - Structured approach to implementing features
+- `.claude/rules/check.md` - Code verification procedures
+
+### Workflow Rules
+- `.claude/rules/bug-fix.md` - Standardized bug fixing workflow from issue to PR
+- `.claude/rules/commit.md` - Commit message conventions with descriptive emojis
+- `.claude/rules/commit-fast.md` - Quick commit workflow for simple changes
+- `.claude/rules/analyze-issue.md` - Issue analysis and technical specification template
+- `.claude/rules/context-prime.md` - Project context loading and understanding procedure
+- `.claude/rules/code-analysis.md` - Code analysis and review procedures
+- `.claude/rules/update-docs.md` - Documentation update guidelines
+- `.claude/rules/pr-review.md` - Pull request review process and checklist
+- `.claude/rules/add-to-changelog.md` - Changelog update procedures
+
+### Available Commands
+- `.claude/commands/reflection.md` - Analyze and improve Claude instructions and configuration
+
+Apply these rules when working on this codebase.
+
 ## Core Features
 
 ### ✅ Implemented
@@ -141,6 +166,29 @@ xcodebuild -project PokerTiles.xcodeproj -scheme PokerTiles -configuration Debug
 xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:PokerTilesTests/PokerDetectionTests
 ```
 
+## Build Verification with XcodeBuildMCP
+
+Claude Code has access to XcodeBuildMCP tools. Use these for all build operations:
+- `mcp__XcodeBuildMCP__discover_projs` - Find Xcode projects
+- `mcp__XcodeBuildMCP__build_mac_proj` - Build the macOS app
+- `mcp__XcodeBuildMCP__build_run_mac_proj` - Build and run for testing
+- `mcp__XcodeBuildMCP__show_build_set_proj` - Show build settings
+
+**Important**: Always verify code changes compile successfully using these MCP tools before considering a task complete.
+
+## Swift Development Resources
+
+The `.claude/docs/` directory contains extensive Swift-specific documentation:
+- `.claude/docs/swift-testing-playbook.md` - Comprehensive Swift Testing migration guide from XCTest
+- `.claude/docs/swift-testing-api.md` - Complete Swift Testing API reference (large file, search for specific APIs)
+- `.claude/docs/swift-observation.md` - Swift Observation framework patterns for reactive programming
+- `.claude/docs/swift-observable.md` - Observable patterns for state management in SwiftUI
+- `.claude/docs/swiftui.md` - Extensive SwiftUI best practices and patterns (comprehensive guide)
+- `.claude/docs/swift6-migration.md` - Swift 6 migration guidance and concurrency updates
+- `.claude/docs/swiftdata.md` - SwiftData framework usage for persistence
+
+Reference these resources when implementing Swift-specific features or migrating code.
+
 ## Required Permissions
 
 - **Accessibility Access**: Required for content access and table detection
@@ -216,6 +264,19 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 - **Memory Management**: Efficient capture and processing of table regions
 - **Background Processing**: Non-blocking analysis using Swift Concurrency
 
+## macOS Development Constraints
+
+### Testing Limitations
+- Cannot test Accessibility API features without proper permissions
+- Cannot test Screen Recording features without user approval
+- Window manipulation requires app sandbox to be disabled (already configured)
+
+### When Testing Is Limited
+- Verify code compiles using XcodeBuildMCP tools
+- Check for common Swift/macOS API usage errors
+- Suggest using DebugWindowMoveView for manual testing
+- Warn user when features require runtime permissions
+
 ## Development Tools
 
 ### Debug Window Move View
@@ -243,8 +304,18 @@ xcodebuild test -project PokerTiles.xcodeproj -scheme PokerTiles -only-testing:P
 
 ## Development Principles
 
-- **Always build before attempting to commit**
+- **Always build before attempting to commit** - Use XcodeBuildMCP tools to verify
 - **Use centralized constants**: All UI magic numbers should use constants from `Core/Constants.swift`
+- **Follow .claude/rules/check.md**: Run appropriate checks for code quality
+- **Apply .claude/rules/modern-swift.md**: Write idiomatic Swift/SwiftUI code
+- **Use .claude/rules/implement-task.md**: For structured feature implementation
+
+## Development Tool Rules
+
+Additional development tools and automation rules in `.claude/rules/`:
+- `.claude/rules/clean.md` - Swift code formatting and quality checks (SwiftLint, SwiftFormat)
+- `.claude/rules/mermaid.md` - Diagram generation for documentation and architecture
+- `.claude/rules/screenshot-automation.md` - Automated screenshot capture for UI testing
 
 ## Recent Updates
 
