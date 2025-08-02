@@ -336,6 +336,11 @@ class WindowManager {
     private func isAppWindow(_ window: SCWindow) -> Bool {
         guard let app = window.owningApplication else { return false }
         
+        // Skip our own app - we don't need thumbnails of ourselves
+        if app.bundleIdentifier == Bundle.main.bundleIdentifier {
+            return false
+        }
+        
         let systemBundles = [
             "com.apple.controlcenter",
             "com.apple.NotificationCenter",
