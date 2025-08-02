@@ -56,11 +56,6 @@ struct DebugWindowMoveView: View {
                     .buttonStyle(.bordered)
                     .disabled(!hasPermission)
                     
-                    Button("Test Browser Move") {
-                        testBrowserMove()
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(!hasPermission)
                     
                     // Grid arrangement buttons
                     HStack(spacing: UIConstants.Spacing.standard) {
@@ -276,8 +271,8 @@ struct DebugWindowMoveView: View {
         
         log("Scanning \(windowList.count) windows for poker apps...")
         
-        // Known poker apps and sites - be specific to avoid false positives
-        let pokerApps = ["pokerstars", "888poker", "ggpoker", "partypoker", "winamax", "pokerstars.eu"]
+        // Known poker desktop applications
+        let pokerApps = ["pokerstars", "888poker", "ggpoker", "partypoker", "winamax"]
         let pokerKeywords = ["holdem", "hold'em", "nlh", "plo", "omaha", "cash game", "tournament", "sit & go"]
         var foundPokerWindow = false
         
@@ -322,8 +317,7 @@ struct DebugWindowMoveView: View {
         }
         
         if !foundPokerWindow {
-            log("❌ No poker windows found. Please open a poker app/website.")
-            log("\nTip: Make sure the poker site is visible in a browser tab title.")
+            log("❌ No poker windows found. Please open a poker desktop application.")
             
             // Show all windows for debugging
             log("\n📋 All visible windows:")
@@ -502,41 +496,6 @@ struct DebugWindowMoveView: View {
         }
         
         log("\n=== Direct Test Complete ===\n")
-    }
-    
-    private func testBrowserMove() {
-        log("\n=== Testing Browser Window Move ===")
-        
-        let browsers = ["Safari", "Google Chrome", "Brave Browser", "Firefox", "Microsoft Edge", "Arc"]
-        
-        for browserName in browsers {
-            if NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == browserName }) != nil {
-                log("\nFound \(browserName) running...")
-                
-                // Try with DirectWindowMover first
-                if DirectWindowMover.moveAppWindow(appName: browserName, to: CGPoint(x: 150, y: 150)) {
-                    log("✅ Successfully moved \(browserName) window!")
-                    
-                    // List windows for this browser
-                    if let windowList = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] {
-                        log("Browser windows:")
-                        for window in windowList {
-                            if let owner = window[kCGWindowOwnerName as String] as? String,
-                               let title = window[kCGWindowName as String] as? String,
-                               owner == browserName && !title.isEmpty {
-                                log("  - \(title)")
-                            }
-                        }
-                    }
-                    
-                    break
-                } else {
-                    log("❌ Failed to move \(browserName)")
-                }
-            }
-        }
-        
-        log("=== Browser Test Complete ===\n")
     }
     
     private func testGridArrangement(rows: Int, cols: Int) {
