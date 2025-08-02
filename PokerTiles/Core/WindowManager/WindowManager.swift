@@ -575,38 +575,6 @@ extension WindowManager {
         }
     }
     
-    /// Analyze window resistance
-    func analyzeWindowResistance() {
-        print("\n=== Window Resistance Analysis ===")
-        
-        let resistantWindows = resistanceDetector.getResistantWindows(from: windows)
-        
-        if resistantWindows.isEmpty {
-            print("✅ No resistant windows detected")
-        } else {
-            print("⚠️ Found \(resistantWindows.count) resistant window(s):")
-            
-            for window in resistantWindows {
-                let profile = resistanceDetector.analyzeWindow(window)
-                print("\n  Window: \(window.title)")
-                print("  App: \(window.appName)")
-                print("  Resistance: \(profile.resistanceType)")
-                print("  Details: \(profile.details)")
-                
-                if let method = profile.suggestedMethod {
-                    print("  Suggested workaround: \(method)")
-                }
-            }
-        }
-        
-        print("\n=== Analysis Complete ===")
-    }
-    
-    /// Get window manipulation statistics
-    func getManipulationStatistics() -> String {
-        return windowManipulator.getStatistics().summary
-    }
-    
     // MARK: - Grid Layout Preferences
     
     private func updateGridLayoutManager() {

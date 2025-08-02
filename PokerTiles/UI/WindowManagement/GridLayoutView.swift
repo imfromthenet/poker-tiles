@@ -11,7 +11,6 @@ struct GridLayoutView: View {
     let windowManager: WindowManager
     @State private var selectedLayout: GridLayoutManager.GridLayout = .twoByTwo
     @State private var isArranging = false
-    @State private var showResistanceAnalysis = false
     @State private var tempPadding: CGFloat = SettingsConstants.GridLayout.defaultPadding
     @State private var tempWindowSpacing: CGFloat = SettingsConstants.GridLayout.defaultWindowSpacing
     @State private var tempLineWidth: CGFloat = SettingsConstants.GridLayout.defaultLineWidth
@@ -298,30 +297,9 @@ struct GridLayoutView: View {
                 }
                 .padding(.vertical, UIConstants.Spacing.medium)
             }
-            
-            Divider()
-            
-            // Advanced Options
-            DisclosureGroup("Advanced") {
-                VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
-                    Button(action: analyzeResistance) {
-                        Label("Analyze Window Resistance", systemImage: "exclamationmark.triangle")
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button(action: showStatistics) {
-                        Label("Show Manipulation Stats", systemImage: "chart.bar")
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .padding(.top, UIConstants.Spacing.medium)
-            }
         }
         .padding()
         .frame(width: UIConstants.FrameDimensions.formWidth)
-        .sheet(isPresented: $showResistanceAnalysis) {
-            ResistanceAnalysisView(windowManager: windowManager)
-        }
         .onAppear {
             tempPadding = windowManager.gridLayoutOptions.padding
             tempWindowSpacing = windowManager.gridLayoutOptions.windowSpacing
@@ -390,24 +368,6 @@ struct GridLayoutView: View {
             return
         }
         windowManager.distributeTablesAcrossScreens()
-    }
-    
-    private func analyzeResistance() {
-        showResistanceAnalysis = true
-        windowManager.analyzeWindowResistance()
-    }
-    
-    private func showStatistics() {
-        let stats = windowManager.getManipulationStatistics()
-        print(stats)
-        
-        // Show alert with stats
-        let alert = NSAlert()
-        alert.messageText = "Window Manipulation Statistics"
-        alert.informativeText = stats
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
     }
     
     private func showGridOverlay() {
@@ -486,49 +446,6 @@ struct GridVisualization: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - Resistance Analysis View
-
-struct ResistanceAnalysisView: View {
-    let windowManager: WindowManager
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: UIConstants.Spacing.huge) {
-            // Header
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Window Resistance Analysis")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text("Identifies windows that may be difficult to manipulate")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-                
-                Button("Done") {
-                    dismiss()
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            
-            Divider()
-            
-            // Analysis results would go here
-            ScrollView {
-                Text("Analysis results will appear here after running window resistance detection.")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, UIConstants.Spacing.gigantic)
-            }
-        }
-        .padding()
-        .frame(width: UIConstants.FrameDimensions.sheetWidthMedium, height: UIConstants.FrameDimensions.formWidth)
     }
 }
 
