@@ -43,13 +43,13 @@ struct ContentView: View {
             }
             
             #if DEBUG
-            // Tables tab - for monitoring poker tables
-            TablesTabView(
+            // Debug tab - for debugging purposes
+            DebugTabView(
                 permissionTriggerId: $permissionTriggerId,
                 windowManager: windowManager
             )
             .tabItem {
-                Label("Tables", systemImage: "tablecells")
+                Label("Debug", systemImage: "ladybug.fill")
             }
             #endif
         }

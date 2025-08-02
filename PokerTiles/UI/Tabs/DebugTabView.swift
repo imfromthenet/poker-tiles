@@ -1,13 +1,13 @@
 //
-//  TablesTabView.swift
+//  DebugTabView.swift
 //  PokerTiles
 //
-//  Tab view for monitoring poker tables and window statistics
+//  Debug tab for debugging purposes
 //
 
 import SwiftUI
 
-struct TablesTabView: View {
+struct DebugTabView: View {
     @Binding var permissionTriggerId: UUID?
     let windowManager: WindowManager
     
@@ -57,7 +57,7 @@ struct TablesTabView: View {
 }
 
 #Preview {
-    TablesTabView(
+    DebugTabView(
         permissionTriggerId: .constant(nil),
         windowManager: WindowManager()
     )
