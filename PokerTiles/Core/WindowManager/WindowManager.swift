@@ -315,7 +315,7 @@ class WindowManager {
                     AXUIElementPerformAction(window, kAXRaiseAction as CFString)
                     
                     // Also set it as main window
-                    var mainRef: CFTypeRef = kCFBooleanTrue
+                    let mainRef: CFTypeRef = kCFBooleanTrue
                     AXUIElementSetAttributeValue(window, kAXMainAttribute as CFString, mainRef)
                     
                     // Activate the app
