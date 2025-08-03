@@ -62,12 +62,17 @@ class WindowManager {
     }
     
     func checkPermissions() {
-        if PermissionManager.hasScreenRecordingPermission() {
+        // Need both permissions for full functionality
+        let hasScreenRecording = PermissionManager.hasScreenRecordingPermission()
+        let hasAccessibility = PermissionManager.hasAccessibilityPermission()
+        
+        if hasScreenRecording && hasAccessibility {
             permissionState = .granted
-        } else {
-            // Check if we can determine if it's denied or just not determined
-            // If we've requested before and still no access, it's likely denied
+        } else if !hasScreenRecording && !hasAccessibility {
             permissionState = .notDetermined
+        } else {
+            // Has one but not both - treat as denied since we need both
+            permissionState = .denied
         }
     }
     
@@ -75,7 +80,8 @@ class WindowManager {
         // Store current state to detect if user actually made a choice
         let previousState = permissionState
         
-        PermissionManager.requestScreenRecordingPermission()
+        // Request all missing permissions
+        PermissionManager.requestAllPermissions()
         
         // Wait a bit for the system to update
         try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.medium) // 1.5 seconds

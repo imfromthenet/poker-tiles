@@ -13,24 +13,17 @@ struct SettingsTabView: View {
     
     var body: some View {
         Form {
-            if !windowManager.hasPermission {
-                PermissionSection(
-                    permissionTriggerId: $permissionTriggerId,
-                    windowManager: windowManager
-                )
-            } else {
-                #if DEBUG
-                // Auto Scan
-                AutoScanSection(windowManager: windowManager)
-                #endif
-                
-                // General Settings
-                SettingsSection(windowManager: windowManager)
-                
-                // Permissions
-                Section("Permissions") {
-                    PermissionStatusView()
-                }
+            #if DEBUG
+            // Auto Scan
+            AutoScanSection(windowManager: windowManager)
+            #endif
+            
+            // General Settings
+            SettingsSection(windowManager: windowManager)
+            
+            // Permissions
+            Section("Permissions") {
+                PermissionStatusView()
             }
         }
         .formStyle(.grouped)

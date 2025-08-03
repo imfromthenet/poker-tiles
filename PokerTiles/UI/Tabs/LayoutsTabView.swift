@@ -13,16 +13,9 @@ struct LayoutsTabView: View {
     
     var body: some View {
         Form {
-            if !windowManager.hasPermission {
-                PermissionSection(
-                    permissionTriggerId: $permissionTriggerId,
-                    windowManager: windowManager
-                )
-            } else {
-                // Window Layout
-                Section("Window Layout") {
-                    GridLayoutView(windowManager: windowManager)
-                }
+            // Window Layout
+            Section("Window Layout") {
+                GridLayoutView(windowManager: windowManager)
             }
         }
         .formStyle(.grouped)

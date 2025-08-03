@@ -13,22 +13,15 @@ struct HotkeysTabView: View {
     
     var body: some View {
         Form {
-            if !windowManager.hasPermission {
-                PermissionSection(
-                    permissionTriggerId: $permissionTriggerId,
-                    windowManager: windowManager
-                )
-            } else {
-                // Hotkey Configuration
-                Section("Hotkeys") {
-                    HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
-                }
-                
-                // Hotkey Test Section
-                if !windowManager.pokerTables.isEmpty {
-                    Section("Hotkey Test") {
-                        HotkeyTestView(windowManager: windowManager)
-                    }
+            // Hotkey Configuration
+            Section("Hotkeys") {
+                HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
+            }
+            
+            // Hotkey Test Section
+            if !windowManager.pokerTables.isEmpty {
+                Section("Hotkey Test") {
+                    HotkeyTestView(windowManager: windowManager)
                 }
             }
         }

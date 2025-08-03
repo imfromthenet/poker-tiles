@@ -99,6 +99,18 @@ class PermissionManager {
         return hasScreenRecordingPermission() && hasAccessibilityPermission()
     }
     
+    static func hasScreenRecordingOnly() -> Bool {
+        return hasScreenRecordingPermission() && !hasAccessibilityPermission()
+    }
+    
+    static func hasAccessibilityOnly() -> Bool {
+        return !hasScreenRecordingPermission() && hasAccessibilityPermission()
+    }
+    
+    static func hasAnyPermission() -> Bool {
+        return hasScreenRecordingPermission() || hasAccessibilityPermission()
+    }
+    
     // MARK: - System Preferences
     
     static func openSystemPreferences(for permission: Permission) {
