@@ -1,19 +1,20 @@
 //
-//  PermissionsTabView.swift
+//  PermissionOnboardingModal.swift
 //  PokerTiles
 //
-//  Dedicated permissions onboarding tab
+//  Modal view for permission onboarding
 //
 
 import SwiftUI
 
-struct PermissionsTabView: View {
+struct PermissionOnboardingModal: View {
     @State private var screenRecordingStatus: PermissionStatus = .notChecked
     @State private var accessibilityStatus: PermissionStatus = .notChecked
     @State private var checkTimer: Timer?
     @State private var waitingForScreenRecording = false
     @State private var waitingForAccessibility = false
     @State private var showingRestartAlert = false
+    @Environment(\.dismiss) private var dismiss
     
     enum PermissionStatus {
         case notChecked
@@ -50,84 +51,87 @@ struct PermissionsTabView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: UIConstants.Spacing.large) {
-                // Header
-                VStack(spacing: UIConstants.Spacing.medium) {
-                    Image(systemName: "shield.checkerboard")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.blue)
-                    
-                    Text("Welcome to PokerTiles")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    
-                    Text("To help you manage your poker tables, PokerTiles needs two permissions")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-                .padding(.top, UIConstants.Spacing.extraLarge)
+        VStack(spacing: 0) {
+            // Header
+            VStack(spacing: UIConstants.Spacing.medium) {
+                Image(systemName: "shield.checkerboard")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.blue)
                 
-                // Permissions Cards
-                VStack(spacing: UIConstants.Spacing.medium) {
-                    // Screen Recording Permission
-                    PermissionCard(
-                        title: "Screen Recording",
-                        description: "Required to detect and identify poker tables on your screen",
-                        status: screenRecordingStatus,
-                        isWaiting: waitingForScreenRecording,
-                        action: {
-                            requestScreenRecording()
-                        }
-                    )
-                    
-                    // Accessibility Permission
-                    PermissionCard(
-                        title: "Accessibility",
-                        description: "Required to move, resize, and arrange your poker table windows",
-                        status: accessibilityStatus,
-                        isWaiting: waitingForAccessibility,
-                        isDisabled: screenRecordingStatus != .granted,
-                        action: {
-                            requestAccessibility()
-                        }
-                    )
-                }
-                .padding(.horizontal, UIConstants.Spacing.large)
+                Text("Welcome to PokerTiles")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
                 
-                // Progress Indicator
-                if screenRecordingStatus == .granted && accessibilityStatus == .granted {
-                    VStack(spacing: UIConstants.Spacing.medium) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 48))
-                            .foregroundStyle(.green)
-                        
-                        Text("All permissions granted!")
-                            .font(.headline)
-                        
-                        Text("You're all set to use PokerTiles")
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.top, UIConstants.Spacing.large)
-                }
-                
-                // Help Text
-                VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
-                    Label("Grant Screen Recording first, then Accessibility", systemImage: "1.circle.fill")
-                    Label("You may need to restart the app after granting permissions", systemImage: "2.circle.fill")
-                    Label("Both permissions can be changed later in System Preferences", systemImage: "3.circle.fill")
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(UIConstants.CornerRadius.medium)
-                .padding(.horizontal, UIConstants.Spacing.large)
-                .padding(.top, UIConstants.Spacing.large)
+                Text("To help you manage your poker tables, PokerTiles needs two permissions")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
             }
+            .padding(.top, UIConstants.Spacing.gigantic)
+            .padding(.bottom, UIConstants.Spacing.large)
+            
+            // Permissions Cards
+            VStack(spacing: UIConstants.Spacing.medium) {
+                // Screen Recording Permission
+                PermissionCard(
+                    title: "Screen Recording",
+                    description: "Required to detect and identify poker tables on your screen",
+                    status: screenRecordingStatus,
+                    isWaiting: waitingForScreenRecording,
+                    action: {
+                        requestScreenRecording()
+                    }
+                )
+                
+                // Accessibility Permission
+                PermissionCard(
+                    title: "Accessibility",
+                    description: "Required to move, resize, and arrange your poker table windows",
+                    status: accessibilityStatus,
+                    isWaiting: waitingForAccessibility,
+                    isDisabled: screenRecordingStatus != .granted,
+                    action: {
+                        requestAccessibility()
+                    }
+                )
+            }
+            .padding(.horizontal, UIConstants.Spacing.large)
+            
+            Spacer()
+            
+            // Progress Indicator
+            if screenRecordingStatus == .granted && accessibilityStatus == .granted {
+                VStack(spacing: UIConstants.Spacing.medium) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.green)
+                    
+                    Text("All permissions granted!")
+                        .font(.headline)
+                    
+                    Text("You're all set to use PokerTiles")
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, UIConstants.Spacing.large)
+            }
+            
+            // Help Text
+            VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+                Label("Grant Screen Recording first, then Accessibility", systemImage: "1.circle.fill")
+                Label("You may need to restart the app after granting permissions", systemImage: "2.circle.fill")
+                Label("Both permissions can be changed later in System Preferences", systemImage: "3.circle.fill")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(UIConstants.CornerRadius.medium)
+            .padding(.horizontal, UIConstants.Spacing.large)
+            .padding(.bottom, UIConstants.Spacing.large)
         }
+        .frame(width: 600, height: 700)
+        .background(Color(NSColor.windowBackgroundColor))
         .onAppear {
             startPermissionChecking()
         }
@@ -138,12 +142,13 @@ struct PermissionsTabView: View {
             Button("Quit and Reopen") {
                 NSApplication.shared.terminate(nil)
             }
-            Button("I'll Do It Later") {
-                // Just dismiss
+            Button("Continue") {
+                dismiss()
             }
         } message: {
-            Text("PokerTiles needs to restart for the permissions to take effect.")
+            Text("PokerTiles needs to restart for the permissions to take effect. You can also continue and restart later.")
         }
+        .interactiveDismissDisabled(screenRecordingStatus != .granted || accessibilityStatus != .granted)
     }
     
     private func startPermissionChecking() {
@@ -223,10 +228,11 @@ struct PermissionsTabView: View {
     }
 }
 
-struct PermissionCard: View {
+// Reuse the PermissionCard from PermissionsTabView
+private struct PermissionCard: View {
     let title: String
     let description: String
-    let status: PermissionsTabView.PermissionStatus
+    let status: PermissionOnboardingModal.PermissionStatus
     let isWaiting: Bool
     var isDisabled: Bool = false
     let action: () -> Void
@@ -298,6 +304,5 @@ struct PermissionCard: View {
 }
 
 #Preview {
-    PermissionsTabView()
-        .frame(width: 600, height: 700)
+    PermissionOnboardingModal()
 }

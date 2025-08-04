@@ -12,20 +12,11 @@ struct ContentView: View {
     @State private var windowManager = WindowManager()
     @State private var permissionTriggerId: UUID?
     @State private var hasAllPermissions = false
-    @State private var selectedTab = "permissions"
+    @State private var showingPermissionModal = false
     @EnvironmentObject var colorSchemeManager: ColorSchemeManager
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            // Permissions tab - shown only when permissions are missing
-            if !hasAllPermissions {
-                PermissionsTabView()
-                    .tabItem {
-                        Label("Permissions", systemImage: "shield.checkerboard")
-                    }
-                    .tag("permissions")
-            }
-            
+        TabView {
             // Layouts tab - for window arrangements
             LayoutsTabView(
                 permissionTriggerId: $permissionTriggerId,
@@ -34,7 +25,6 @@ struct ContentView: View {
             .tabItem {
                 Label("Layouts", systemImage: "rectangle.grid.2x2")
             }
-            .tag("layouts")
             
             // Hotkeys tab - for hotkey configuration
             HotkeysTabView(
@@ -44,7 +34,6 @@ struct ContentView: View {
             .tabItem {
                 Label("Hotkeys", systemImage: "keyboard")
             }
-            .tag("hotkeys")
             
             // Settings tab - for app settings
             SettingsTabView(
@@ -54,7 +43,6 @@ struct ContentView: View {
             .tabItem {
                 Label("Settings", systemImage: "gearshape")
             }
-            .tag("settings")
             
             #if DEBUG
             // Debug tab - for debugging purposes
@@ -65,8 +53,10 @@ struct ContentView: View {
             .tabItem {
                 Label("Debug", systemImage: "ladybug.fill")
             }
-            .tag("debug")
             #endif
+        }
+        .sheet(isPresented: $showingPermissionModal) {
+            PermissionOnboardingModal()
         }
         .task(id: "initial_setup") {
             checkAllPermissions()
@@ -85,9 +75,9 @@ struct ContentView: View {
                 windowManager.checkPermissions()
                 checkAllPermissions()
                 
-                // Auto-switch to layouts tab when permissions are granted
-                if hasAllPermissions && selectedTab == "permissions" {
-                    selectedTab = "layouts"
+                // Show modal if permissions are missing
+                if !hasAllPermissions && !showingPermissionModal {
+                    showingPermissionModal = true
                 }
             }
         }
@@ -98,11 +88,9 @@ struct ContentView: View {
         let hasAccessibility = PermissionManager.hasAccessibilityPermission()
         hasAllPermissions = hasScreenRecording && hasAccessibility
         
-        // Set initial tab based on permission status
-        if !hasAllPermissions && selectedTab.isEmpty {
-            selectedTab = "permissions"
-        } else if hasAllPermissions && selectedTab == "permissions" {
-            selectedTab = "layouts"
+        // Show modal on first launch if permissions are missing
+        if !hasAllPermissions && !showingPermissionModal {
+            showingPermissionModal = true
         }
     }
 }
