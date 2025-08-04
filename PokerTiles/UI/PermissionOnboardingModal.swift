@@ -58,11 +58,11 @@ struct PermissionOnboardingModal: View {
                     .font(.system(size: 60))
                     .foregroundStyle(.blue)
                 
-                Text("Welcome to PokerTiles")
+                Text("Permissions Required")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                Text("To help you manage your poker tables, PokerTiles needs two permissions")
+                Text("PokerTiles needs two permissions to manage your poker tables")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
