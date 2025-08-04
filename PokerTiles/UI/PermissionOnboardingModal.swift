@@ -58,7 +58,7 @@ struct PermissionOnboardingModal: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                Text("PokerTiles needs two permissions to manage your poker tables")
+                Text("PokerTiles needs two permissions to manage your poker tables. Grant Screen Recording first, then Accessibility. You may need to restart the app after granting permissions. Both permissions can be changed later in System Preferences.")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -111,20 +111,6 @@ struct PermissionOnboardingModal: View {
                 }
                 .padding(.vertical, UIConstants.Spacing.large)
             }
-            
-            // Help Text
-            VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
-                Label("Grant Screen Recording first, then Accessibility", systemImage: "1.circle.fill")
-                Label("You may need to restart the app after granting permissions", systemImage: "2.circle.fill")
-                Label("Both permissions can be changed later in System Preferences", systemImage: "3.circle.fill")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .padding()
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(UIConstants.CornerRadius.medium)
-            .padding(.horizontal, UIConstants.Spacing.large)
-            .padding(.bottom, UIConstants.Spacing.large)
         }
         .frame(width: 600, height: 700)
         .background(Color(NSColor.windowBackgroundColor))
