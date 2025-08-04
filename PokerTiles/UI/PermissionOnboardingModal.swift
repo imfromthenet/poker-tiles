@@ -54,10 +54,6 @@ struct PermissionOnboardingModal: View {
         VStack(spacing: 0) {
             // Header
             VStack(spacing: UIConstants.Spacing.medium) {
-                Image(systemName: "shield.checkerboard")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.blue)
-                
                 Text("Permissions Required")
                     .font(.largeTitle)
                     .fontWeight(.bold)
