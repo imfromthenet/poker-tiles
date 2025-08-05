@@ -11,6 +11,16 @@ Follow conventional commit format with appropriate emojis and create descriptive
 4. Execute `git commit -m` with the selected message
 5. Exclude Claude co-authorship footer from commits
 
+## Message Guidelines:
+- Focus on user-facing changes (WHAT) not implementation details (HOW)
+- Describe benefits/outcomes, not technical steps
+- Reflect actual git delta - only mention what's in `git diff`
+- Include implementation details when useful, but as what's being added
+
+### Quick Example:
+✅ `feat: add export button to dashboard - Enables CSV data export`
+❌ `feat: implement export functionality - Added button component to dashboard.tsx`
+
 ## Commit Types:
 - ✨ feat: New features
 - 🐛 fix: Bug fixes  
