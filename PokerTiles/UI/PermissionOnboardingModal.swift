@@ -140,11 +140,8 @@ struct PermissionOnboardingModal: View {
             Button("Quit and Reopen") {
                 NSApplication.shared.terminate(nil)
             }
-            Button("Continue") {
-                dismiss()
-            }
         } message: {
-            Text("Permissions successfully granted. Thank you! PokerTiles requires a restart to activate window management capabilities. Feel free to explore the interface now, or restart for immediate access to all features.")
+            Text("Permissions successfully granted. Thank you! PokerTiles requires a restart to activate window management capabilities.")
         }
         .interactiveDismissDisabled(screenRecordingStatus != .granted || accessibilityStatus != .granted)
     }
