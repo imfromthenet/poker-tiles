@@ -141,7 +141,7 @@ struct PermissionOnboardingModal: View {
                 NSApplication.shared.terminate(nil)
             }
         } message: {
-            Text("Permissions successfully granted. Thank you! PokerTiles requires a restart to activate window management capabilities.")
+            Text("Perfect! All permissions granted. 🎉 Please restart PokerTiles and you're ready to manage your poker tables.")
         }
         .interactiveDismissDisabled(screenRecordingStatus != .granted || accessibilityStatus != .granted)
     }
