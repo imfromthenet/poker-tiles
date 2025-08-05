@@ -10,45 +10,108 @@ import OSLog
 
 extension PermissionManager {
     
+    // MARK: - Enhanced Async Permission Helpers
+    
+    /// Execute a throwing async action that requires accessibility permission
+    /// - Parameters:
+    ///   - context: Optional context for better error messages
+    ///   - action: The async action to execute if permission is granted
+    /// - Returns: The result of the action, or nil if permission denied
+    @discardableResult
+    static func withAccessibilityPermission<T>(
+        context: String? = nil,
+        action: () async throws -> T
+    ) async rethrows -> T? {
+        if hasAccessibilityPermission() {
+            return try await action()
+        } else {
+            let contextString = context.map { "[\($0)] " } ?? ""
+            Logger.permissions.error("\(contextString)No Accessibility permission - requesting...")
+            requestAccessibilityPermission()
+            return nil
+        }
+    }
+    
+    /// Execute a throwing async action with MainActor isolation
+    /// - Parameters:
+    ///   - context: Optional context for better error messages
+    ///   - action: The async action to execute if permission is granted
+    /// - Returns: The result of the action, or nil if permission denied
+    @MainActor
+    @discardableResult
+    static func withAccessibilityPermissionOnMainActor<T>(
+        context: String? = nil,
+        action: @MainActor () async throws -> T
+    ) async rethrows -> T? {
+        if hasAccessibilityPermission() {
+            return try await action()
+        } else {
+            let contextString = context.map { "[\($0)] " } ?? ""
+            Logger.permissions.error("\(contextString)No Accessibility permission - requesting...")
+            requestAccessibilityPermission()
+            return nil
+        }
+    }
+    
     // MARK: - Accessibility Permission Helpers
     
     /// Execute an action that requires accessibility permission
-    /// - Parameter action: The action to execute if permission is granted
+    /// - Parameters:
+    ///   - context: Optional context for better error messages
+    ///   - action: The action to execute if permission is granted
+    ///   - onDenied: Optional handler called when permission is denied
     /// - Returns: Whether the action was executed
     @discardableResult
-    static func withAccessibilityPermission(action: () -> Void) -> Bool {
+    static func withAccessibilityPermission(
+        context: String? = nil,
+        action: () -> Void,
+        onDenied: (() -> Void)? = nil
+    ) -> Bool {
         if hasAccessibilityPermission() {
             action()
             return true
         } else {
-            Logger.permissions.error("No Accessibility permission - requesting...")
+            let contextString = context.map { "[\($0)] " } ?? ""
+            Logger.permissions.error("\(contextString)No Accessibility permission - requesting...")
             requestAccessibilityPermission()
+            onDenied?()
             return false
         }
     }
     
     /// Execute an async action that requires accessibility permission
-    /// - Parameter action: The async action to execute if permission is granted
+    /// - Parameters:
+    ///   - context: Optional context for better error messages
+    ///   - action: The async action to execute if permission is granted
+    ///   - onDenied: Optional handler called when permission is denied
     /// - Returns: Whether the action was executed
     @discardableResult
-    static func withAccessibilityPermission(action: () async -> Void) async -> Bool {
+    static func withAccessibilityPermission(
+        context: String? = nil,
+        action: () async -> Void,
+        onDenied: (() async -> Void)? = nil
+    ) async -> Bool {
         if hasAccessibilityPermission() {
             await action()
             return true
         } else {
-            Logger.permissions.error("No Accessibility permission - requesting...")
+            let contextString = context.map { "[\($0)] " } ?? ""
+            Logger.permissions.error("\(contextString)No Accessibility permission - requesting...")
             requestAccessibilityPermission()
+            await onDenied?()
             return false
         }
     }
     
     /// Check if accessibility permission is granted, request if not
+    /// - Parameter context: Optional context for better error messages
     /// - Returns: true if permission is already granted, false if request was made
-    static func requireAccessibilityPermission() -> Bool {
+    static func requireAccessibilityPermission(context: String? = nil) -> Bool {
         if hasAccessibilityPermission() {
             return true
         } else {
-            Logger.permissions.error("No Accessibility permission - requesting...")
+            let contextString = context.map { "[\($0)] " } ?? ""
+            Logger.permissions.error("\(contextString)No Accessibility permission - requesting...")
             requestAccessibilityPermission()
             return false
         }

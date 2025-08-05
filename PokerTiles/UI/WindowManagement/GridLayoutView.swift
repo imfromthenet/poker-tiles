@@ -320,18 +320,22 @@ struct GridLayoutView: View {
         
         Logger.ui.info("Arranging \(windowManager.pokerTables.count) tables in \(selectedLayout.displayName)")
         
-        // Check permissions first
-        guard PermissionManager.requireAccessibilityPermission() else {
-            isArranging = false
-            return
-        }
-        
         Task {
-            await MainActor.run {
-                windowManager.arrangePokerTablesInGrid(selectedLayout)
-            }
-            
-            try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.short) // 0.5 second
+            await PermissionManager.withAccessibilityPermission(
+                context: "Grid Layout Arrange",
+                action: {
+                    await MainActor.run {
+                        windowManager.arrangePokerTablesInGrid(selectedLayout)
+                    }
+                    
+                    try? await Task.sleep(nanoseconds: AnimationConstants.SleepInterval.short) // 0.5 second
+                },
+                onDenied: {
+                    await MainActor.run {
+                        isArranging = false
+                    }
+                }
+            )
             
             await MainActor.run {
                 isArranging = false
@@ -341,21 +345,21 @@ struct GridLayoutView: View {
     
     private func cascadeTables() {
         Logger.ui.info("Cascading \(windowManager.pokerTables.count) tables")
-        PermissionManager.withAccessibilityPermission {
+        PermissionManager.withAccessibilityPermission(context: "Cascade Tables") {
             windowManager.cascadePokerTables()
         }
     }
     
     private func stackTables() {
         Logger.ui.info("Stacking \(windowManager.pokerTables.count) tables")
-        PermissionManager.withAccessibilityPermission {
+        PermissionManager.withAccessibilityPermission(context: "Stack Tables") {
             windowManager.stackPokerTables()
         }
     }
     
     private func distributeAcrossScreens() {
         Logger.ui.info("Distributing \(windowManager.pokerTables.count) tables across screens")
-        PermissionManager.withAccessibilityPermission {
+        PermissionManager.withAccessibilityPermission(context: "Distribute Tables") {
             windowManager.distributeTablesAcrossScreens()
         }
     }

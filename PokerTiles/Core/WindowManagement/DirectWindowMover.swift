@@ -15,7 +15,7 @@ class DirectWindowMover {
     
     /// Attempt to move any visible window as a test
     static func testMoveFirstWindow() -> Bool {
-        guard PermissionManager.requireAccessibilityPermission() else {
+        guard PermissionManager.requireAccessibilityPermission(context: "Test Move First Window") else {
             return false
         }
         
@@ -69,7 +69,7 @@ class DirectWindowMover {
     
     /// Direct move for a specific app by name with verification
     static func moveAppWindow(appName: String, to position: CGPoint) -> Bool {
-        guard PermissionManager.requireAccessibilityPermission() else {
+        guard PermissionManager.requireAccessibilityPermission(context: "Move \(appName) Window") else {
             return false
         }
         
@@ -169,7 +169,7 @@ class DirectWindowMover {
     #if DEBUG
     /// Test window resize functionality
     static func testResizeWindow(appName: String, to size: CGSize) -> Bool {
-        guard PermissionManager.requireAccessibilityPermission() else {
+        guard PermissionManager.requireAccessibilityPermission(context: "Test Resize \(appName) Window") else {
             return false
         }
         
