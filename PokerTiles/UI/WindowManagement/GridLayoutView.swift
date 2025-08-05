@@ -321,9 +321,7 @@ struct GridLayoutView: View {
         Logger.ui.info("Arranging \(windowManager.pokerTables.count) tables in \(selectedLayout.displayName)")
         
         // Check permissions first
-        if !PermissionManager.hasAccessibilityPermission() {
-            Logger.permissions.error("No Accessibility permission - requesting...")
-            PermissionManager.requestAccessibilityPermission()
+        guard PermissionManager.requireAccessibilityPermission() else {
             isArranging = false
             return
         }
@@ -343,32 +341,23 @@ struct GridLayoutView: View {
     
     private func cascadeTables() {
         Logger.ui.info("Cascading \(windowManager.pokerTables.count) tables")
-        if !PermissionManager.hasAccessibilityPermission() {
-            Logger.permissions.error("No Accessibility permission - requesting...")
-            PermissionManager.requestAccessibilityPermission()
-            return
+        PermissionManager.withAccessibilityPermission {
+            windowManager.cascadePokerTables()
         }
-        windowManager.cascadePokerTables()
     }
     
     private func stackTables() {
         Logger.ui.info("Stacking \(windowManager.pokerTables.count) tables")
-        if !PermissionManager.hasAccessibilityPermission() {
-            Logger.permissions.error("No Accessibility permission - requesting...")
-            PermissionManager.requestAccessibilityPermission()
-            return
+        PermissionManager.withAccessibilityPermission {
+            windowManager.stackPokerTables()
         }
-        windowManager.stackPokerTables()
     }
     
     private func distributeAcrossScreens() {
         Logger.ui.info("Distributing \(windowManager.pokerTables.count) tables across screens")
-        if !PermissionManager.hasAccessibilityPermission() {
-            Logger.permissions.error("No Accessibility permission - requesting...")
-            PermissionManager.requestAccessibilityPermission()
-            return
+        PermissionManager.withAccessibilityPermission {
+            windowManager.distributeTablesAcrossScreens()
         }
-        windowManager.distributeTablesAcrossScreens()
     }
     
     private func showGridOverlay() {

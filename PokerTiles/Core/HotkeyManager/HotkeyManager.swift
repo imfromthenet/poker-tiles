@@ -151,9 +151,7 @@ class HotkeyManager: ObservableObject {
     func setEnabled(_ enabled: Bool) {
         if enabled {
             // Check for accessibility permission first
-            if !PermissionManager.hasAccessibilityPermission() {
-                Logger.permissions.error("Accessibility permission required for hotkeys")
-                PermissionManager.requestAccessibilityPermission()
+            guard PermissionManager.requireAccessibilityPermission() else {
                 isEnabled = false
                 return
             }
