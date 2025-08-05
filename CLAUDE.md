@@ -256,7 +256,7 @@ Reference these resources when implementing Swift-specific features or migrating
 
 ## Known Issues
 
-See comprehensive assessment: `docs/development/APP_ASSESSMENT_2025_08.md`
+See comprehensive assessment: `docs/development/APP_ASSESSMENT_2025_08_05.md`
 
 Key issues:
 - Permission checking code duplication (11 files affected)
