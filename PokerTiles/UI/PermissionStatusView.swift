@@ -86,6 +86,18 @@ struct PermissionStatusView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
             }
+            
+            // Always show revoke info at bottom
+            Divider()
+            
+            HStack {
+                Image(systemName: "info.circle")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                Text("You can revoke these permissions anytime in System Settings > Privacy & Security")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding()
         .background(Color.gray.opacity(0.05))
