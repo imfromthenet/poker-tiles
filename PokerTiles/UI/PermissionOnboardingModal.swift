@@ -306,12 +306,14 @@ private struct PermissionCard: View {
                 Text("Waiting for you to grant permission in System Preferences...")
                     .font(.caption)
                     .foregroundStyle(.orange)
+                    .padding(.leading, 28) // Align with text content (icon width + spacing)
             }
             
             if isDisabled {
                 Text("Grant Screen Recording permission first")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .padding(.leading, 28) // Align with text content (icon width + spacing)
             }
         }
         .padding()
