@@ -266,6 +266,8 @@ private struct PermissionCard: View {
     var isDisabled: Bool = false
     let action: () -> Void
     
+    @State private var isExpanded = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
             HStack {
@@ -274,8 +276,23 @@ private struct PermissionCard: View {
                     .foregroundStyle(status.color)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
+                    HStack {
+                        Text(title)
+                            .font(.headline)
+                        
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        }) {
+                            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Spacer()
+                    }
                     
                     Text(description)
                         .font(.caption)
@@ -311,6 +328,36 @@ private struct PermissionCard: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.leading, 28) // Align with text content (icon width + spacing)
+            }
+            
+            // Expandable details section
+            if isExpanded {
+                Divider()
+                    .padding(.vertical, UIConstants.Spacing.small)
+                
+                VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+                    if title == "Screen Recording" {
+                        Label("Detects poker tables from any poker application", systemImage: "circle.fill")
+                            .font(.caption)
+                        Label("Monitors table positions and sizes in real-time", systemImage: "circle.fill")
+                            .font(.caption)
+                        Label("Identifies which tables need your attention", systemImage: "circle.fill")
+                            .font(.caption)
+                    } else if title == "Accessibility" {
+                        Label("Moves and resizes poker table windows", systemImage: "circle.fill")
+                            .font(.caption)
+                        Label("Arranges tables in customizable grid layouts", systemImage: "circle.fill")
+                            .font(.caption)
+                        Label("Stacks, cascades, or distributes tables across screens", systemImage: "circle.fill")
+                            .font(.caption)
+                    }
+                }
+                .foregroundStyle(.secondary)
+                .padding(.leading, 28) // Align with text content
+                .transition(.asymmetric(
+                    insertion: .move(edge: .top).combined(with: .opacity),
+                    removal: .move(edge: .top).combined(with: .opacity)
+                ))
             }
         }
         .padding()
