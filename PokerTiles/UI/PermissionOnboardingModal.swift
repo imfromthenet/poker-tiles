@@ -205,10 +205,27 @@ struct PermissionOnboardingModal: View {
         // Open System Preferences
         PermissionManager.openSystemPreferences(for: .screenRecording)
         
-        // Stop waiting after 30 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
-            waitingForScreenRecording = false
-            checkPermissions()
+        // Wait 5 seconds before starting to check
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            // Start checking every second for up to 25 more seconds (30 total)
+            var checksRemaining = 25
+            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+                // Check if permission was granted
+                if PermissionManager.hasScreenRecordingPermission() {
+                    self.waitingForScreenRecording = false
+                    self.screenRecordingStatus = .granted
+                    timer.invalidate()
+                    return
+                }
+                
+                // Timeout after total 30 seconds
+                checksRemaining -= 1
+                if checksRemaining <= 0 {
+                    self.waitingForScreenRecording = false
+                    self.checkPermissions()
+                    timer.invalidate()
+                }
+            }
         }
     }
     
@@ -218,10 +235,27 @@ struct PermissionOnboardingModal: View {
         
         PermissionManager.requestAccessibilityPermission()
         
-        // Stop waiting after 30 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
-            waitingForAccessibility = false
-            checkPermissions()
+        // Wait 5 seconds before starting to check
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            // Start checking every second for up to 25 more seconds (30 total)
+            var checksRemaining = 25
+            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+                // Check if permission was granted
+                if PermissionManager.hasAccessibilityPermission() {
+                    self.waitingForAccessibility = false
+                    self.accessibilityStatus = .granted
+                    timer.invalidate()
+                    return
+                }
+                
+                // Timeout after total 30 seconds
+                checksRemaining -= 1
+                if checksRemaining <= 0 {
+                    self.waitingForAccessibility = false
+                    self.checkPermissions()
+                    timer.invalidate()
+                }
+            }
         }
     }
 }
