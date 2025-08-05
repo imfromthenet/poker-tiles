@@ -21,6 +21,13 @@ struct DebugTabView: View {
             // Window Statistics
             WindowStatisticsSection(windowManager: windowManager)
             
+            // Hotkey Test Section
+            if !windowManager.pokerTables.isEmpty {
+                Section("Hotkey Test") {
+                    HotkeyTestView(windowManager: windowManager)
+                }
+            }
+            
             // Active tables
             if !windowManager.pokerTables.isEmpty {
                 PokerTableSection(windowManager: windowManager)

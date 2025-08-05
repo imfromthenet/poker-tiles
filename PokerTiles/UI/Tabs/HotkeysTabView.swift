@@ -17,13 +17,6 @@ struct HotkeysTabView: View {
             Section("Hotkeys") {
                 HotkeySettingsView(hotkeyManager: windowManager.hotkeyManager)
             }
-            
-            // Hotkey Test Section
-            if !windowManager.pokerTables.isEmpty {
-                Section("Hotkey Test") {
-                    HotkeyTestView(windowManager: windowManager)
-                }
-            }
         }
         .formStyle(.grouped)
     }
