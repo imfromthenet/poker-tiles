@@ -122,7 +122,7 @@ struct PermissionOnboardingModal: View {
         }
         .alert("Restart Required", isPresented: $showingRestartAlert) {
             Button("Quit and Reopen") {
-                NSApplication.shared.terminate(nil)
+                exit(0)
             }
         } message: {
             Text("Perfect! All permissions granted. 🎉 Please restart PokerTiles and you're ready to manage your poker tables.")
