@@ -57,6 +57,7 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showingPermissionModal) {
             PermissionOnboardingModal()
+                .preferredColorScheme(colorSchemeManager.effectiveColorScheme)
         }
         .task(id: "initial_setup") {
             checkAllPermissions()

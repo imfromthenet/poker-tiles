@@ -17,6 +17,7 @@ struct PermissionOnboardingModal: View {
     @State private var showingQuitConfirmation = false
     @State private var showingLearnMore = false
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var colorSchemeManager: ColorSchemeManager
     
     enum PermissionStatus {
         case notChecked
@@ -149,6 +150,7 @@ struct PermissionOnboardingModal: View {
         }
         .sheet(isPresented: $showingLearnMore) {
             LearnMoreView()
+                .preferredColorScheme(colorSchemeManager.effectiveColorScheme)
         }
     }
     
@@ -391,6 +393,7 @@ private struct PermissionCard: View {
 
 private struct LearnMoreView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var colorSchemeManager: ColorSchemeManager
     
     var body: some View {
         VStack(spacing: UIConstants.Spacing.large) {
