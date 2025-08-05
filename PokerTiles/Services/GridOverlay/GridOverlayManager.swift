@@ -104,14 +104,6 @@ class GridOverlayManager: NSObject, ObservableObject {
     func hideOverlay() {
         guard isVisible else { return }
         
-        // Check for quick release (potential toggle intent)
-        if let pressTime = hotkeyPressTime,
-           Date().timeIntervalSince(pressTime) < quickReleaseThreshold {
-            // Quick tap detected - enter toggle mode
-            isToggleMode = true
-            return
-        }
-        
         overlayWindow?.hideOverlay(animated: true)
         isVisible = false
         isToggleMode = false
@@ -130,26 +122,12 @@ class GridOverlayManager: NSObject, ObservableObject {
     
     /// Handle hotkey press
     func handleHotkeyPress() {
-        if isToggleMode {
-            // In toggle mode, toggle visibility
-            if isVisible {
-                overlayWindow?.hideOverlay(animated: true)
-                isVisible = false
-                isToggleMode = false
-            } else {
-                showOverlay()
-            }
-        } else {
-            // Normal mode - show on press
-            showOverlay()
-        }
+        showOverlay()
     }
     
     /// Handle hotkey release
     func handleHotkeyRelease() {
-        if !isToggleMode {
-            hideOverlay()
-        }
+        hideOverlay()
     }
     
     // MARK: - State Updates
@@ -220,8 +198,6 @@ extension GridOverlayManager {
             gridColor = color
         }
         
-        isToggleMode = defaults.bool(forKey: "gridOverlayToggleMode")
-        
         let savedLineWidth = defaults.float(forKey: "gridOverlayLineWidth")
         if savedLineWidth > 0 {
             lineWidth = CGFloat(savedLineWidth)
@@ -243,7 +219,6 @@ extension GridOverlayManager {
             defaults.set(colorData, forKey: "gridOverlayColor")
         }
         
-        defaults.set(isToggleMode, forKey: "gridOverlayToggleMode")
         defaults.set(Float(lineWidth), forKey: "gridOverlayLineWidth")
         defaults.set(useDashedLines, forKey: "gridOverlayUseDashedLines")
         defaults.set(Float(cornerRadius), forKey: "gridOverlayCornerRadius")
