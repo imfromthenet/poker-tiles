@@ -111,6 +111,22 @@ struct PermissionOnboardingModal: View {
                 }
                 .padding(.vertical, UIConstants.Spacing.large)
             }
+            
+            // Bottom buttons
+            HStack(spacing: UIConstants.Spacing.large) {
+                if screenRecordingStatus != .granted || accessibilityStatus != .granted {
+                    Button("Quit PokerTiles") {
+                        // Use exit() as a more direct way to quit
+                        exit(0)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                }
+                
+                Spacer()
+            }
+            .padding(.horizontal, UIConstants.Spacing.large)
+            .padding(.bottom, UIConstants.Spacing.large)
         }
         .frame(width: 600, height: 700)
         .background(Color(NSColor.windowBackgroundColor))
