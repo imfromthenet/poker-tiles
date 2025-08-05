@@ -14,9 +14,6 @@ struct PermissionStatusView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Required Permissions")
-                .font(.headline)
-            
             // Screen Recording Permission
             HStack {
                 Image(systemName: screenRecordingGranted ? "checkmark.circle.fill" : "xmark.circle")
