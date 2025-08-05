@@ -96,22 +96,6 @@ struct PermissionOnboardingModal: View {
             
             Spacer()
             
-            // Progress Indicator
-            if screenRecordingStatus == .granted && accessibilityStatus == .granted {
-                VStack(spacing: UIConstants.Spacing.medium) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.green)
-                    
-                    Text("All permissions granted!")
-                        .font(.headline)
-                    
-                    Text("You're all set to use PokerTiles")
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.vertical, UIConstants.Spacing.large)
-            }
-            
             // Bottom buttons
             HStack(spacing: UIConstants.Spacing.large) {
                 if screenRecordingStatus != .granted || accessibilityStatus != .granted {
