@@ -144,7 +144,7 @@ struct PermissionOnboardingModal: View {
                 dismiss()
             }
         } message: {
-            Text("PokerTiles needs to restart for the permissions to take effect. You can also continue and restart later.")
+            Text("Permissions successfully granted. Thank you! PokerTiles requires a restart to activate window management capabilities. Feel free to explore the interface now, or restart for immediate access to all features.")
         }
         .interactiveDismissDisabled(screenRecordingStatus != .granted || accessibilityStatus != .granted)
     }
