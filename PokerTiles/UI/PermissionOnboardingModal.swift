@@ -109,6 +109,12 @@ struct PermissionOnboardingModal: View {
                 }
                 
                 Spacer()
+                
+                Button("Privacy Info") {
+                    showingLearnMore = true
+                }
+                .buttonStyle(.link)
+                .controlSize(.regular)
             }
             .padding(.horizontal, UIConstants.Spacing.large)
             .padding(.bottom, UIConstants.Spacing.large)
@@ -390,7 +396,7 @@ private struct LearnMoreView: View {
         VStack(spacing: UIConstants.Spacing.large) {
             // Header
             HStack {
-                Text("Why PokerTiles Needs Permissions")
+                Text("Privacy & Permissions")
                     .font(.title2)
                     .fontWeight(.bold)
                 
@@ -457,13 +463,28 @@ private struct LearnMoreView: View {
                     .background(Color.gray.opacity(0.05))
                     .cornerRadius(UIConstants.CornerRadius.medium)
                     
-                    // Privacy Note
+                    // Privacy Note - Make it more prominent
                     VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
-                        Label("Your Privacy Matters", systemImage: "lock.shield")
+                        Label("Your Privacy is Protected", systemImage: "lock.shield")
                             .font(.headline)
+                            .foregroundColor(.blue)
                         
-                        Text("PokerTiles only accesses poker application windows. We never capture or store screenshots, and all processing happens locally on your Mac.")
-                            .font(.callout)
+                        VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+                            Label("No screenshots are captured or stored", systemImage: "photo.badge.exclamationmark")
+                                .font(.callout)
+                            Label("All processing happens locally on your Mac", systemImage: "desktopcomputer")
+                                .font(.callout)
+                            Label("No data is sent to external servers", systemImage: "network.slash")
+                                .font(.callout)
+                            Label("Only poker application windows are accessed", systemImage: "macwindow.badge.plus")
+                                .font(.callout)
+                        }
+                        .foregroundStyle(.secondary)
+                        
+                        Text("PokerTiles respects your privacy. The app only monitors poker table windows to help you organize them - nothing else.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, UIConstants.Spacing.small)
                     }
                     .padding()
                     .background(Color.blue.opacity(0.05))
