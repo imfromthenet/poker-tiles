@@ -232,9 +232,10 @@ Reference these resources when implementing Swift-specific features or migrating
 ## Development Priorities
 
 ### Immediate Tasks (Production Quality)
-1. **Convert Debug Output to Logging**: Convert 50+ print statements to proper logging system with debug mode support
-2. **Implement Logging System**: Add structured logging with OSLog
-3. **Permission Code Refactoring**: Extract duplicated permission checking
+1. ~~**Convert Debug Output to Logging**: Convert 50+ print statements to proper logging system~~ ✅ COMPLETED
+2. ~~**Implement Logging System**: Add structured logging with OSLog~~ ✅ COMPLETED
+3. **Permission Code Refactoring**: Extract duplicated permission checking (11 files affected)
+4. **Timer Management**: Fix memory leaks and standardize cleanup
 
 ### Short-term Improvements
 1. **Error Handling**: Standardize error patterns across the app
@@ -251,10 +252,13 @@ Reference these resources when implementing Swift-specific features or migrating
 
 ## Known Issues
 
-- Multiple debug print statements throughout codebase
-- Permission checking code duplication (6+ occurrences)
-- Hotkey actions not connected to poker operations
-- No standardized error handling pattern
+See comprehensive assessment: `docs/development/APP_ASSESSMENT_2025_08.md`
+
+Key issues:
+- Permission checking code duplication (11 files affected)
+- Hotkey actions not connected to poker operations (core feature missing)
+- Timer management issues with potential memory leaks
+- Limited error handling coverage (29 occurrences across 9 files)
 - Debug views not visually distinguished from production UI
 
 ## Performance Considerations
