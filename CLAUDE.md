@@ -36,6 +36,8 @@ Apply these rules when working on this codebase.
 ### ✅ Implemented
 - **Poker Table Detection**: Automatically detect and track poker tables from desktop applications
 - **Table Organization**: Grid layouts, stacking, and positioning for optimal multi-tabling
+- **Comprehensive Logging System**: Structured logging with OSLog, categorized by component
+- **Centralized Constants**: All UI values and magic numbers in organized Constants.swift
 
 ### 🟡 Partially Implemented
 - **Hotkey System**: Configurable shortcuts framework (actions not yet connected)
@@ -51,10 +53,13 @@ Apply these rules when working on this codebase.
 - **Poker Table Detection**: Basic title-based identification of poker tables
 - **Window Management**: Move, resize, and arrange windows in grid layouts
 - **Grid Overlay**: Visual grid overlay for window arrangement
-- **Permission Management**: Accessibility and Screen Recording permission handling
+- **Permission Management**: Accessibility and Screen Recording permission handling with onboarding flow
 - **Auto-scan**: Automatic window scanning with configurable intervals
 - **Basic Hotkey System**: Framework for global hotkeys (actions not yet implemented)
 - **Dark Mode Support**: Full color scheme management
+- **Logging Infrastructure**: Comprehensive OSLog implementation with categorized loggers
+- **UI Constants System**: Centralized management of all UI values, spacing, and dimensions
+- **Permission Onboarding**: Enhanced modal with expandable cards and privacy information
 
 ### 🚧 In Development
 - **Enhanced Table Detection**: More sophisticated pattern matching
@@ -232,10 +237,9 @@ Reference these resources when implementing Swift-specific features or migrating
 ## Development Priorities
 
 ### Immediate Tasks (Production Quality)
-1. ~~**Convert Debug Output to Logging**: Convert 50+ print statements to proper logging system~~ ✅ COMPLETED
-2. ~~**Implement Logging System**: Add structured logging with OSLog~~ ✅ COMPLETED
-3. **Permission Code Refactoring**: Extract duplicated permission checking (11 files affected)
-4. **Timer Management**: Fix memory leaks and standardize cleanup
+1. **Permission Code Refactoring**: Extract duplicated permission checking (11 files affected)
+2. **Timer Management**: Fix memory leaks and standardize cleanup
+3. **Complete Core TODOs**: Implement documentation/support links in permission modal
 
 ### Short-term Improvements
 1. **Error Handling**: Standardize error patterns across the app
@@ -323,20 +327,25 @@ Additional development tools and automation rules in `.claude/rules/`:
 
 ## Recent Updates
 
+### Logging System Implementation (2025-08-04)
+- Replaced all print statements with structured OSLog
+- Created categorized loggers for different components
+- Added comprehensive logging throughout the codebase
+
+### Permission Modal Enhancement (2025-08-05)
+- Added expandable permission cards with detailed benefits
+- Implemented privacy information section
+- Added educational quit confirmation flow
+- Fixed modal theming to respect app appearance settings
+- Added permission revocation information
+
 ### Magic Number Extraction (Completed)
-- Created comprehensive `Constants.swift` file with organized categories:
-  - UIConstants: spacing, corner radius, line width, frame dimensions, opacity, scale
-  - AnimationConstants: durations and sleep intervals
-  - SettingsConstants: auto scan, grid layout, and hotkey settings
-  - LayoutConstants: window arrangement and grid cell settings
-  - DebugConstants: debug-specific values
+- Created comprehensive `Constants.swift` file with organized categories
 - Updated all major UI files to use centralized constants
 - Removed hardcoded values throughout the codebase
 
 ### UI Cleanup (Completed)
-- Removed Advanced section from Layouts tab containing unimplemented features:
-  - Window resistance analysis
-  - Window manipulation statistics
+- Removed Advanced section from Layouts tab containing unimplemented features
 - Cleaned up unused code and methods from WindowManager
 - Simplified the UI to focus on working features
 
