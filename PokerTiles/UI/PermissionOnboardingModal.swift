@@ -14,6 +14,8 @@ struct PermissionOnboardingModal: View {
     @State private var waitingForScreenRecording = false
     @State private var waitingForAccessibility = false
     @State private var showingRestartAlert = false
+    @State private var showingQuitConfirmation = false
+    @State private var showingLearnMore = false
     @Environment(\.dismiss) private var dismiss
     
     enum PermissionStatus {
@@ -100,8 +102,7 @@ struct PermissionOnboardingModal: View {
             HStack(spacing: UIConstants.Spacing.large) {
                 if screenRecordingStatus != .granted || accessibilityStatus != .granted {
                     Button("Quit PokerTiles") {
-                        // Use exit() as a more direct way to quit
-                        exit(0)
+                        showingQuitConfirmation = true
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
@@ -128,6 +129,21 @@ struct PermissionOnboardingModal: View {
             Text("Perfect! All permissions granted. 🎉 Please restart PokerTiles and you're ready to manage your poker tables.")
         }
         .interactiveDismissDisabled(screenRecordingStatus != .granted || accessibilityStatus != .granted)
+        .alert("Before you go", isPresented: $showingQuitConfirmation) {
+            Button("Learn Why", role: .cancel) {
+                showingLearnMore = true
+            }
+            .keyboardShortcut(.defaultAction)
+            
+            Button("Quit", role: .destructive) {
+                exit(0)
+            }
+        } message: {
+            Text("PokerTiles needs these permissions to move and arrange your poker windows. Would you like to learn more?")
+        }
+        .sheet(isPresented: $showingLearnMore) {
+            LearnMoreView()
+        }
     }
     
     private func startPermissionChecking() {
@@ -315,6 +331,123 @@ private struct PermissionCard: View {
         case .denied:
             return "Open Settings"
         }
+    }
+}
+
+// MARK: - Learn More View
+
+private struct LearnMoreView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(spacing: UIConstants.Spacing.large) {
+            // Header
+            HStack {
+                Text("Why PokerTiles Needs Permissions")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button("Close") {
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: UIConstants.Spacing.extraLarge) {
+                    // Screen Recording
+                    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
+                        Label("Screen Recording Permission", systemImage: "rectangle.dashed.badge.record")
+                            .font(.headline)
+                        
+                        Text("This permission allows PokerTiles to:")
+                            .fontWeight(.medium)
+                        
+                        VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+                            Label("Detect poker tables from any poker application", systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Label("Monitor table positions and sizes", systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Label("Identify which tables need your attention", systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
+                        .font(.callout)
+                        
+                        Text("Without this permission, PokerTiles cannot see your poker tables.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.05))
+                    .cornerRadius(UIConstants.CornerRadius.medium)
+                    
+                    // Accessibility
+                    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
+                        Label("Accessibility Permission", systemImage: "hand.tap")
+                            .font(.headline)
+                        
+                        Text("This permission allows PokerTiles to:")
+                            .fontWeight(.medium)
+                        
+                        VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+                            Label("Move and resize poker table windows", systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Label("Arrange tables in grid layouts", systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Label("Stack, cascade, or distribute tables", systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
+                        .font(.callout)
+                        
+                        Text("Without this permission, PokerTiles cannot manage your window layouts.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.05))
+                    .cornerRadius(UIConstants.CornerRadius.medium)
+                    
+                    // Privacy Note
+                    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
+                        Label("Your Privacy Matters", systemImage: "lock.shield")
+                            .font(.headline)
+                        
+                        Text("PokerTiles only accesses poker application windows. We never capture or store screenshots, and all processing happens locally on your Mac.")
+                            .font(.callout)
+                    }
+                    .padding()
+                    .background(Color.blue.opacity(0.05))
+                    .cornerRadius(UIConstants.CornerRadius.medium)
+                    
+                    // Still Need Help?
+                    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
+                        Text("Still having trouble?")
+                            .font(.headline)
+                        
+                        Text("Check our troubleshooting guide or contact support.")
+                            .font(.callout)
+                        
+                        HStack {
+                            Button("Troubleshooting Guide") {
+                                // TODO: Open documentation URL
+                            }
+                            .buttonStyle(.link)
+                            
+                            Button("Contact Support") {
+                                // TODO: Open support email
+                            }
+                            .buttonStyle(.link)
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+        .frame(width: 600, height: 700)
+        .background(Color(NSColor.windowBackgroundColor))
     }
 }
 
