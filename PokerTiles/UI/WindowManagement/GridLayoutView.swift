@@ -419,6 +419,7 @@ struct LayoutOptionButton: View {
         .buttonStyle(.plain)
         .disabled(isDisabled)
         .opacity(isDisabled ? UIConstants.Opacity.medium : UIConstants.Opacity.opaque)
+        .focusable(false)
     }
 }
 

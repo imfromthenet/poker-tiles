@@ -11,6 +11,8 @@ struct PermissionOnboardingModal: View {
     @State private var screenRecordingStatus: PermissionStatus = .notChecked
     @State private var accessibilityStatus: PermissionStatus = .notChecked
     @State private var checkTimer: Timer?
+    @State private var screenRecordingTimer: Timer?
+    @State private var accessibilityTimer: Timer?
     @State private var waitingForScreenRecording = false
     @State private var waitingForAccessibility = false
     @State private var showingRestartAlert = false
@@ -166,6 +168,10 @@ struct PermissionOnboardingModal: View {
     private func stopPermissionChecking() {
         checkTimer?.invalidate()
         checkTimer = nil
+        screenRecordingTimer?.invalidate()
+        screenRecordingTimer = nil
+        accessibilityTimer?.invalidate()
+        accessibilityTimer = nil
     }
     
     private func checkPermissions() {
@@ -214,12 +220,13 @@ struct PermissionOnboardingModal: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             // Start checking every second for up to 25 more seconds (30 total)
             var checksRemaining = 25
-            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            self.screenRecordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
                 // Check if permission was granted
                 if PermissionManager.hasScreenRecordingPermission() {
                     self.waitingForScreenRecording = false
                     self.screenRecordingStatus = .granted
                     timer.invalidate()
+                    self.screenRecordingTimer = nil
                     return
                 }
                 
@@ -229,6 +236,7 @@ struct PermissionOnboardingModal: View {
                     self.waitingForScreenRecording = false
                     self.checkPermissions()
                     timer.invalidate()
+                    self.screenRecordingTimer = nil
                 }
             }
         }
@@ -244,12 +252,13 @@ struct PermissionOnboardingModal: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             // Start checking every second for up to 25 more seconds (30 total)
             var checksRemaining = 25
-            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            self.accessibilityTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
                 // Check if permission was granted
                 if PermissionManager.hasAccessibilityPermission() {
                     self.waitingForAccessibility = false
                     self.accessibilityStatus = .granted
                     timer.invalidate()
+                    self.accessibilityTimer = nil
                     return
                 }
                 
@@ -259,6 +268,7 @@ struct PermissionOnboardingModal: View {
                     self.waitingForAccessibility = false
                     self.checkPermissions()
                     timer.invalidate()
+                    self.accessibilityTimer = nil
                 }
             }
         }
