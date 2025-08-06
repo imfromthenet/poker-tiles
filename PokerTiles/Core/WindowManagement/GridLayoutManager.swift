@@ -106,12 +106,17 @@ class GridLayoutManager {
         
         var grid: [[CGRect]] = []
         
+        // DEBUG: Let's understand the coordinate system
+        // In macOS: origin (0,0) is at bottom-left, Y increases going UP
+        // So higher Y = higher on screen (towards top)
+        
         for row in 0..<rows {
             var rowRects: [CGRect] = []
             
             for col in 0..<cols {
                 let x = frame.origin.x + options.padding + CGFloat(col) * (cellWidth + options.windowSpacing)
-                // Flip Y coordinate for macOS coordinate system (origin at bottom-left)
+                // Calculate Y: start from top of frame, move down by row
+                // Row 0 should be at the TOP (highest Y value)
                 let y = frame.origin.y + frame.height - options.padding - CGFloat(row + 1) * cellHeight - CGFloat(row) * options.windowSpacing
                 
                 var rect = CGRect(x: x, y: y, width: cellWidth, height: cellHeight)
@@ -182,16 +187,17 @@ class GridLayoutManager {
             let (rows, cols) = calculateOptimalGrid(for: screenWindows.count)
             let grid = calculateGridLayout(for: screen, rows: rows, cols: cols)
             
-            var gridIndex = 0
-            for window in screenWindows {
-                let row = gridIndex / cols
-                let col = gridIndex % cols
-                
-                if row < grid.count && col < grid[row].count {
-                    result.append((window, screen, grid[row][col]))
+            // Fill from top-left for each screen: start from last row (visual top)
+            var windowIdx = 0
+            for row in (0..<rows).reversed() {
+                for col in 0..<cols {
+                    guard windowIdx < screenWindows.count else { break }
+                    
+                    if row < grid.count && col < grid[row].count {
+                        result.append((screenWindows[windowIdx], screen, grid[row][col]))
+                    }
+                    windowIdx += 1
                 }
-                
-                gridIndex += 1
             }
             
             windowIndex = endIdx
@@ -216,12 +222,16 @@ class GridLayoutManager {
         
         var result: [(PokerTable, CGRect)] = []
         
-        for (index, table) in sortedTables.enumerated() {
-            let row = index / cols
-            let col = index % cols
-            
-            if row < grid.count && col < grid[row].count {
-                result.append((table, grid[row][col]))
+        // Fill from top-left: start from last row (visual top) and iterate left-to-right
+        var tableIndex = 0
+        for row in (0..<rows).reversed() {
+            for col in 0..<cols {
+                guard tableIndex < sortedTables.count else { break }
+                
+                if row < grid.count && col < grid[row].count {
+                    result.append((sortedTables[tableIndex], grid[row][col]))
+                }
+                tableIndex += 1
             }
         }
         

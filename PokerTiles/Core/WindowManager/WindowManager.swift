@@ -512,15 +512,22 @@ extension WindowManager {
         // Calculate grid positions using our configured layout manager
         let grid = gridLayoutManager.calculateGridLayout(for: targetScreen, rows: layout.rows, cols: layout.columns)
         
-        // Arrange windows using calculated positions
+        // Arrange windows using calculated positions - fill from top-right
+        // IMPORTANT: Testing showed windows appearing at bottom when using row 0
+        // This suggests row indexing might be inverted from visual appearance
+        // Let's try using row (layout.rows - 1) first to get the TOP visual row
         var windowIndex = 0
-        for row in 0..<layout.rows {
+        
+        // Start from the LAST row index (which should be the visual TOP row)
+        for row in (0..<layout.rows).reversed() {
+            // Iterate columns from left to right (0 to highest index)
             for col in 0..<layout.columns {
                 guard windowIndex < tables.count else { return }
                 
                 let window = tables[windowIndex]
                 let frame = grid[row][col]
                 
+                Logger.windowManager.info("Arranging table \(windowIndex + 1) at row \(row), col \(col) - frame: x=\(frame.origin.x), y=\(frame.origin.y), w=\(frame.width), h=\(frame.height)")
                 _ = windowManipulator.setWindowFrame(window, frame: frame)
                 windowIndex += 1
             }
