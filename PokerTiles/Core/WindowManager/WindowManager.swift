@@ -507,29 +507,48 @@ extension WindowManager {
     /// Arrange poker tables in a grid layout
     func arrangePokerTablesInGrid(_ layout: GridLayoutManager.GridLayout, on screen: NSScreen? = nil) {
         let tables = pokerTables.map { $0.windowInfo }
-        let targetScreen = screen ?? NSScreen.main ?? NSScreen.screens.first!
+        
+        // Get target screen safely
+        guard let targetScreen = screen ?? NSScreen.main ?? NSScreen.screens.first else {
+            Logger.windowManager.error("No screens available for grid arrangement")
+            return
+        }
         
         // Calculate grid positions using our configured layout manager
         let grid = gridLayoutManager.calculateGridLayout(for: targetScreen, rows: layout.rows, cols: layout.columns)
         
-        // Arrange windows using calculated positions - fill from top-right
-        // IMPORTANT: Testing showed windows appearing at bottom when using row 0
-        // This suggests row indexing might be inverted from visual appearance
-        // Let's try using row (layout.rows - 1) first to get the TOP visual row
-        var windowIndex = 0
+        // Arrange windows in grid positions
+        // Note: In macOS coordinate system, grid[0] represents the bottom visual row
+        // We iterate rows in reverse to fill from the top visual row first
+        arrangeTablesInGrid(tables: tables, grid: grid, fillFromTop: true)
+    }
+    
+    /// Helper method to arrange tables in grid positions
+    private func arrangeTablesInGrid(tables: [WindowInfo], grid: [[CGRect]], fillFromTop: Bool) {
+        var tableIndex = 0
+        let maxTables = tables.count
         
-        // Start from the LAST row index (which should be the visual TOP row)
-        for row in (0..<layout.rows).reversed() {
-            // Iterate columns from left to right (0 to highest index)
-            for col in 0..<layout.columns {
-                guard windowIndex < tables.count else { return }
+        // Determine row iteration order based on fill direction
+        let rowIndices = fillFromTop ? Array((0..<grid.count).reversed()) : Array(0..<grid.count)
+        
+        for row in rowIndices {
+            guard row < grid.count else { continue }
+            
+            for col in 0..<grid[row].count {
+                guard tableIndex < maxTables else { 
+                    // All tables have been placed
+                    return 
+                }
                 
-                let window = tables[windowIndex]
+                let table = tables[tableIndex]
                 let frame = grid[row][col]
                 
-                Logger.windowManager.info("Arranging table \(windowIndex + 1) at row \(row), col \(col) - frame: x=\(frame.origin.x), y=\(frame.origin.y), w=\(frame.width), h=\(frame.height)")
-                _ = windowManipulator.setWindowFrame(window, frame: frame)
-                windowIndex += 1
+                // Place the window at the calculated position
+                if !windowManipulator.setWindowFrame(table, frame: frame) {
+                    Logger.windowManager.warning("Failed to position table \(tableIndex + 1) at grid[\(row)][\(col)]")
+                }
+                
+                tableIndex += 1
             }
         }
     }

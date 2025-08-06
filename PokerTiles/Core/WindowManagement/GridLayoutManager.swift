@@ -95,6 +95,11 @@ class GridLayoutManager {
     // MARK: - Grid Calculation
     
     /// Calculate grid layout for a screen
+    /// - Parameters:
+    ///   - screen: The screen to calculate layout for
+    ///   - rows: Number of rows in the grid
+    ///   - cols: Number of columns in the grid
+    /// - Returns: 2D array where grid[0] represents the BOTTOM visual row due to macOS coordinate system
     func calculateGridLayout(for screen: NSScreen, rows: Int, cols: Int) -> [[CGRect]] {
         let frame = getUsableFrame(for: screen)
         
@@ -106,17 +111,15 @@ class GridLayoutManager {
         
         var grid: [[CGRect]] = []
         
-        // DEBUG: Let's understand the coordinate system
-        // In macOS: origin (0,0) is at bottom-left, Y increases going UP
-        // So higher Y = higher on screen (towards top)
-        
+        // macOS coordinate system: origin (0,0) at bottom-left, Y increases upward
+        // Row 0 in our array will have the highest Y value (visually at bottom due to how we calculate)
         for row in 0..<rows {
             var rowRects: [CGRect] = []
             
             for col in 0..<cols {
                 let x = frame.origin.x + options.padding + CGFloat(col) * (cellWidth + options.windowSpacing)
-                // Calculate Y: start from top of frame, move down by row
-                // Row 0 should be at the TOP (highest Y value)
+                // Y calculation: Start from top of frame, subtract to move down
+                // Row 0 gets smallest subtraction, so highest Y (but visually this ends up at bottom)
                 let y = frame.origin.y + frame.height - options.padding - CGFloat(row + 1) * cellHeight - CGFloat(row) * options.windowSpacing
                 
                 var rect = CGRect(x: x, y: y, width: cellWidth, height: cellHeight)
@@ -187,16 +190,15 @@ class GridLayoutManager {
             let (rows, cols) = calculateOptimalGrid(for: screenWindows.count)
             let grid = calculateGridLayout(for: screen, rows: rows, cols: cols)
             
-            // Fill from top-left for each screen: start from last row (visual top)
-            var windowIdx = 0
-            for row in (0..<rows).reversed() {
-                for col in 0..<cols {
-                    guard windowIdx < screenWindows.count else { break }
-                    
-                    if row < grid.count && col < grid[row].count {
-                        result.append((screenWindows[windowIdx], screen, grid[row][col]))
-                    }
-                    windowIdx += 1
+            // Fill grid from top-left for each screen
+            let positions = generateGridPositions(rows: rows, cols: cols, fillFromTop: true)
+            
+            for (index, window) in screenWindows.enumerated() {
+                guard index < positions.count else { break }
+                
+                let (row, col) = positions[index]
+                if row < grid.count && col < grid[row].count {
+                    result.append((window, screen, grid[row][col]))
                 }
             }
             
@@ -208,13 +210,19 @@ class GridLayoutManager {
     
     /// Find the best screen arrangement for poker tables
     func arrangePokerTables(_ tables: [PokerTable], preferredScreen: NSScreen? = nil) -> [(PokerTable, CGRect)] {
-        let screens = NSScreen.screens
-        let screen = preferredScreen ?? screens.first ?? NSScreen.main!
+        guard !tables.isEmpty else { return [] }
+        
+        guard let screen = preferredScreen ?? NSScreen.screens.first ?? NSScreen.main else {
+            return []
+        }
         
         // Group tables by priority (active tables first)
-        let activeTables = tables.filter { $0.isActive }
-        let inactiveTables = tables.filter { !$0.isActive }
-        let sortedTables = activeTables + inactiveTables
+        let sortedTables = tables.sorted { table1, table2 in
+            if table1.isActive != table2.isActive {
+                return table1.isActive
+            }
+            return false
+        }
         
         // Calculate optimal grid
         let (rows, cols) = calculateOptimalGrid(for: sortedTables.count)
@@ -222,20 +230,35 @@ class GridLayoutManager {
         
         var result: [(PokerTable, CGRect)] = []
         
-        // Fill from top-left: start from last row (visual top) and iterate left-to-right
-        var tableIndex = 0
-        for row in (0..<rows).reversed() {
-            for col in 0..<cols {
-                guard tableIndex < sortedTables.count else { break }
-                
-                if row < grid.count && col < grid[row].count {
-                    result.append((sortedTables[tableIndex], grid[row][col]))
-                }
-                tableIndex += 1
+        // Fill grid from top-left
+        // Since grid[0] is the bottom visual row, we iterate rows in reverse
+        let positions = generateGridPositions(rows: rows, cols: cols, fillFromTop: true)
+        
+        for (index, table) in sortedTables.enumerated() {
+            guard index < positions.count else { break }
+            
+            let (row, col) = positions[index]
+            if row < grid.count && col < grid[row].count {
+                result.append((table, grid[row][col]))
             }
         }
         
         return result
+    }
+    
+    /// Generate grid positions in the desired fill order
+    private func generateGridPositions(rows: Int, cols: Int, fillFromTop: Bool) -> [(row: Int, col: Int)] {
+        var positions: [(Int, Int)] = []
+        
+        let rowIndices = fillFromTop ? Array((0..<rows).reversed()) : Array(0..<rows)
+        
+        for row in rowIndices {
+            for col in 0..<cols {
+                positions.append((row, col))
+            }
+        }
+        
+        return positions
     }
     
     // MARK: - Specialized Layouts
