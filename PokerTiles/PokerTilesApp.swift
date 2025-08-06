@@ -25,5 +25,6 @@ struct AppRootView: View {
     var body: some View {
         ContentView()
             .applyColorScheme(colorSchemeManager)
+            .syncAppAppearance(colorSchemeManager)
     }
 }

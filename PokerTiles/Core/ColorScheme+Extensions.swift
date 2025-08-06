@@ -27,5 +27,41 @@ extension ColorSchemeManager {
             return .dark
         }
     }
+    
+    var nsAppearance: NSAppearance? {
+        switch appearanceMode {
+        case .system:
+            return nil // Use system default
+        case .light:
+            return NSAppearance(named: .aqua)
+        case .dark:
+            return NSAppearance(named: .darkAqua)
+        }
+    }
+}
+
+// ViewModifier to sync NSApp appearance with ColorSchemeManager
+struct AppAppearanceModifier: ViewModifier {
+    @ObservedObject var colorSchemeManager: ColorSchemeManager
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                updateAppAppearance()
+            }
+            .onChange(of: colorSchemeManager.appearanceMode) {
+                updateAppAppearance()
+            }
+    }
+    
+    private func updateAppAppearance() {
+        NSApp.appearance = colorSchemeManager.nsAppearance
+    }
+}
+
+extension View {
+    func syncAppAppearance(_ colorSchemeManager: ColorSchemeManager) -> some View {
+        self.modifier(AppAppearanceModifier(colorSchemeManager: colorSchemeManager))
+    }
 }
 
