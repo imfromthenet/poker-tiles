@@ -29,6 +29,7 @@ class ColorSchemeManager: ObservableObject {
     
     private let userDefaults = UserDefaults.standard
     private let appearanceModeKey = "appearanceMode"
+    private var effectiveAppearanceObserver: NSKeyValueObservation?
     
     init() {
         loadSavedAppearance()
@@ -40,10 +41,17 @@ class ColorSchemeManager: ObservableObject {
             name: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
             object: nil
         )
+        
+        // Observe NSApp.effectiveAppearance changes to ensure proper synchronization
+        effectiveAppearanceObserver = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+            // Force SwiftUI to re-evaluate views when effective appearance changes
+            self?.objectWillChange.send()
+        }
     }
     
     deinit {
         DistributedNotificationCenter.default().removeObserver(self)
+        effectiveAppearanceObserver?.invalidate()
     }
     
     func setAppearanceMode(_ mode: AppearanceMode) {
