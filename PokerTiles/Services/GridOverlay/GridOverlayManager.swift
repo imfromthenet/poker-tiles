@@ -157,12 +157,16 @@ class GridOverlayManager: NSObject, ObservableObject {
         padding = windowManager.gridLayoutOptions.padding
         windowSpacing = windowManager.gridLayoutOptions.windowSpacing
         
-        // Determine occupied slots
-        occupiedSlots.removeAll()
-        for i in 0..<min(tableCount, currentLayout.capacity) {
-            occupiedSlots.insert(i)
-        }
+        // Get actual occupied slots from position tracker
+        occupiedSlots = windowManager.tablePositionTracker.occupiedSlots
         
+        // If no positions tracked yet, fall back to simple count-based display
+        if occupiedSlots.isEmpty && tableCount > 0 {
+            // Show slots based on table count as fallback
+            for i in 0..<min(tableCount, currentLayout.capacity) {
+                occupiedSlots.insert(i)
+            }
+        }
     }
     
     /// Update grid appearance

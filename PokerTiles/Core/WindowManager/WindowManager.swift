@@ -41,6 +41,9 @@ class WindowManager {
         return hotkeyManager?.gridOverlayManager
     }
     
+    // Table position tracking
+    let tablePositionTracker = TablePositionTracker()
+    
     init() {
         // Initialize grid layout manager with default options first
         gridLayoutManager = GridLayoutManager()
@@ -195,6 +198,11 @@ class WindowManager {
                 self.pokerTables = detectedTables
                 self.isScanning = false
                 self.isInitialized = true
+                
+                // Sync table positions with tracker
+                if let screen = NSScreen.main {
+                    self.tablePositionTracker.syncWithTables(detectedTables, screen: screen)
+                }
             }
             
             Logger.windowManager.debug("Found \(windowInfos.count) windows, \(self.pokerTables.count) poker tables")
@@ -527,9 +535,18 @@ extension WindowManager {
     private func arrangeTablesInGrid(tables: [WindowInfo], grid: [[CGRect]], fillFromTop: Bool) {
         var tableIndex = 0
         let maxTables = tables.count
+        var arrangedTableIds: [String] = []
+        
+        // Update tracker with current grid layout
+        if let screen = NSScreen.main {
+            tablePositionTracker.updateGridPositions(layout: gridLayoutManager.getBestLayout(for: maxTables), screen: screen)
+        }
         
         // Determine row iteration order based on fill direction
         let rowIndices = fillFromTop ? Array((0..<grid.count).reversed()) : Array(0..<grid.count)
+        
+        // Calculate slot assignments based on fill order
+        var slotIndex = 0
         
         for row in rowIndices {
             guard row < grid.count else { continue }
@@ -537,20 +554,30 @@ extension WindowManager {
             for col in 0..<grid[row].count {
                 guard tableIndex < maxTables else { 
                     // All tables have been placed
-                    return 
+                    break 
                 }
                 
                 let table = tables[tableIndex]
                 let frame = grid[row][col]
                 
                 // Place the window at the calculated position
-                if !windowManipulator.setWindowFrame(table, frame: frame) {
+                if windowManipulator.setWindowFrame(table, frame: frame) {
+                    // Find corresponding poker table and assign to slot
+                    if let pokerTable = pokerTables.first(where: { $0.windowInfo.id == table.id }) {
+                        tablePositionTracker.assignTableToSlot(pokerTable.id, slot: slotIndex)
+                        arrangedTableIds.append(pokerTable.id)
+                    }
+                } else {
                     Logger.windowManager.warning("Failed to position table \(tableIndex + 1) at grid[\(row)][\(col)]")
                 }
                 
                 tableIndex += 1
+                slotIndex += 1
             }
         }
+        
+        // Mark all arranged tables as positioned
+        tablePositionTracker.markTablesAsPositioned(arrangedTableIds)
     }
     
     /// Auto-arrange all poker tables
