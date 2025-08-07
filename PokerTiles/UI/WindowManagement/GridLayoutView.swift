@@ -235,6 +235,13 @@ struct GridLayoutView: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(windowManager.pokerTables.isEmpty || isArranging)
                 
+                Button(action: bringTablesToFront) {
+                    Label("Bring to Front", systemImage: "square.stack.3d.up")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(windowManager.pokerTables.isEmpty)
+                
                 // Custom hold-to-show button
                 Label("Show Grid Overlay", systemImage: "square.grid.3x3.fill")
                     .frame(maxWidth: .infinity)
@@ -354,6 +361,13 @@ struct GridLayoutView: View {
         Logger.ui.info("Stacking \(windowManager.pokerTables.count) tables")
         PermissionManager.withAccessibilityPermission(context: "Stack Tables") {
             windowManager.stackPokerTables()
+        }
+    }
+    
+    private func bringTablesToFront() {
+        Logger.ui.info("Bringing \(windowManager.pokerTables.count) tables to front")
+        PermissionManager.withAccessibilityPermission(context: "Bring Tables to Front") {
+            windowManager.bringPokerTablesToFront()
         }
     }
     

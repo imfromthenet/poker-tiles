@@ -623,6 +623,70 @@ extension WindowManager {
         }
     }
     
+    /// Bring all poker tables to front (z-order)
+    func bringPokerTablesToFront() {
+        guard !pokerTables.isEmpty else {
+            Logger.windowManager.info("No poker tables to bring to front")
+            return
+        }
+        
+        let totalTables = pokerTables.count
+        Logger.windowManager.info("Bringing \(totalTables) poker tables to front")
+        
+        // Use a simpler approach: bring each window individually using Accessibility API
+        var successCount = 0
+        
+        for table in pokerTables {
+            if bringWindowToFrontViaAccessibility(table.windowInfo) {
+                successCount += 1
+                Logger.windowManager.debug("Successfully brought '\(table.windowInfo.title)' to front")
+            } else {
+                Logger.windowManager.warning("Failed to bring '\(table.windowInfo.title)' to front")
+            }
+            
+            // Small delay between windows
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+        
+        Logger.windowManager.info("Brought \(successCount)/\(totalTables) tables to front")
+    }
+    
+    /// Bring a specific window to front using Accessibility API
+    private func bringWindowToFrontViaAccessibility(_ windowInfo: WindowInfo) -> Bool {
+        // Get the application
+        guard let app = NSRunningApplication(processIdentifier: pid_t(windowInfo.scWindow?.owningApplication?.processID ?? 0)) else {
+            return false
+        }
+        
+        // First, make sure the app is active
+        app.activate(options: [])
+        
+        // Now use accessibility to raise just this window
+        let appElement = AXUIElementCreateApplication(app.processIdentifier)
+        
+        var windowsRef: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowsRef) == .success,
+              let windows = windowsRef as? [AXUIElement] else {
+            return false
+        }
+        
+        // Find the window by title
+        for window in windows {
+            var titleRef: CFTypeRef?
+            if AXUIElementCopyAttributeValue(window, kAXTitleAttribute as CFString, &titleRef) == .success,
+               let title = titleRef as? String,
+               title == windowInfo.title {
+                
+                // Raise this specific window
+                if AXUIElementPerformAction(window, kAXRaiseAction as CFString) == .success {
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
+    
     /// Distribute tables across multiple screens
     func distributeTablesAcrossScreens() {
         let screens = NSScreen.screens

@@ -128,22 +128,32 @@ class AppleScriptWindowManager {
     
     /// Bring window to front
     func bringWindowToFront(_ windowInfo: WindowInfo) -> Bool {
+        // Try multiple approaches to bring the window to front
+        // First try by exact title match
         let script = """
-            tell application "\(windowInfo.appName)"
-                activate
-            end tell
             tell application "System Events"
                 tell process "\(windowInfo.appName)"
                     try
-                        perform action "AXRaise" of window "\(escapeString(windowInfo.title))"
-                        return true
-                    on error
-                        try
-                            perform action "AXRaise" of window 1
+                        -- Make the process frontmost (required for window operations)
+                        set frontmost to true
+                        
+                        -- Try to find and raise the specific window
+                        set targetWindow to missing value
+                        repeat with w in windows
+                            if name of w contains "\(escapeString(windowInfo.title))" then
+                                set targetWindow to w
+                                exit repeat
+                            end if
+                        end repeat
+                        
+                        if targetWindow is not missing value then
+                            perform action "AXRaise" of targetWindow
                             return true
-                        on error
+                        else
                             return false
-                        end try
+                        end if
+                    on error
+                        return false
                     end try
                 end tell
             end tell
