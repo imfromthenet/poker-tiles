@@ -516,11 +516,17 @@ extension WindowManager {
     func arrangePokerTablesInGrid(_ layout: GridLayoutManager.GridLayout, on screen: NSScreen? = nil) {
         let tables = pokerTables.map { $0.windowInfo }
         
-        // Get target screen safely
-        guard let targetScreen = screen ?? NSScreen.main ?? NSScreen.screens.first else {
-            Logger.windowManager.error("No screens available for grid arrangement")
-            return
+        // Determine target screen
+        let targetScreen: NSScreen
+        if let specifiedScreen = screen {
+            // User specified a screen - use it
+            targetScreen = specifiedScreen
+        } else {
+            // No screen specified - use the screen with most tables
+            targetScreen = getScreenWithMostTables(tables: tables) ?? NSScreen.main ?? NSScreen.screens.first!
         }
+        
+        Logger.windowManager.info("Arranging \(tables.count) tables on screen \(targetScreen.localizedName ?? "Unknown")")
         
         // Calculate grid positions using our configured layout manager
         let grid = gridLayoutManager.calculateGridLayout(for: targetScreen, rows: layout.rows, cols: layout.columns)
@@ -529,6 +535,30 @@ extension WindowManager {
         // Note: In macOS coordinate system, grid[0] represents the bottom visual row
         // We iterate rows in reverse to fill from the top visual row first
         arrangeTablesInGrid(tables: tables, grid: grid, fillFromTop: true)
+    }
+    
+    /// Get the screen that contains the most poker tables
+    private func getScreenWithMostTables(tables: [WindowInfo]) -> NSScreen? {
+        var tableCountByScreen: [NSScreen: Int] = [:]
+        
+        for table in tables {
+            // Find which screen the table is primarily on
+            let tableCenter = CGPoint(
+                x: table.bounds.midX,
+                y: table.bounds.midY
+            )
+            
+            // Find the screen containing the table's center
+            for screen in NSScreen.screens {
+                if screen.frame.contains(tableCenter) {
+                    tableCountByScreen[screen] = (tableCountByScreen[screen] ?? 0) + 1
+                    break
+                }
+            }
+        }
+        
+        // Return the screen with the most tables
+        return tableCountByScreen.max(by: { $0.value < $1.value })?.key
     }
     
     /// Helper method to arrange tables in grid positions
@@ -587,14 +617,12 @@ extension WindowManager {
             return
         }
         
-        // Use the preferred screen or main screen
-        let screen = NSScreen.main ?? NSScreen.screens.first!
-        
         // Get optimal layout
         let layout = gridLayoutManager.getBestLayout(for: pokerTables.count)
         Logger.windowManager.info("Auto-arranging \(self.pokerTables.count) tables in \(layout.displayName) layout")
         
-        arrangePokerTablesInGrid(layout, on: screen)
+        // Don't specify a screen - let it use the screen with most tables
+        arrangePokerTablesInGrid(layout, on: nil)
     }
     
     /// Cascade poker tables

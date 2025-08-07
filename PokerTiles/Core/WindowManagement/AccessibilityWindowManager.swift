@@ -99,9 +99,40 @@ class AccessibilityWindowManager {
     /// - Returns: Success status
     @discardableResult
     func setWindowFrame(_ windowInfo: WindowInfo, frame: CGRect, gradual: Bool = false) -> Bool {
+        // Step 1: Try to resize first (some windows need to be resized before moving)
+        let initialResizeSuccess = resizeWindow(windowInfo, to: frame.size)
+        if initialResizeSuccess {
+            Thread.sleep(forTimeInterval: 0.1) // Small delay to let the resize settle
+        }
+        
+        // Step 2: Move the window
         let moveSuccess = moveWindow(windowInfo, to: frame.origin, gradual: gradual)
-        let resizeSuccess = resizeWindow(windowInfo, to: frame.size)
-        return moveSuccess && resizeSuccess
+        if moveSuccess {
+            Thread.sleep(forTimeInterval: 0.1) // Small delay to let the move settle
+        } else {
+            Logger.accessibility.warning("Move failed for '\(windowInfo.title)'")
+        }
+        
+        // Step 3: If resize hasn't succeeded yet, try again after moving
+        var finalResizeSuccess = initialResizeSuccess
+        if !initialResizeSuccess && moveSuccess {
+            finalResizeSuccess = resizeWindow(windowInfo, to: frame.size)
+            if !finalResizeSuccess {
+                // Last attempt: try with a longer delay
+                Thread.sleep(forTimeInterval: 0.2)
+                finalResizeSuccess = resizeWindow(windowInfo, to: frame.size)
+                if !finalResizeSuccess {
+                    Logger.accessibility.warning("Failed to resize '\(windowInfo.title)' to \(frame.size.width)x\(frame.size.height)")
+                }
+            }
+        }
+        
+        // Consider success if we moved successfully and resized at least once
+        let success = moveSuccess && finalResizeSuccess
+        if !success {
+            Logger.accessibility.info("SetWindowFrame for '\(windowInfo.title)': move=\(moveSuccess), resize=\(finalResizeSuccess)")
+        }
+        return success
     }
     
     // MARK: - Resistant Window Handling
