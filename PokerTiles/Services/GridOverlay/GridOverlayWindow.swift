@@ -92,6 +92,20 @@ class GridOverlayWindow: NSWindow {
         setFrame(screen.frame, display: true, animate: false)
     }
     
+    /// Move the overlay to a specific screen
+    func moveToScreen(_ screen: NSScreen) {
+        setFrame(screen.frame, display: true, animate: false)
+        
+        // Force content view to update for new screen
+        contentView?.needsDisplay = true
+        contentView?.subviews.forEach { view in
+            view.needsDisplay = true
+            if let gridView = view as? GridDrawingView {
+                gridView.gridLayer.setNeedsDisplay()
+            }
+        }
+    }
+    
     // MARK: - Content Management
     
     func setContent<Content: View>(_ content: Content) {

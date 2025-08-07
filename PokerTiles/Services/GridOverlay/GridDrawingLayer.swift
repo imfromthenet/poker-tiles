@@ -7,6 +7,7 @@
 
 import AppKit
 import CoreGraphics
+import OSLog
 
 /// High-performance grid drawing using CALayer
 class GridDrawingLayer: CALayer {
@@ -84,7 +85,34 @@ class GridDrawingLayer: CALayer {
     // MARK: - Drawing
     
     override func draw(in ctx: CGContext) {
-        guard let screen = NSScreen.main else { return }
+        // Get the screen this layer's window is on
+        var targetScreen: NSScreen? = nil
+        
+        // Try to get the screen from the view's window
+        var currentView: NSView? = self.superlayer?.delegate as? NSView
+        while currentView != nil && targetScreen == nil {
+            targetScreen = currentView?.window?.screen
+            currentView = currentView?.superview
+        }
+        
+        // If we still don't have a screen, find which screen contains our bounds
+        if targetScreen == nil {
+            let layerFrame = self.frame
+            for screen in NSScreen.screens {
+                if screen.frame.intersects(layerFrame) {
+                    targetScreen = screen
+                    break
+                }
+            }
+        }
+        
+        guard let screen = targetScreen ?? NSScreen.main else { 
+            Logger.ui.error("GridDrawingLayer: No screen found for drawing")
+            return 
+        }
+        
+        Logger.ui.debug("GridDrawingLayer: Drawing on screen \(screen.localizedName ?? "Unknown") with frame origin:\(screen.frame.origin.x),\(screen.frame.origin.y) size:\(screen.frame.size.width)x\(screen.frame.size.height)")
+        Logger.ui.debug("GridDrawingLayer: Layer bounds origin:\(self.bounds.origin.x),\(self.bounds.origin.y) size:\(self.bounds.size.width)x\(self.bounds.size.height)")
         
         // Clear background
         ctx.clear(bounds)
@@ -104,6 +132,12 @@ class GridDrawingLayer: CALayer {
             rows: gridLayout.rows,
             cols: gridLayout.columns
         )
+        
+        Logger.ui.debug("GridDrawingLayer: Calculated grid with \(grid.count) rows")
+        if !grid.isEmpty && !grid[0].isEmpty {
+            let firstCell = grid[0][0]
+            Logger.ui.debug("GridDrawingLayer: First cell rect origin:\(firstCell.origin.x),\(firstCell.origin.y) size:\(firstCell.size.width)x\(firstCell.size.height)")
+        }
         
         // Set up drawing parameters
         ctx.setStrokeColor(gridColor.cgColor)
@@ -281,5 +315,12 @@ class GridDrawingView: NSView {
     func updateGridOptions(padding: CGFloat, windowSpacing: CGFloat) {
         gridLayer.padding = padding
         gridLayer.windowSpacing = windowSpacing
+        gridLayer.setNeedsDisplay()
+    }
+    
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        // Force redraw when moving to a new window/screen
+        gridLayer.setNeedsDisplay()
     }
 }

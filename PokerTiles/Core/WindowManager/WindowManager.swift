@@ -538,7 +538,7 @@ extension WindowManager {
     }
     
     /// Get the screen that contains the most poker tables
-    private func getScreenWithMostTables(tables: [WindowInfo]) -> NSScreen? {
+    func getScreenWithMostTables(tables: [WindowInfo]) -> NSScreen? {
         var tableCountByScreen: [NSScreen: Int] = [:]
         
         for table in tables {

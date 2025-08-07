@@ -93,6 +93,17 @@ class GridOverlayManager: NSObject, ObservableObject {
         guard !isVisible else { return }
         
         updateGridState()
+        
+        // Move overlay to the screen with most tables
+        if let windowManager = windowManager {
+            let tables = windowManager.pokerTables.map { $0.windowInfo }
+            if let targetScreen = windowManager.getScreenWithMostTables(tables: tables) {
+                overlayWindow?.moveToScreen(targetScreen)
+            } else if let mainScreen = NSScreen.main {
+                overlayWindow?.moveToScreen(mainScreen)
+            }
+        }
+        
         overlayWindow?.showOverlay(animated: true)
         isVisible = true
         
